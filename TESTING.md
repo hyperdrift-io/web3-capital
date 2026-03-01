@@ -8,13 +8,20 @@ full test run, or jump to the iteration you're currently working on.
 ## Setup
 
 ```bash
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:3000  (Porto warns on HTTP — functional but noisy)
+npm run dev:https    # https://localhost:3000 (Porto fully works — recommended)
 npm test             # unit tests (vitest)
 npm run test:watch   # vitest in watch mode
 npm run test:e2e     # Playwright end-to-end (requires dev server running)
 ```
 
 No `.env` required. Public RPC endpoints are used by default.
+
+> **Porto + HTTPS:** Porto's passkey iframe uses WebAuthn, which browsers
+> restrict to secure origins (HTTPS). On HTTP you'll see a console warning
+> and Porto's UI won't initialise, but all other features (yield table,
+> portfolio view, `?dev=` testing) work normally. Use `dev:https` when
+> testing the wallet connect / Porto passkey flow specifically.
 
 ---
 
@@ -37,18 +44,25 @@ All addresses are public blockchain data. Verify current state at
 [debank.com](https://debank.com/profile/0x<address>) before using —
 positions change over time.
 
-#### Full portfolio — Aave v3 multi-chain + Compound v3
+> ⚠️ **Always use a wallet (EOA) address, never a token contract address.**
+> A token contract address (e.g. the aUSDC contract itself) will produce
+> garbage balance values and break the portfolio view. Use an address from
+> the holders list, not the token address shown in the URL bar.
+
+#### Full portfolio — Aave v3 positions on Ethereum
 
 ```
 0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa
 ```
 
-Expected on DeBank: Aave v3 USDC and WETH positions on Ethereum.
-Tests: chain balance grid, position detection, rebalancing panel.
+A known Aave v3 supplier. Expected: USDC and/or WETH positions on Ethereum.
+Verify current state at: `debank.com/profile/0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa`
 
 ```
 http://localhost:3000/capital?dev=0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa
 ```
+
+Tests: chain balance grid, position detection, rebalancing panel.
 
 ---
 
@@ -58,9 +72,9 @@ http://localhost:3000/capital?dev=0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa
 0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503
 ```
 
-Binance 8 — large USDC/USDT across multiple chains, likely no aTokens.
-Tests: chain balance grid with non-zero assets, undeployed capital tip in
-RebalancingPanel, AllocationWizard pre-fill.
+Binance 8 — large USDC/USDT across multiple chains, no aTokens expected.
+Tests: chain grid with non-zero assets, undeployed capital tip in
+RebalancingPanel, AllocationWizard flow.
 
 ```
 http://localhost:3000/capital?dev=0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503
@@ -76,15 +90,26 @@ Connect your own wallet (even with 0 balance). Tests all empty states.
 
 #### Finding fresh addresses
 
+The safest way — go directly to the holders list of the aUSDC token:
+
+```
+https://etherscan.io/token/0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c#balances
+```
+
+> ⚠️ **Do not use the token address shown in the URL bar** (`0x98C23...`).
+> Click into the **holders list** and copy an address from the "Address" column.
+> Every address in that list is a wallet that holds aUSDC.
+
+Then verify the address on DeBank before using:
+```
+https://debank.com/profile/0x<holder-address>
+```
+
+Or via Aave's app:
 1. Open [app.aave.com](https://app.aave.com) → any market (e.g. USDC)
 2. Scroll to **Top Suppliers** list
 3. Pick holder #20–50 (mid-sized, not a protocol treasury)
-4. Verify on [debank.com/profile/0x...](https://debank.com) — confirm Aave
-   or Compound positions on Ethereum/Arbitrum/Base/Optimism
-5. Paste address as `?dev=0x<address>`
-
-Or: [etherscan.io/token/0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c#balances](https://etherscan.io/token/0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c#balances)
-— every address in the aUSDC holder list has a live Aave v3 USDC position.
+4. Copy the address → paste as `?dev=0x<address>`
 
 ---
 
@@ -208,12 +233,23 @@ Base gas fees are <$0.05 per transaction. Total cost: ~$0.10 in gas.
 
 ## Quick sanity check (30 seconds)
 
+```bash
+# Terminal 1
+npm run dev:https   # use HTTPS for Porto/WebAuthn support
+                    # (or npm run dev — Porto warns on HTTP but app still works)
+
+# Browser
+open https://localhost:3000/yield
+  → table loads, CE scores visible, Live dot green
+
+open https://localhost:3000/capital?dev=0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa
+  → portfolio loads, chain grid shows balances, positions shown
+
+# Terminal 2
+npm test            → 52/52 pass
 ```
-1. npm run dev
-2. open http://localhost:3000/yield
-   → table loads, CE scores visible, Live dot green
-3. open http://localhost:3000/capital?dev=0x4B16c5dE96EB2117bBE5fd171E4d203624B014aa
-   → portfolio loads, chain grid shows balances, positions shown
-4. npm test
-   → 52/52 pass
-```
+
+> **Porto HTTP warning** — if using `npm run dev` (HTTP), Porto logs:
+> `[Porto] Detected insecure protocol (HTTP)` — this is expected and harmless
+> for testing. Porto's passkey iframe requires HTTPS (WebAuthn browser
+> requirement). Use `npm run dev:https` to silence it and test Porto flows.
