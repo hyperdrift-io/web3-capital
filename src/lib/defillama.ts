@@ -33,6 +33,7 @@ export type RawPool = {
   apy: number
   apyBase: number | null
   apyReward: number | null
+  apyPct7d: number | null  // 7-day APY change % from DeFi Llama
   tvlUsd: number
   stablecoin: boolean
   ilRisk: string | null
@@ -158,6 +159,7 @@ function enrichPool(raw: RawPool): Pool {
     apy: raw.apy ?? 0,
     apyBase: raw.apyBase ?? null,
     apyReward: raw.apyReward ?? null,
+    apyPct7d: raw.apyPct7d ?? null,
     safety,
     capitalEfficiency: ce,
     band,

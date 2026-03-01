@@ -1,5 +1,6 @@
 import { fetchTopPools } from '@/lib/defillama'
 import { CapitalProjection } from '@/components/CapitalProjection/CapitalProjection'
+import { AllocationWizard } from '@/components/AllocationWizard/AllocationWizard'
 import styles from './page.module.css'
 
 export const revalidate = 300
@@ -32,6 +33,11 @@ export default async function CapitalPage() {
           topAnchorPool={topAnchorPool}
           topBalancedPool={topBalancedPool}
         />
+
+        <div className={styles.wizardSection}>
+          <div className={styles.sectionLabel}>Deploy Capital</div>
+          <AllocationWizard pools={pools} />
+        </div>
       </div>
     </div>
   )

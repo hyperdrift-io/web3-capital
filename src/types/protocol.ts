@@ -14,6 +14,7 @@ export type Pool = {
   exposure: string | null // 'single' | 'multi'
   underlyingTokens: string[] | null
   rewardTokens: string[] | null
+  apyPct7d: number | null    // 7-day APY change % — yield trend signal
   // computed
   safety: number             // 0–100 raw safety score
   capitalEfficiency: number  // 0–100 composite CE score
