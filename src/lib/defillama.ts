@@ -25,7 +25,7 @@ const TIER_2_PROTOCOLS = new Set([
   'notional', 'exactly',
 ])
 
-type RawPool = {
+export type RawPool = {
   pool: string
   symbol: string
   project: string
@@ -41,7 +41,7 @@ type RawPool = {
   rewardTokens: string[] | null
 }
 
-function safetyScore(pool: RawPool): number {
+export function safetyScore(pool: RawPool): number {
   let score = 50
 
   // Protocol tier
@@ -69,7 +69,7 @@ function safetyScore(pool: RawPool): number {
   return Math.max(0, Math.min(100, score))
 }
 
-function capitalEfficiency(pool: RawPool, safety: number): number {
+export function capitalEfficiency(pool: RawPool, safety: number): number {
   // Normalize APY: capped at 30% for scoring purposes
   const normalizedApy = Math.min(pool.apy / 30, 1) * 100
 
@@ -84,7 +84,7 @@ function capitalEfficiency(pool: RawPool, safety: number): number {
   )
 }
 
-function allocationBand(safety: number, apy: number): AllocationBand {
+export function allocationBand(safety: number, apy: number): AllocationBand {
   if (safety >= 75 && apy <= 12) return 'anchor'
   if (safety >= 55 && apy <= 25) return 'balanced'
   return 'opportunistic'
@@ -107,7 +107,7 @@ function enrichPool(raw: RawPool): Pool {
 
 export async function fetchPools(): Promise<Pool[]> {
   const res = await fetch(YIELDS_API, {
-    next: { revalidate: 300 }, // revalidate every 5 min
+    cache: 'no-store', // response ~17MB; Next.js fetch cache has 2MB limit
   })
 
   if (!res.ok) throw new Error(`DeFi Llama API error: ${res.status}`)
