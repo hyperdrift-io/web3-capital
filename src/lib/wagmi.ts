@@ -4,6 +4,7 @@ import { injected } from 'wagmi/connectors'
 
 export const wagmiConfig = createConfig({
   chains: [mainnet, arbitrum, base, optimism, polygon],
+  ssr: true, // required for Next.js App Router — prevents hydration mismatch
   connectors: [
     injected(), // MetaMask, Rabby, Coinbase Wallet, etc.
   ],
