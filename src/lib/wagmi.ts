@@ -18,8 +18,11 @@ export type ConnectorId = typeof CONNECTOR_ID[keyof typeof CONNECTOR_ID]
 //   development  → public CORS-friendly endpoints (free, no key, rate-limited)
 //                  Override any chain by setting NEXT_PUBLIC_RPC_* in .env.local
 //
-//   production   → same logic, but NEXT_PUBLIC_RPC_* vars are expected to be
-//                  set to private Alchemy/Infura keys before deploying
+//   production   → same logic; public fallbacks work fine for real traffic
+//                  (Cloudflare, Offchain Labs, Coinbase, OP Labs, Polygon
+//                  Foundation all run these as public infrastructure)
+//                  Switch to Alchemy/Infura only when you need guaranteed
+//                  uptime SLAs or archive data (thousands of concurrent users)
 //
 // Single Alchemy key shortcut: set NEXT_PUBLIC_ALCHEMY_KEY and leave the
 // per-chain vars blank — wagmi builds the correct URL for each chain.
