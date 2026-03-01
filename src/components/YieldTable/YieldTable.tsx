@@ -11,9 +11,11 @@ type SortDir = 'asc' | 'desc'
 
 type Props = {
   pools: Pool[]
+  /** Pool IDs that just received an APY update — animate their APY cell. */
+  updatedIds?: ReadonlySet<string>
 }
 
-export function YieldTable({ pools }: Props) {
+export function YieldTable({ pools, updatedIds }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('capitalEfficiency')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
@@ -84,7 +86,7 @@ export function YieldTable({ pools }: Props) {
                   <span className={styles.symbol}>{pool.symbol}</span>
                 </div>
               </td>
-              <td className={styles.cell}>
+              <td className={`${styles.cell} ${updatedIds?.has(pool.pool) ? styles.apyUpdated : ''}`}>
                 <div className={styles.apy}>{formatApy(pool.apy)}</div>
                 {pool.apyBase != null && pool.apyReward != null && pool.apyReward > 0 && (
                   <div className={styles.apyBreakdown}>
