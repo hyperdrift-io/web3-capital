@@ -27,7 +27,7 @@ const SIGNALS = [
 export default function HomePage() {
   return (
     <>
-      <section className={styles.hero}>
+      <section className={styles.hero} data-testid="smoke-home">
         <div className="container">
           <div className={styles.eyebrow}>
             <span className={styles.eyebrowDot} />

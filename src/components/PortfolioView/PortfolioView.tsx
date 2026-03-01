@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi'
 import { useReadContract } from 'wagmi'
 import { useMultiChainBalances } from '@/hooks/useMultiChainBalances'
 import { useYieldPositions }     from '@/hooks/useYieldPositions'
+import { useDevAddress }         from '@/hooks/useDevAddress'
 import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
 import { CHAIN_NAMES } from '@/lib/yieldPositions'
 import { formatUsd } from '@/lib/format'
@@ -25,7 +26,9 @@ type Props = {
  * RebalancingPanel (4.3) is rendered by the parent page alongside this component.
  */
 export function PortfolioView({ pools }: Props) {
-  const { address } = useAccount()
+  const { address: walletAddress } = useAccount()
+  const devAddress = useDevAddress()
+  const address    = devAddress ?? walletAddress
 
   // Live ETH/USD price (reuses same Chainlink feed as CapitalProjection)
   const { data: priceData } = useReadContract({
@@ -50,6 +53,11 @@ export function PortfolioView({ pools }: Props) {
       <div className={styles.connectPrompt}>
         <div className={styles.connectIcon}>◈</div>
         <p className={styles.connectText}>Connect your wallet to see your portfolio across all chains</p>
+        {process.env.NODE_ENV === 'development' && (
+          <p className={styles.devHint}>
+            Dev: append <code>?dev=0x...</code> to inspect any address without connecting
+          </p>
+        )}
       </div>
     )
   }
@@ -261,11 +269,3 @@ function PositionSkeleton() {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const SUPPORTED_CHAIN_IDS = [1, 42161, 8453, 10] as const
-
-function formatUsd(n: number, compact = true): string {
-  if (compact) {
-    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
-    if (n >= 1_000)     return `$${(n / 1_000).toFixed(1)}k`
-  }
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-}

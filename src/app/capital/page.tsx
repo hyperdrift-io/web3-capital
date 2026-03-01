@@ -22,7 +22,7 @@ export default async function CapitalPage() {
   const topBalancedPool = balancedPools[0] ?? null
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-testid="smoke-capital">
       <div className="container">
 
         {/* ── Header ─────────────────────────────────────────────── */}

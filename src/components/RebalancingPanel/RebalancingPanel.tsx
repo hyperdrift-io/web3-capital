@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi'
 import { useReadContract } from 'wagmi'
 import { useMultiChainBalances }  from '@/hooks/useMultiChainBalances'
 import { useYieldPositions }      from '@/hooks/useYieldPositions'
+import { useDevAddress }          from '@/hooks/useDevAddress'
 import { buildAllocation }        from '@/lib/routing'
 import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
 import { formatApy }              from '@/lib/format'
@@ -34,7 +35,9 @@ type Props = {
  * This is the feature that turns a dashboard into a decision-support tool.
  */
 export function RebalancingPanel({ pools }: Props) {
-  const { address } = useAccount()
+  const { address: walletAddress } = useAccount()
+  const devAddress = useDevAddress()
+  const address    = devAddress ?? walletAddress
   const [wizardAmount, setWizardAmount] = useState<number | null>(null)
 
   const { data: priceData } = useReadContract({

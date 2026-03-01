@@ -15,7 +15,7 @@ export default async function YieldPage() {
   const initialPools = await fetchTopPools(150)
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-testid="smoke-yield">
       <div className="container">
         <div className={styles.header}>
           <h1 className={styles.title}>Yield Discovery</h1>
