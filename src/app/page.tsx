@@ -6,23 +6,22 @@ const MODULES = [
     href: '/yield',
     icon: '◈',
     name: 'Yield Discovery',
-    description: 'Live APY across DeFi protocols, ranked by Capital Efficiency Score — risk-adjusted, not just maximum yield.',
-    tag: 'DeFi Llama · Live data',
+    description: 'Live APY across 8,000+ DeFi pools, scored by capital efficiency — not raw yield. Grouped into Anchor, Balanced, and Opportunistic bands.',
+    tag: 'Live · 150+ pools ranked',
   },
   {
     href: '/capital',
     icon: '◉',
     name: 'Capital View',
-    description: 'Connect your wallet. See available capital, network context, and projected returns at current yields.',
-    tag: 'wagmi · viem · On-chain reads',
+    description: 'Connect with a smart wallet (passkey) or browser wallet. See your real on-chain balance and projected returns at current yields.',
+    tag: 'Smart wallet · Passkey · No seed phrase',
   },
 ]
 
-const STACK = [
-  { label: 'Frontend',  value: 'Next.js 14, React, CSS Modules' },
-  { label: 'Web3',      value: 'wagmi v2, viem, WalletConnect' },
-  { label: 'Data',      value: 'DeFi Llama Yields API (live)' },
-  { label: 'Deploy',    value: 'PM2 · Nginx · web3.hyperdrift.io' },
+const SIGNALS = [
+  { icon: '⬡', label: 'Protocol safety score', sub: 'Tier-1/2 curation, audit flags, IL risk' },
+  { icon: '◎', label: 'Capital Efficiency Score', sub: 'Yield × safety × TVL depth' },
+  { icon: '⬡', label: 'Allocation bands', sub: 'Anchor · Balanced · Opportunistic' },
 ]
 
 export default function HomePage() {
@@ -35,11 +34,11 @@ export default function HomePage() {
             Capital Engine
           </div>
           <h1 className={styles.headline}>
-            Allocate capital across DeFi with clarity
+            Where should your capital go?
           </h1>
           <p className={styles.subline}>
-            Yield discovery, wallet integration, and risk-adjusted projections
-            in a single interface. Built for capital allocators — not yield chasers.
+            8,000+ DeFi yield opportunities. One score that cuts through the noise.
+            Connect your wallet and see your returns — no approvals required.
           </p>
           <div className={styles.actions}>
             <Link href="/yield" className="btn btn--primary">Explore Yields</Link>
@@ -50,7 +49,6 @@ export default function HomePage() {
 
       <section className={styles.modules}>
         <div className="container">
-          <div className={styles.sectionTitle}>Modules</div>
           <div className={styles.moduleGrid}>
             {MODULES.map(m => (
               <Link key={m.href} href={m.href} className={styles.moduleCard}>
@@ -63,45 +61,32 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-        </div>
-      </section>
 
-      <section className={styles.thesis}>
-        <div className="container">
-          <div className={styles.thesisGrid}>
-            <div className={styles.thesisText}>
-              <h2>Why Capital Engine?</h2>
-              <p>
-                Most DeFi yield tools optimize for maximum APY. Capital Engine is built
-                for a different question: <em>where should I allocate, given my risk tolerance?</em>
-              </p>
-              <p>
-                The Capital Efficiency Score combines yield, protocol safety, and
-                liquidity depth — the same variables a capital allocator considers,
-                not just the rate at the top of a sorted list.
-              </p>
-              <p>
-                Protocols are grouped into allocation bands: Anchor (core, battle-tested),
-                Balanced (satellite allocation), and Opportunistic (high-yield, capped exposure).
-                This is how institutional capital thinks about DeFi.
-              </p>
-            </div>
-            <div>
-              <div className={styles.sectionTitle} style={{ marginBottom: 'var(--space-4)' }}>
-                Stack
+          <div className={styles.signals}>
+            {SIGNALS.map(s => (
+              <div key={s.label} className={styles.signalItem}>
+                <span className={styles.signalIcon}>{s.icon}</span>
+                <span className={styles.signalLabel}>{s.label}</span>
+                <span className={styles.signalSub}>{s.sub}</span>
               </div>
-              <div className={styles.stack}>
-                {STACK.map(s => (
-                  <div key={s.label} className={styles.stackItem}>
-                    <span className={styles.stackLabel}>{s.label}</span>
-                    <span className={styles.stackValue}>{s.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
+
+      <footer className={styles.footer}>
+        <div className="container">
+          <div className={styles.footerInner}>
+            <span className={styles.footerBrand}>Capital Engine</span>
+            <div className={styles.footerLinks}>
+              <a href="https://github.com/hyperdrift-io/web3-capital" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a href="https://hyperdrift.io/blog/web3-capital-engine-architecture-roadmap" target="_blank" rel="noopener noreferrer">Article</a>
+              <Link href="/yield">Yield</Link>
+              <Link href="/capital">Capital</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   )
 }

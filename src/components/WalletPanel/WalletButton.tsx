@@ -9,8 +9,8 @@ import styles from './WalletButton.module.css'
 const PREF_KEY = 'wallet_connector_pref'
 
 function useConnectorPref() {
-  // Start with injected as default; hydrate from localStorage after mount to avoid SSR mismatch
-  const [pref, setPref] = useState<ConnectorId>(CONNECTOR_ID.injected)
+  // Porto (smart wallet / passkey) is the default; hydrate from localStorage after mount to avoid SSR mismatch
+  const [pref, setPref] = useState<ConnectorId>(CONNECTOR_ID.porto)
 
   useEffect(() => {
     const stored = localStorage.getItem(PREF_KEY) as ConnectorId | null
