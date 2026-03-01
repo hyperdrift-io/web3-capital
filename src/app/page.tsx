@@ -1,95 +1,107 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from 'next/link'
+import styles from './page.module.css'
 
-export default function Home() {
+const MODULES = [
+  {
+    href: '/yield',
+    icon: '◈',
+    name: 'Yield Discovery',
+    description: 'Live APY across DeFi protocols, ranked by Capital Efficiency Score — risk-adjusted, not just maximum yield.',
+    tag: 'DeFi Llama · Live data',
+  },
+  {
+    href: '/capital',
+    icon: '◉',
+    name: 'Capital View',
+    description: 'Connect your wallet. See available capital, network context, and projected returns at current yields.',
+    tag: 'wagmi · viem · On-chain reads',
+  },
+]
+
+const STACK = [
+  { label: 'Frontend',  value: 'Next.js 14, React, CSS Modules' },
+  { label: 'Web3',      value: 'wagmi v2, viem, WalletConnect' },
+  { label: 'Data',      value: 'DeFi Llama Yields API (live)' },
+  { label: 'Deploy',    value: 'PM2 · Nginx · web3.hyperdrift.io' },
+]
+
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <>
+      <section className={styles.hero}>
+        <div className="container">
+          <div className={styles.eyebrow}>
+            <span className={styles.eyebrowDot} />
+            Capital Engine
+          </div>
+          <h1 className={styles.headline}>
+            Allocate capital across DeFi with clarity
+          </h1>
+          <p className={styles.subline}>
+            Yield discovery, wallet integration, and risk-adjusted projections
+            in a single interface. Built for capital allocators — not yield chasers.
+          </p>
+          <div className={styles.actions}>
+            <Link href="/yield" className="btn btn--primary">Explore Yields</Link>
+            <Link href="/capital" className="btn btn--ghost">Connect Wallet</Link>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      </section>
+
+      <section className={styles.modules}>
+        <div className="container">
+          <div className={styles.sectionTitle}>Modules</div>
+          <div className={styles.moduleGrid}>
+            {MODULES.map(m => (
+              <Link key={m.href} href={m.href} className={styles.moduleCard}>
+                <div className={styles.moduleIcon}>{m.icon}</div>
+                <div className={styles.moduleName}>{m.name}</div>
+                <p className={styles.moduleDesc}>{m.description}</p>
+                <div className={styles.moduleTag}>
+                  {m.tag} →
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.thesis}>
+        <div className="container">
+          <div className={styles.thesisGrid}>
+            <div className={styles.thesisText}>
+              <h2>Why Capital Engine?</h2>
+              <p>
+                Most DeFi yield tools optimize for maximum APY. Capital Engine is built
+                for a different question: <em>where should I allocate, given my risk tolerance?</em>
+              </p>
+              <p>
+                The Capital Efficiency Score combines yield, protocol safety, and
+                liquidity depth — the same variables a capital allocator considers,
+                not just the rate at the top of a sorted list.
+              </p>
+              <p>
+                Protocols are grouped into allocation bands: Anchor (core, battle-tested),
+                Balanced (satellite allocation), and Opportunistic (high-yield, capped exposure).
+                This is how institutional capital thinks about DeFi.
+              </p>
+            </div>
+            <div>
+              <div className={styles.sectionTitle} style={{ marginBottom: 'var(--space-4)' }}>
+                Stack
+              </div>
+              <div className={styles.stack}>
+                {STACK.map(s => (
+                  <div key={s.label} className={styles.stackItem}>
+                    <span className={styles.stackLabel}>{s.label}</span>
+                    <span className={styles.stackValue}>{s.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  )
 }

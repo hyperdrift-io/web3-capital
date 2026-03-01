@@ -1,0 +1,110 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 700px) {
+  .wrapper { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.projectionCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  grid-column: 1 / -1;
+}
+
+.projectionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 700px) {
+  .projectionGrid { grid-template-columns: 1fr; }
+}
+
+.projectionItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.projectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.projectionValue {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.projectionSub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.disclaimer {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  line-height: 1.5;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.balanceValue {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.balanceSub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.protocolName {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+  text-transform: capitalize;
+}
+
+.protocolApy {
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-weight: 600;
+}

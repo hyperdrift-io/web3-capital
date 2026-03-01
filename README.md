@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capital Engine
 
-## Getting Started
+A DeFi capital allocation interface — yield discovery, wallet integration, and risk-adjusted projections in a single system.
 
-First, run the development server:
+Live: [web3.hyperdrift.io](https://web3.hyperdrift.io)
+
+---
+
+## What it does
+
+Capital Engine answers a different question than most DeFi yield tools. Instead of "what has the highest APY?", it asks: **where should I allocate, given my capital and risk tolerance?**
+
+Protocols are ranked by a **Capital Efficiency Score** combining yield, protocol safety, and TVL depth — the variables a capital allocator weighs, not just the rate at the top of a sorted list. They are grouped into allocation bands:
+
+| Band | Description | APY range |
+|------|-------------|-----------|
+| Anchor | Battle-tested, deep liquidity — core allocation | 2–12% |
+| Balanced | Established protocols — satellite allocation | 6–25% |
+| Opportunistic | High-yield, capped exposure | 25%+ |
+
+Connect a wallet and Capital Engine projects your monthly and annual returns at current yields, using your actual on-chain balance as the principal.
+
+---
+
+## Modules
+
+- **`/yield`** — Live APY data across 150+ pools, filtered and ranked by Capital Efficiency Score. Allocation bands surface the right protocols for each risk tier.
+- **`/capital`** — Wallet connect (injected), native balance, network context, block number, and projected returns at anchor + balanced yields.
+
+---
+
+## Stack
+
+- **Next.js 14** (App Router, ISR — yield data refreshes every 5 min)
+- **wagmi v2 + viem** — wallet connect, on-chain reads
+- **DeFi Llama Yields API** — live APY + TVL, no API key required
+- **CSS Modules** — no Tailwind, full design system control
+- **PM2 + Nginx** — deployed at web3.hyperdrift.io
+
+---
+
+## Integrations
+
+**Live**
+- DeFi Llama `/yields/pools` — APY, TVL, pool metadata for 8000+ pools
+- wagmi injected connector — MetaMask, Rabby, Coinbase Wallet
+- viem `useBalance`, `useBlockNumber` — on-chain reads
+
+**Planned**
+- DEX aggregator (1inch / 0x) — swap routing from yield discovery
+- Price oracle (Pyth / Chainlink) — accurate USD projection without hardcoded ETH price
+- WalletConnect v2 — mobile wallet support
+- Risk band model — per-protocol historical drawdown + audit status
+- Capital routing — one-click allocation to top anchor pool
+
+---
+
+## Related
+
+- [alpha-drift](https://github.com/hyperdrift-io/alpha-drift) — ML-driven DeFi execution agent (momentum, carry, arb strategies)
+
+---
+
+## Local dev
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev       # http://localhost:3000
+npm run build     # production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No `.env` required for local development. DeFi Llama API is public with no key.
