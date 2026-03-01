@@ -15,7 +15,8 @@ export type Pool = {
   underlyingTokens: string[] | null
   rewardTokens: string[] | null
   // computed
-  capitalEfficiency: number  // 0–100
+  safety: number             // 0–100 raw safety score
+  capitalEfficiency: number  // 0–100 composite CE score
   band: AllocationBand
 }
 

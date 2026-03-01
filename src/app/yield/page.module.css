@@ -69,6 +69,17 @@
   margin-bottom: var(--space-4);
 }
 
+.chartSection {
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-10);
+}
+
+.chartSubtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
 .tableSection {
   margin-top: var(--space-10);
 }

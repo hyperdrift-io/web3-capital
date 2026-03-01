@@ -1,0 +1,220 @@
+.container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendBubbleSmall {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.legendBubbleLarge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+  margin-left: 2px;
+}
+
+/* ── Chart wrapper ───────────────────────────────────────── */
+
+.chartWrapper {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── SVG elements ────────────────────────────────────────── */
+
+.grid {
+  stroke: var(--border);
+  stroke-width: 0.5;
+  stroke-opacity: 0.6;
+}
+
+.axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.tick {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.tickLabel {
+  fill: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.axisLabel {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.boundary {
+  stroke: var(--green);
+  stroke-width: 1;
+  stroke-opacity: 0.35;
+}
+
+.boundaryBalanced {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-opacity: 0.3;
+}
+
+.zoneAnchor {
+  fill: var(--green);
+  fill-opacity: 0.04;
+}
+
+.zoneOpportunistic {
+  fill: #f59e0b;
+  fill-opacity: 0.03;
+}
+
+.zoneLabel {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+.zoneLabelAnchor       { fill: var(--green); }
+.zoneLabelOpportunistic { fill: #f59e0b; }
+
+.bubble {
+  cursor: crosshair;
+  transition: r 120ms ease-out, fill-opacity 120ms ease-out;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────── */
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+
+  min-width: 160px;
+  padding: var(--space-3);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tooltipProject {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  margin-bottom: 1px;
+}
+
+.tooltipSymbol {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.tooltipGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.tooltipLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tooltipValue {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.tooltipBand {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-3);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legend {
+    gap: var(--space-3);
+  }
+}

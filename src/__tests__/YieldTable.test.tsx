@@ -19,6 +19,7 @@ function makePool(id: string, apy: number, tvl: number, ce: number): Pool {
     exposure: 'single',
     underlyingTokens: null,
     rewardTokens: null,
+    safety: 75,
     capitalEfficiency: ce,
     band: 'anchor',
   }

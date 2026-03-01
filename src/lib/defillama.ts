@@ -90,6 +90,64 @@ export function allocationBand(safety: number, apy: number): AllocationBand {
   return 'opportunistic'
 }
 
+export type SafetyFactor = {
+  label: string
+  pts: number
+  detail: string
+}
+
+export function safetyBreakdown(pool: RawPool): { total: number; factors: SafetyFactor[] } {
+  const factors: SafetyFactor[] = []
+  let score = 50
+  factors.push({ label: 'Base', pts: 50, detail: 'Starting score' })
+
+  if (TIER_1_PROTOCOLS.has(pool.project)) {
+    score += 30
+    factors.push({ label: 'Tier-1 protocol', pts: 30, detail: pool.project })
+  } else if (TIER_2_PROTOCOLS.has(pool.project)) {
+    score += 15
+    factors.push({ label: 'Tier-2 protocol', pts: 15, detail: pool.project })
+  } else {
+    factors.push({ label: 'Unranked protocol', pts: 0, detail: 'Not in recognised tier' })
+  }
+
+  if (pool.tvlUsd >= 1_000_000_000) {
+    score += 15
+    factors.push({ label: 'TVL > $1B', pts: 15, detail: 'Deep liquidity' })
+  } else if (pool.tvlUsd >= 100_000_000) {
+    score += 10
+    factors.push({ label: 'TVL > $100M', pts: 10, detail: 'Strong liquidity' })
+  } else if (pool.tvlUsd >= 10_000_000) {
+    score += 5
+    factors.push({ label: 'TVL > $10M', pts: 5, detail: 'Adequate liquidity' })
+  } else if (pool.tvlUsd < 1_000_000) {
+    score -= 10
+    factors.push({ label: 'TVL < $1M', pts: -10, detail: 'Thin liquidity' })
+  }
+
+  if (pool.ilRisk === 'YES') {
+    score -= 10
+    factors.push({ label: 'IL risk', pts: -10, detail: 'Impermanent loss exposure' })
+  }
+
+  if (pool.exposure === 'single') {
+    score += 5
+    factors.push({ label: 'Single asset', pts: 5, detail: 'No LP token risk' })
+  }
+
+  if (pool.stablecoin) {
+    score += 5
+    factors.push({ label: 'Stablecoin', pts: 5, detail: 'No price exposure' })
+  }
+
+  if (pool.apyBase === 0 && (pool.apyReward ?? 0) > 0) {
+    score -= 10
+    factors.push({ label: 'Reward-only APY', pts: -10, detail: 'Mercenary liquidity risk' })
+  }
+
+  return { total: Math.max(0, Math.min(100, score)), factors }
+}
+
 function enrichPool(raw: RawPool): Pool {
   const safety = safetyScore(raw)
   const ce = capitalEfficiency(raw, safety)
@@ -100,6 +158,7 @@ function enrichPool(raw: RawPool): Pool {
     apy: raw.apy ?? 0,
     apyBase: raw.apyBase ?? null,
     apyReward: raw.apyReward ?? null,
+    safety,
     capitalEfficiency: ce,
     band,
   }

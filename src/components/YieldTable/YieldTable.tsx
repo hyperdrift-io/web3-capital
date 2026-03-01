@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { Pool } from '@/types/protocol'
 import { formatUsd, formatApy, chainColor } from '@/lib/format'
+import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import styles from './YieldTable.module.css'
 
 type SortKey = 'apy' | 'tvlUsd' | 'capitalEfficiency'
@@ -95,9 +96,11 @@ export function YieldTable({ pools }: Props) {
                 {formatUsd(pool.tvlUsd, true)}
               </td>
               <td className={styles.cell}>
-                <span className={`${styles.ceScore} ${ceClass(pool.capitalEfficiency)}`}>
-                  {pool.capitalEfficiency}
-                </span>
+                <CEScoreBreakdown pool={pool}>
+                  <span className={`${styles.ceScore} ${ceClass(pool.capitalEfficiency)}`}>
+                    {pool.capitalEfficiency}
+                  </span>
+                </CEScoreBreakdown>
               </td>
               <td className={styles.cell}>
                 <span className={styles.chainDot}>

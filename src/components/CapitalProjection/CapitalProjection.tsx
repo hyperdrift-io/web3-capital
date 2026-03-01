@@ -1,9 +1,11 @@
 'use client'
 
-import { useAccount, useBalance, useBlockNumber } from 'wagmi'
+import { useAccount, useBalance, useBlockNumber, useReadContract } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import type { Pool } from '@/types/protocol'
 import { formatUsd, formatApy, formatAddress, formatEther } from '@/lib/format'
+import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
+import { TokenBalances } from '@/components/TokenBalances/TokenBalances'
 import styles from './CapitalProjection.module.css'
 
 type Props = {
@@ -13,14 +15,29 @@ type Props = {
 
 export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
   const { address, isConnected, chain } = useAccount()
+  const chainId   = chain?.id ?? mainnet.id
+  const feedAddr  = ETH_USD_FEED[chainId] ?? ETH_USD_FEED[1]
+
   const { data: balance } = useBalance({
     address,
-    chainId: chain?.id ?? mainnet.id,
+    chainId,
   })
   const { data: blockNumber } = useBlockNumber({
-    chainId: chain?.id ?? mainnet.id,
+    chainId,
     watch: false,
   })
+
+  // Live ETH/USD price from Chainlink — falls back to constant if feed unavailable
+  const { data: roundData } = useReadContract({
+    address:      feedAddr,
+    abi:          AGGREGATOR_V3_ABI,
+    functionName: 'latestRoundData',
+    chainId:      mainnet.id, // price feed lives on mainnet
+    query:        { refetchInterval: 30_000 }, // refresh every 30s
+  })
+  const ethUsdPrice = roundData
+    ? parseChainlinkAnswer(roundData[1])
+    : FALLBACK_ETH_USD
 
   if (!isConnected || !address) {
     return (
@@ -35,21 +52,16 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
     )
   }
 
-  const nativeBalance = balance
-    ? parseFloat(formatEther(balance.value, 6))
-    : 0
+  const nativeBalance    = balance ? parseFloat(formatEther(balance.value, 6)) : 0
+  const principalUsd     = nativeBalance * ethUsdPrice
 
-  // Rough ETH price — in a real version this would come from a price oracle
-  const ethUsdPrice = 3200
-  const principalUsd = nativeBalance * ethUsdPrice
-
-  const anchorApy  = topAnchorPool?.apy  ?? 0
+  const anchorApy   = topAnchorPool?.apy  ?? 0
   const balancedApy = topBalancedPool?.apy ?? 0
 
-  const anchorMonthly   = (principalUsd * anchorApy)   / 100 / 12
-  const balancedMonthly = (principalUsd * balancedApy)  / 100 / 12
-  const anchorAnnual    = (principalUsd * anchorApy)   / 100
-  const balancedAnnual  = (principalUsd * balancedApy)  / 100
+  const anchorMonthly    = (principalUsd * anchorApy)   / 100 / 12
+  const balancedMonthly  = (principalUsd * balancedApy)  / 100 / 12
+  const anchorAnnual     = (principalUsd * anchorApy)   / 100
+  const balancedAnnual   = (principalUsd * balancedApy)  / 100
 
   return (
     <div className={styles.wrapper}>
@@ -62,16 +74,25 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
           </span>
           <span className={styles.balanceSub}>{balance?.symbol ?? 'ETH'}</span>
         </div>
+
         {principalUsd > 0 && (
           <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: 'var(--space-2)' }}>
             ≈ {formatUsd(principalUsd)}
           </div>
         )}
+
         <div style={{ marginTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          <InfoRow label="Address"     value={formatAddress(address)} mono />
-          <InfoRow label="Network"     value={chain?.name ?? 'Ethereum'} />
-          <InfoRow label="Block"       value={blockNumber ? `#${blockNumber.toLocaleString()}` : '—'} mono />
+          <InfoRow label="Address" value={formatAddress(address)} mono />
+          <InfoRow label="Network" value={chain?.name ?? 'Ethereum'} />
+          <InfoRow label="Block"   value={blockNumber ? `#${blockNumber.toLocaleString()}` : '—'} mono />
+          <InfoRow
+            label="ETH/USD"
+            value={roundData ? `$${ethUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })} ◈` : `$${FALLBACK_ETH_USD.toLocaleString()} (est.)`}
+            mono
+          />
         </div>
+
+        <TokenBalances ethUsdPrice={ethUsdPrice} />
       </div>
 
       {/* Protocol snapshot */}
@@ -106,10 +127,19 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
             <span className={styles.projectionValue}>{formatUsd(balancedMonthly)}</span>
             <span className={styles.projectionSub}>{formatApy(balancedApy)} APY via {topBalancedPool?.project ?? '—'}</span>
           </div>
+          <div className={styles.projectionItem}>
+            <span className={styles.projectionLabel}>Balanced — Annual</span>
+            <span className={styles.projectionValue}>{formatUsd(balancedAnnual)}</span>
+            <span className={styles.projectionSub}>on {formatUsd(principalUsd)} principal</span>
+          </div>
         </div>
         <p className={styles.disclaimer}>
           Projections are illustrative. APY is variable and subject to protocol conditions.
-          This does not constitute financial advice. ETH price used: ${ethUsdPrice.toLocaleString()}.
+          This does not constitute financial advice.
+          {roundData
+            ? ` ETH price live from Chainlink: $${ethUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}.`
+            : ` ETH price estimated at $${FALLBACK_ETH_USD.toLocaleString()}.`
+          }
         </p>
       </div>
     </div>
@@ -147,7 +177,7 @@ function PoolSnapshot({ label, pool }: { label: string; pool: Pool }) {
         </span>
       </div>
       <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
-        {pool.symbol} · {pool.chain} · CE {pool.capitalEfficiency}
+        {pool.symbol} · {pool.chain} · CE {pool.capitalEfficiency} · Safety {pool.safety}
       </div>
     </div>
   )

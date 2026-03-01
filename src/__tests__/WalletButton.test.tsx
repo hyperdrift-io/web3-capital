@@ -62,7 +62,9 @@ describe('WalletButton', () => {
   })
 
   describe('disconnected with connectors available', () => {
-    it('shows "Connect Wallet" as the default primary action', () => {
+    it('shows "Connect Wallet" as primary when injected preference is active', () => {
+      // Explicitly seed the pref so the hook's useEffect finds injected
+      localStorage.setItem('wallet_connector_pref', 'injected')
       setupMocks()
       render(<WalletButton />)
       expect(screen.getByRole('button', { name: /connect wallet/i })).toBeInTheDocument()
@@ -70,6 +72,7 @@ describe('WalletButton', () => {
 
     it('calls connect() with the injected connector on primary click', async () => {
       const user = userEvent.setup()
+      localStorage.setItem('wallet_connector_pref', 'injected')
       setupMocks()
       render(<WalletButton />)
       await user.click(screen.getByRole('button', { name: /connect wallet/i }))

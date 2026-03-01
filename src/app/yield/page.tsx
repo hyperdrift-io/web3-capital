@@ -1,6 +1,7 @@
 import { fetchTopPools } from '@/lib/defillama'
 import { YieldTable } from '@/components/YieldTable/YieldTable'
 import { AllocationBands } from '@/components/AllocationBands/AllocationBands'
+import { YieldScatterChart } from '@/components/YieldScatterChart/YieldScatterChart'
 import styles from './page.module.css'
 
 export const revalidate = 300 // 5 min ISR
@@ -48,6 +49,15 @@ export default async function YieldPage() {
         <div className={styles.bands}>
           <div className={styles.sectionLabel}>Allocation bands</div>
           <AllocationBands pools={pools} />
+        </div>
+
+        <div className={styles.chartSection}>
+          <div className={styles.sectionLabel}>Risk vs Yield</div>
+          <p className={styles.chartSubtitle}>
+            Each bubble is a pool. Size = TVL. X axis = safety score, Y axis = APY.
+            Hover for details.
+          </p>
+          <YieldScatterChart pools={pools} />
         </div>
 
         <div className={styles.tableSection}>
