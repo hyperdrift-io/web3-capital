@@ -1,0 +1,400 @@
+/* ── Wrapper ────────────────────────────────────────────────── */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* ── Connect prompt ─────────────────────────────────────────── */
+
+.connectPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-6);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.connectIcon {
+  font-size: 32px;
+  opacity: 0.3;
+}
+
+.connectText {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.headerLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.totalValue {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.headerMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  padding-bottom: 4px;
+}
+
+.chainCount {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.priceTag {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ── Sections ───────────────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sectionBadge {
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  color: var(--green);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Chain grid — 4.1 ───────────────────────────────────────── */
+
+.chainGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 768px) {
+  .chainGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .chainGrid { grid-template-columns: 1fr; }
+}
+
+.chainCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: border-color 150ms ease;
+}
+
+.chainCard:hover {
+  border-color: var(--accent);
+}
+
+.chainCardEmpty {
+  opacity: 0.5;
+}
+
+.chainCardSkeleton {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.chainCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.chainName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.chainUsd {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Share bar */
+.shareBar {
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  margin: var(--space-1) 0;
+}
+
+.shareBarFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 600ms ease;
+  min-width: 2px;
+}
+
+.chainAssets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--space-1);
+}
+
+.assetRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.assetSymbol {
+  color: var(--text-muted);
+}
+
+.assetUsd {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.assetEmpty {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Positions table — 4.2 ──────────────────────────────────── */
+
+.positionsTable {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.positionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.positionRow:last-child {
+  border-bottom: none;
+}
+
+.positionRowSkeleton {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.positionProtocol {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.protocolBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.protocol--aave-v3 {
+  background: color-mix(in srgb, #B6509E 12%, transparent);
+  color: #B6509E;
+}
+
+.protocol--compound-v3 {
+  background: color-mix(in srgb, #00D395 12%, transparent);
+  color: #00D395;
+}
+
+.positionAsset {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.positionChain {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.positionRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-shrink: 0;
+}
+
+.positionUsd {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.positionApy {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  min-width: 70px;
+  text-align: right;
+}
+
+.positionApyNull {
+  font-size: 13px;
+  color: var(--text-muted);
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── Positions summary bar ──────────────────────────────────── */
+
+.positionsSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.summaryValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.apyValue {
+  color: var(--green);
+}
+
+.summaryDivider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+}
+
+/* ── No positions state ─────────────────────────────────────── */
+
+.noPositions {
+  padding: var(--space-8) var(--space-6);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.noPositionsIcon {
+  display: block;
+  font-size: 24px;
+  opacity: 0.3;
+  margin-bottom: var(--space-3);
+}
+
+.noPositionsHint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.positionsSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ── Skeleton / shimmer ─────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border) 0%,
+    color-mix(in srgb, var(--border) 50%, var(--bg-surface)) 50%,
+    var(--border) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
