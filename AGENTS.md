@@ -208,5 +208,30 @@ A feature is done when:
 
 ---
 
+## Distribution
+
+> An app hasn't achieved its mission until it meets its users.
+
+**Live:** https://web3.hyperdrift.io  
+**Deploy:** `make deploy app=web3-capital` (from `infra/hyperdrift-infra`)  
+
+### Launch readiness status
+- [x] `src/app/layout.tsx` — full metadata, OG, Twitter card, canonical
+- [x] `src/app/sitemap.ts` — public routes (/, /yield, /capital)
+- [x] `src/app/robots.ts` — blocks /api/
+- [x] `src/app/opengraph-image.tsx` — green-branded 1200×630 OG image
+- [x] `src/components/Analytics.tsx` — GA4 (reads NEXT_PUBLIC_GA_MEASUREMENT_ID)
+- [ ] `NEXT_PUBLIC_GA_MEASUREMENT_ID` — add to vault once GA property created
+- [ ] `NEXT_PUBLIC_BASE_URL` — add to vault
+- [ ] Google Search Console domain verified
+
+### Growth strategy
+**Primary channel:** Crypto Twitter/X, Farcaster (DeFi-native audience), DeFi subreddits  
+**Growth hook:** The CE Score algorithm is the content — "why this pool scores 84 and this one scores 42"  
+**Conversion path:** Discover → explore yield table → connect Porto wallet → allocate capital  
+**hyper-post cadence:** On each protocol data update, new feature release, or DeFi market event
+
+---
+
 *Updated: March 2026*  
 *Maintainer: Hyperdrift*
