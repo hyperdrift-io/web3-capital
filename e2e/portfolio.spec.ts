@@ -20,16 +20,17 @@
  * See TESTING.md for setup instructions.
  */
 
+import type { Page } from '@playwright/test'
 import { test, expect, TOKENS, usdc, weth } from './tenderly'
 
 const capitalUrl = (address: string) => `/capital?dev=${address}`
 
 // Scope helpers — avoid strict mode violations where text appears in multiple elements
-const devBanner      = (p: ReturnType<typeof test['info']>['fn'] extends never ? never : Parameters<Parameters<typeof test>[1]>[0]) => p.locator('[class*="devBanner"]')
-const portfolioTotal = (p: Parameters<Parameters<typeof test>[1]>[0]) => p.locator('[class*="portfolioTotal"], [class*="totalValue"]')
-const sectionLabel   = (p: Parameters<Parameters<typeof test>[1]>[0], text: RegExp) =>
+const devBanner      = (p: Page) => p.locator('[class*="devBanner"]')
+const portfolioTotal = (p: Page) => p.locator('[class*="portfolioTotal"], [class*="totalValue"]')
+const sectionLabel   = (p: Page, text: RegExp) =>
   p.locator('[class*="sectionLabel"]').filter({ hasText: text })
-const chainCards     = (p: Parameters<Parameters<typeof test>[1]>[0]) =>
+const chainCards     = (p: Page) =>
   p.locator('[class*="chainCard"]')
 
 // ── A: Active Aave v3 position ────────────────────────────────────────────────

@@ -10,6 +10,7 @@ function pool(overrides: Partial<RawPool> = {}): RawPool {
     apy: 5,
     apyBase: 5,
     apyReward: null,
+    apyPct7d: null,
     tvlUsd: 50_000_000,
     stablecoin: false,
     ilRisk: null,

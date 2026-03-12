@@ -13,6 +13,7 @@ function makePool(id: string, apy: number, tvl: number, ce: number): Pool {
     apy,
     apyBase: apy,
     apyReward: null,
+    apyPct7d: null,
     tvlUsd: tvl,
     stablecoin: false,
     ilRisk: null,
