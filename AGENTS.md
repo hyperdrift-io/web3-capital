@@ -2,6 +2,8 @@
 
 > **Read this before touching a single file.**  
 > This document defines the vision, architecture, UX philosophy, and operating rules for every agent working on Capital Engine.
+>
+> Also read: `~/dev/hyperdrift/AGENTS.md` — workspace-level context (deploy tooling, fleet management, HD infra).
 
 ---
 

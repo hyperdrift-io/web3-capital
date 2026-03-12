@@ -66,6 +66,16 @@ export function useYieldPositions(
     query: { enabled, refetchInterval: 30_000 },
   })
 
+  // ── Debug logging ─────────────────────────────────────────────────────────────
+  if (process.env.NODE_ENV === 'development' && address && !isLoading) {
+    const nonZero = data?.filter(d => d?.result && (d.result as bigint) > 0n)
+    console.debug('[positions] scanned', data?.length, 'yield tokens,', nonZero?.length, 'non-zero')
+    nonZero?.forEach((d, i) => {
+      const flat = SUPPORTED_CHAIN_IDS.flatMap(id => (YIELD_TOKENS[id as SupportedChainId] ?? []).map(t => ({ chainId: id, token: t })))
+      console.debug('[positions] hit:', flat[i]?.token.symbol, 'on chain', flat[i]?.chainId, '→', (d.result as bigint).toString())
+    })
+  }
+
   // Process: pair each result with its token metadata, filter by balance > 0
   const positions = useMemo((): DetectedPosition[] => {
     if (!data || !address) return []

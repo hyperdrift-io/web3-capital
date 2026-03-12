@@ -88,28 +88,42 @@ Connect your own wallet (even with 0 balance). Tests all empty states.
 
 ---
 
-#### Finding fresh addresses
+#### Finding a reliable test address (5 min)
 
-The safest way — go directly to the holders list of the aUSDC token:
-
+**Step 1** — Open the aUSDC holders list on Etherscan:
 ```
 https://etherscan.io/token/0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c#balances
 ```
 
-> ⚠️ **Do not use the token address shown in the URL bar** (`0x98C23...`).
-> Click into the **holders list** and copy an address from the "Address" column.
-> Every address in that list is a wallet that holds aUSDC.
+> ⚠️ The URL bar shows `0x98C23...` — that is the **token contract**, not a holder.
+> You need an address from the **"Address" column inside the holders table**.
 
-Then verify the address on DeBank before using:
+**Step 2** — Pick any holder from position 10–50 (avoid #1–5, those are often
+protocol treasuries or multisigs that will have hundreds of positions).
+
+**Step 3** — Verify on DeBank:
 ```
-https://debank.com/profile/0x<holder-address>
+https://debank.com/profile/0x<the-address-you-picked>
+```
+Look for "Aave V3" in their protocol list. If it shows USDC or WETH on Ethereum,
+that address will populate the positions panel.
+
+**Step 4** — Test:
+```
+http://localhost:3000/capital?dev=0x<the-address-you-picked>
 ```
 
-Or via Aave's app:
-1. Open [app.aave.com](https://app.aave.com) → any market (e.g. USDC)
-2. Scroll to **Top Suppliers** list
-3. Pick holder #20–50 (mid-sized, not a protocol treasury)
-4. Copy the address → paste as `?dev=0x<address>`
+**Step 5** — Confirm in the browser console:
+```
+[dev] Observing address: 0x...           ← hook picked up the param
+[balances] native: [...]                 ← ETH balance results per chain
+[balances] erc20 results: 12 slots, N non-zero
+[positions] scanned 16 yield tokens, N non-zero
+[positions] hit: aUSDC on chain 1 → ...  ← detected Aave position
+```
+
+If you see `[dev] Observing address:` but `0 non-zero` positions, the wallet has
+no Aave v3 / Compound v3 positions — pick a different address from the holders list.
 
 ---
 
@@ -201,17 +215,83 @@ All 52 tests should pass. No mocks required for the core library tests.
 Requires the dev server to be running (`npm run dev` in another terminal).
 
 ```bash
-npm run test:e2e          # headless
+npm run test:e2e          # headless (smoke + wallet tests)
 npm run test:e2e:ui       # Playwright UI mode (recommended for debugging)
+npm run test:e2e:tenderly # Tenderly Virtual Testnet portfolio tests (see below)
 ```
 
 | Test file | Covers |
 |-----------|--------|
 | `e2e/yield.spec.ts` | Yield table renders, sorting, CE scores, live data from DeFi Llama |
 | `e2e/wallet.spec.ts` | No-wallet state, mock wallet connect, disconnect, capital view |
+| `e2e/portfolio.spec.ts` | Portfolio view, position detection, rebalancing panel (Tenderly) |
 
 E2E tests hit the live DeFi Llama API — occasional flakiness if the API
 is slow. Re-run once before escalating.
+
+---
+
+## Tenderly Virtual Testnet testing
+
+`e2e/portfolio.spec.ts` uses Tenderly Virtual Testnets to test the full
+portfolio pipeline with **real on-chain reads against a controlled fork**.
+
+**Why not just mock RPC responses?**  
+Mocking `eth_call` responses verifies the React rendering but not the ABI
+decoding, multicall batching, or wagmi's query deduplication. With Tenderly,
+wagmi actually reads `balanceOf` from a real ERC-20 contract — the fork just
+has the balance we set. This catches issues that pure mocks never would.
+
+**How it works:**
+
+```
+Test setup
+  │
+  ├─ POST /api/v1/.../vnets          → Tenderly forks Ethereum mainnet
+  ├─ tenderly_setErc20Balance        → mints aUSDC to test address (no real funds)
+  ├─ page.route(cloudflare-eth.com)  → Playwright intercepts wagmi RPC calls
+  │    └─ proxies to Tenderly fork
+  │
+Navigate to /capital?dev=0xf39F...
+  │
+  └─ wagmi reads balanceOf from fork → app renders portfolio with known state
+     Playwright asserts expected UI
+  │
+Teardown: DELETE /api/v1/.../vnets
+```
+
+**Setup (5 min, free tier sufficient):**
+
+1. Sign up at [dashboard.tenderly.co](https://dashboard.tenderly.co)
+2. Create a project — note the slugs from the URL:
+   ```
+   dashboard.tenderly.co/<YOUR_ACCOUNT>/<YOUR_PROJECT>
+   ```
+3. Generate an access key: **Settings → Authorization → Generate Access Key**
+4. Add to `.env.local`:
+   ```
+   TENDERLY_ACCESS_KEY=<your key>
+   TENDERLY_ACCOUNT=<your account slug>
+   TENDERLY_PROJECT=<your project slug>
+   ```
+
+**Run:**
+
+```bash
+npm run test:e2e:tenderly
+```
+
+Tests are silently skipped when credentials are absent — safe to run in CI
+without secrets (just skips the portfolio tests, everything else passes).
+
+**Test scenarios:**
+
+| Scenario | State set in fork | What's verified |
+|----------|-------------------|-----------------|
+| A — active position | 1,000 aUSDC | "You're Earning" panel, chain grid, blended APY |
+| B — idle capital | 5,000 USDC + 1 ETH | Undeployed capital banner, wizard CTA |
+| C — mixed | 500 aUSDC + 2,000 USDC | Rebalancing delta, comparison cards |
+| D — multiple positions | 1,000 aUSDC + 500 aUSDT | Both listed, "2 positions detected" banner |
 
 ---
 

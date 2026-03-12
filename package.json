@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:smoke": "playwright test --grep Smoke"
+    "test:e2e:smoke": "playwright test --grep Smoke",
+    "test:e2e:tenderly": "node --env-file=.env.local node_modules/.bin/playwright test --project=tenderly --workers=1"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",

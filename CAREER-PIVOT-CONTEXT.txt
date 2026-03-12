@@ -1,0 +1,238 @@
+PROJECT: WEB3 CAPITAL ENGINE
+MISSION: Rapid Career Pivot to High-Impact Web3 Founding / Full-Stack Roles
+
+CONTEXT
+-------
+I am pivoting from TradFi (lombard credit) back into Web3.
+The TradFi role was fast-paced but strategically misaligned with long-term goals.
+I have approximately 3 months to secure a new role.
+
+The Web3 job market has changed:
+- Senior titles alone no longer differentiate.
+- AI-generated repos are common.
+- Hiring managers want tangible proof of integration + product thinking.
+- Founding roles prioritize ownership, clarity, and execution speed.
+
+I cannot rely solely on:
+- Past Web3 employment
+- Disconnected side projects
+- Repositories without deployed products
+- Long-form documentation
+
+I must demonstrate:
+- Real on-chain integration
+- Financial system thinking
+- Product clarity
+- UX maturity
+- Full-stack competence
+- Cohesive direction
+- Tangible shipped artifacts
+
+TARGET ROLE PROFILE
+-------------------
+Example: Founding Engineer (Full-Stack Web3)
+
+These roles typically require:
+- React / Next.js frontend ownership
+- Node/TS backend capability
+- Direct integration with DeFi protocols
+- Wallet integration
+- DEX / aggregator / yield integrations
+- Product-grade UX
+- Ability to ship from concept to deployed system
+- Evidence via links
+
+Therefore:
+Deployed app > GitHub repo > Article.
+
+STRATEGIC DECISION
+------------------
+Instead of multiple disconnected projects,
+I will build ONE cohesive product:
+
+    Web3 Capital Engine
+
+This will federate all Web3 competencies into a single evolving system.
+
+The goal is not random experimentation.
+The goal is coherent, tangible demonstration of the exact capabilities I want to be hired for.
+
+CORE PRODUCT NARRATIVE
+----------------------
+Capital Engine explores how capital can be allocated across DeFi protocols
+with yield visibility, risk awareness, and execution simplicity.
+
+This narrative unifies:
+- TradFi capital mechanics knowledge
+- DeFi yield exposure
+- On-chain interaction
+- UX clarity
+- System design thinking
+
+MVP (IMMEDIATE PRIORITY)
+------------------------
+Ship a deployed, minimal but credible version quickly.
+
+1. LANDING PAGE
+---------------
+Clear thesis:
+- One strong headline
+- 2–3 sentence explanation
+- Links to modules
+
+Tone:
+Product-focused.
+Not a dev sandbox.
+Not experimental chaos.
+
+2. MODULE 1 — YIELD DISCOVERY
+------------------------------
+Integrate existing YieldMax functionality.
+
+Show:
+- Highest APY
+- Protocol source
+- Short explanation
+
+Label as:
+"Yield Discovery Module"
+
+Purpose:
+Demonstrate protocol data integration + financial awareness.
+
+3. MODULE 2 — WALLET / CAPITAL VIEW
+------------------------------------
+Implement:
+- Wallet connect (wagmi + viem or similar)
+- Display:
+    - Address
+    - Network
+    - Native balance
+    - Optional ERC20 balance
+    - Block number
+
+Present as:
+"Available Capital"
+
+Translate primitives into product semantics.
+Not:
+"RPC test page"
+
+Purpose:
+Demonstrate real on-chain integration and UX framing.
+
+4. SIMPLE CAPITAL PROJECTION
+----------------------------
+If wallet connected:
+- Estimate monthly return using top APY.
+- Display projected return.
+
+Purpose:
+Connect wallet + yield into capital reasoning.
+Shows product thinking beyond UI.
+
+DEPLOYMENT REQUIREMENTS
+-----------------------
+- Live URL
+- Clean UI
+- Fast loading
+- Public GitHub
+- Short, strong README
+
+README STRUCTURE
+----------------
+- 2–3 sentence product summary
+- Current modules
+- Tech stack
+- Integrations (live + planned)
+- Next steps (max 5 bullets)
+
+INTEGRATIONS (CURRENT + PLANNED)
+---------------------------------
+Current:
+- Wallet (injected / WalletConnect)
+- RPC reads
+- Yield data source
+
+Planned:
+- DEX aggregator
+- Swap routing
+- Risk modeling
+- Capital allocation engine
+- Execution abstraction
+
+CAREER PIVOT INTENT
+-------------------
+This project is not just a portfolio piece.
+
+It is:
+- A unifying narrative
+- A demonstration of strategic direction
+- Proof of financial systems thinking
+- Proof of shipping ability
+- A foundation for deeper integrations
+
+It transforms:
+- YieldMax (isolated)
+- Trading experiments
+- Past Web3 employment
+- TradFi experience
+
+Into:
+
+A coherent capital systems product.
+
+WHAT THIS MUST SIGNAL
+---------------------
+- I can integrate real Web3 primitives.
+- I understand financial mechanics.
+- I can turn protocol data into product semantics.
+- I ship deployed systems.
+- I think beyond UI.
+- I communicate clearly.
+- I have direction.
+
+WHAT I MUST AVOID
+-----------------
+- Overengineering.
+- Building 5 modules at once.
+- Writing long essays.
+- Generic dashboards.
+- AI-generated noise without product framing.
+- Fragmented experiments.
+
+PRIORITY ORDER
+--------------
+1. Ship live deployed Capital Engine shell.
+2. Integrate Yield module.
+3. Integrate wallet + capital view.
+4. Add capital projection.
+5. Send application with deployed link.
+
+FUTURE EXPANSION (AFTER APPLICATION)
+-------------------------------------
+- Swap router integration
+- Risk band modeling
+- Leveraged flows
+- Adapter architecture
+- Capital routing optimization
+
+LONG-TERM VISION
+----------------
+Capital Engine becomes:
+A federated Web3 financial system interface
+demonstrating real integration, financial logic,
+UX clarity, and execution maturity.
+
+This is the foundation for:
+- Founding Engineer roles
+- High-impact Web3 infrastructure roles
+- Capital-efficient DeFi product design positions
+
+FINAL PRINCIPLE
+---------------
+Tangible > Theoretical
+Deployed > Documented
+Cohesive > Scattered
+Product > Prototype
+Signal > Volume

@@ -66,6 +66,27 @@ export function PortfolioView({ pools }: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {/* ── Dev observer banner ───────────────────────────────────── */}
+      {process.env.NODE_ENV === 'development' && devAddress && (
+        <div className={styles.devBanner}>
+          <span className={styles.devBannerIcon}>🔍</span>
+          <span>
+            <strong>Dev mode</strong> — observing{' '}
+            <a
+              href={`https://debank.com/profile/${devAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.devBannerAddress}
+            >
+              {devAddress.slice(0, 6)}…{devAddress.slice(-4)}
+            </a>
+            {isLoading && <span className={styles.devBannerLoading}> · loading…</span>}
+            {!isLoading && <span className={styles.devBannerDone}> · {positions.length} position{positions.length !== 1 ? 's' : ''} detected · ETH/USD ${ethUsdPrice.toLocaleString()}</span>}
+            <span className={styles.devBannerHint}> · Check console for raw data</span>
+          </span>
+        </div>
+      )}
+
       {/* ── Portfolio header ──────────────────────────────────────── */}
       <div className={styles.header}>
         <div>

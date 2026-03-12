@@ -6,6 +6,33 @@
   gap: var(--space-8);
 }
 
+/* ── Dev observer banner ────────────────────────────────────── */
+
+.devBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: #1a1a2e;
+  border: 1px solid #3730a3;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: #a5b4fc;
+  font-family: monospace;
+}
+
+.devBannerIcon { flex-shrink: 0; }
+
+.devBannerAddress {
+  color: #818cf8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.devBannerLoading { color: #6b7280; }
+.devBannerDone    { color: #86efac; }
+.devBannerHint    { color: #4b5563; }
+
 /* ── Connect prompt ─────────────────────────────────────────── */
 
 .connectPrompt {

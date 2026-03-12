@@ -7,19 +7,30 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    trace:   'on-first-retry',
   },
   projects: [
     {
       name: 'chromium',
+      // Skip the Tenderly-gated portfolio tests in the default run
+      testIgnore: ['**/portfolio.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      // Tenderly tests in their own project — clearly separable from smoke tests.
+      // The fixture auto-skips when TENDERLY_* vars are absent.
+      //
+      // Run with:  npm run test:e2e:tenderly
+      //
+      name:      'tenderly',
+      testMatch: ['**/portfolio.spec.ts'],
+      use:       { ...devices['Desktop Chrome'] },
+    },
   ],
-  // Start the dev server before tests — use prod build for stability
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command:             'npm run dev',
+    url:                 'http://localhost:3000',
     reuseExistingServer: true,
-    timeout: 120_000,
+    timeout:             120_000,
   },
 })

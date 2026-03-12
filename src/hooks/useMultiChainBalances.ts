@@ -71,6 +71,18 @@ export function useMultiChainBalances(
     query: { enabled },
   })
 
+  // ── Debug logging (development only) ─────────────────────────────────────────
+  if (process.env.NODE_ENV === 'development' && address && !erc20Loading) {
+    const nativeSum = nativeResults.map((r, i) => ({
+      chain: CHAIN_NAMES[SUPPORTED_CHAIN_IDS[i]],
+      wei:   r.data?.value?.toString() ?? 'null',
+      error: r.error?.message,
+    }))
+    console.debug('[balances] native:', nativeSum)
+    console.debug('[balances] erc20 results:', erc20Data?.length, 'slots,',
+      erc20Data?.filter(d => d?.result && (d.result as bigint) > 0n).length, 'non-zero')
+  }
+
   // ── Process into per-chain summaries ─────────────────────────────────────────
   const chains = useMemo((): ChainBalance[] => {
     return SUPPORTED_CHAIN_IDS.map((chainId, ci) => {
