@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import styles from './page.module.css'
+import { HDCredit } from '@yannvr/analytics/client'
 
 const MODULES = [
   {
@@ -85,6 +86,7 @@ export default function HomePage() {
               <Link href="/capital">Capital</Link>
             </div>
           </div>
+          <HDCredit />
         </div>
       </footer>
     </>
