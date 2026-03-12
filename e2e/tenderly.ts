@@ -278,7 +278,7 @@ export const test = base.extend<{ fork: ForkFixture }>({
       setErc20: (token, amount) =>
         setErc20ByImpersonation(vnet.adminRpc, TEST_ADDRESS, token, amount),
       setEth: (amount) =>
-        rpc(vnet.adminRpc, 'hardhat_setBalance', [TEST_ADDRESS, amount]),
+        rpc(vnet.adminRpc, 'hardhat_setBalance', [TEST_ADDRESS, amount]) as Promise<void>,
     })
 
     await deleteVNet(vnet.id)

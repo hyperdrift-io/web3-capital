@@ -4,12 +4,33 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
+  test:
+    name: Type-check & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+
   deploy:
     name: Deploy web3-capital
+    needs: test
     runs-on: ubuntu-latest
-
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
