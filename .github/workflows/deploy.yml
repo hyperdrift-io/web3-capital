@@ -40,10 +40,25 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             set -e
-            cd /home/yannvr/web3-capital
+
+            DEPLOY_DIR="/home/yannvr/apps/web3-capital/prod/code"
+            CONFIG_DIR="/home/yannvr/apps/web3-capital/prod/config"
+
+            mkdir -p "$DEPLOY_DIR" "$CONFIG_DIR"
+
+            if [ ! -d "$DEPLOY_DIR/.git" ]; then
+              git clone git@github.com:hyperdrift-io/web3-capital.git "$DEPLOY_DIR"
+            fi
+
+            cd "$DEPLOY_DIR"
             git fetch origin main
             git reset --hard origin/main
+
+            if [ -f "$CONFIG_DIR/.env" ]; then
+              ln -sf "$CONFIG_DIR/.env" "$DEPLOY_DIR/.env"
+            fi
+
             npm ci
             npm run build
-            pm2 restart web3-capital
+            pm2 restart web3-capital --update-env
             pm2 save
