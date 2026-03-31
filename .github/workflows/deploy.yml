@@ -62,3 +62,26 @@ jobs:
             npm run build
             pm2 restart web3-capital --update-env
             pm2 save
+
+  release:
+    needs: deploy
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" \
+            --generate-notes \
+            --title "$TAG" \
+            --target main
+          echo "✅ Release $TAG created"
