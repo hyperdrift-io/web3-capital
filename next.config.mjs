@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Wormhole Connect and its SDK use ESM — Next.js needs to transpile them
+  transpilePackages: ['@wormhole-foundation/wormhole-connect'],
   images: {
     remotePatterns: [
       { hostname: 'icons.llama.fi' },

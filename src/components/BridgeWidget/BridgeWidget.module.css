@@ -1,0 +1,22 @@
+.wrapper {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Wormhole Connect renders its own MUI surface — give it room */
+.wrapper :global([class*='WormholeConnect']) {
+  max-width: 100% !important;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-muted);
+  font-size: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
