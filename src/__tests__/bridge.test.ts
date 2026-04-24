@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   defiLlamaChainToWormhole,
-  usdcTokenForChain,
+  tokenForPoolSymbol,
   BRIDGE_CHAINS,
   BRIDGE_TOKENS,
   DEFI_LLAMA_TO_WORMHOLE,
@@ -41,35 +41,50 @@ describe('defiLlamaChainToWormhole', () => {
   })
 })
 
-// ─── usdcTokenForChain ────────────────────────────────────────────────────────
+// ─── tokenForPoolSymbol ───────────────────────────────────────────────────────
 
-describe('usdcTokenForChain', () => {
-  it('returns USDCeth for Ethereum', () => {
-    expect(usdcTokenForChain('Ethereum')).toBe('USDCeth')
+describe('tokenForPoolSymbol', () => {
+  it('returns WBTC for WBTC pools', () => {
+    expect(tokenForPoolSymbol('WBTC')).toBe('WBTC')
+    expect(tokenForPoolSymbol('WBTC-ETH')).toBe('WBTC')
   })
 
-  it('returns USDCarb for Arbitrum', () => {
-    expect(usdcTokenForChain('Arbitrum')).toBe('USDCarb')
+  it('returns wstETH for staked ETH pools', () => {
+    expect(tokenForPoolSymbol('wstETH')).toBe('wstETH')
+    expect(tokenForPoolSymbol('wstETH-ETH')).toBe('wstETH')
+    expect(tokenForPoolSymbol('stETH')).toBe('wstETH')
   })
 
-  it('returns USDCbase for Base', () => {
-    expect(usdcTokenForChain('Base')).toBe('USDCbase')
+  it('returns WETH for ETH pools (unless stablecoin is also present)', () => {
+    expect(tokenForPoolSymbol('WETH')).toBe('WETH')
+    // WETH-USDC → USDC wins (CCTP preferred for mixed pools)
+    expect(tokenForPoolSymbol('WETH-USDC')).toBe('USDC')
+    expect(tokenForPoolSymbol('ETH')).toBe('WETH')
+    // Pure WETH pools
+    expect(tokenForPoolSymbol('WETH-DAI')).toBe('DAI')
   })
 
-  it('returns USDCop for Optimism', () => {
-    expect(usdcTokenForChain('Optimism')).toBe('USDCop')
+  it('returns USDT for USDT pools (unless USDC is also present)', () => {
+    expect(tokenForPoolSymbol('USDT')).toBe('USDT')
+    // USDT-USDC → USDC wins (CCTP preferred)
+    expect(tokenForPoolSymbol('USDT-USDC')).toBe('USDC')
   })
 
-  it('returns USDCpolygon for Polygon', () => {
-    expect(usdcTokenForChain('Polygon')).toBe('USDCpolygon')
+  it('returns DAI for pure DAI pools', () => {
+    expect(tokenForPoolSymbol('DAI')).toBe('DAI')
+    // DAI-USDC → USDC wins (CCTP is better than bridging DAI)
+    expect(tokenForPoolSymbol('DAI-USDC')).toBe('USDC')
   })
 
-  it('returns USDCsol for Solana', () => {
-    expect(usdcTokenForChain('Solana')).toBe('USDCsol')
+  it('returns USDC for USDC pools (CCTP preferred over other tokens)', () => {
+    expect(tokenForPoolSymbol('USDC')).toBe('USDC')
+    expect(tokenForPoolSymbol('USDC-WETH')).toBe('USDC')
   })
 
-  it('falls back to USDC for unknown chains', () => {
-    expect(usdcTokenForChain('Avalanche')).toBe('USDC')
+  it('defaults to USDC for unknown or synthetic stablecoin pools', () => {
+    expect(tokenForPoolSymbol('crvUSD')).toBe('USDC')
+    expect(tokenForPoolSymbol('USDe')).toBe('USDC')
+    expect(tokenForPoolSymbol('GHO')).toBe('USDC')
   })
 })
 
@@ -95,24 +110,29 @@ describe('BRIDGE_CHAINS', () => {
 // ─── BRIDGE_TOKENS ────────────────────────────────────────────────────────────
 
 describe('BRIDGE_TOKENS', () => {
-  it('covers USDC variants for all supported chains including Solana', () => {
-    expect(BRIDGE_TOKENS).toContain('USDCeth')
-    expect(BRIDGE_TOKENS).toContain('USDCarb')
-    expect(BRIDGE_TOKENS).toContain('USDCbase')
-    expect(BRIDGE_TOKENS).toContain('USDCop')
-    expect(BRIDGE_TOKENS).toContain('USDCpolygon')
-    expect(BRIDGE_TOKENS).toContain('USDCsol')
-  })
-
-  it('includes USDT for mainnet stablecoin flows', () => {
-    expect(BRIDGE_TOKENS).toContain('USDT')
-    expect(BRIDGE_TOKENS).toContain('USDTeth')
-  })
-
-  it('only contains stablecoin identifiers — no volatile tokens', () => {
+  it('uses v5 symbol strings (not legacy per-chain suffixed IDs)', () => {
+    // v5 format: clean symbol strings — no "USDCeth", "USDCarb", "USDCsol", etc.
+    // Note: "ETH" and "wstETH" are valid v5 symbols (they END in ETH as a name, not a chain suffix).
+    const legacyChainSuffixedIds = ['USDCeth', 'USDCarb', 'USDCbase', 'USDCop', 'USDCpolygon', 'USDCsol', 'USDTeth']
     for (const token of BRIDGE_TOKENS) {
-      expect(token.toLowerCase()).toMatch(/usdc|usdt/)
+      expect(legacyChainSuffixedIds).not.toContain(token)
     }
+  })
+
+  it('includes stablecoins', () => {
+    expect(BRIDGE_TOKENS).toContain('USDC')
+    expect(BRIDGE_TOKENS).toContain('USDT')
+    expect(BRIDGE_TOKENS).toContain('DAI')
+  })
+
+  it('includes ETH variants for yield pools that hold ETH', () => {
+    expect(BRIDGE_TOKENS).toContain('ETH')
+    expect(BRIDGE_TOKENS).toContain('WETH')
+  })
+
+  it('includes BTC and liquid staking tokens for high-CE pools', () => {
+    expect(BRIDGE_TOKENS).toContain('WBTC')
+    expect(BRIDGE_TOKENS).toContain('wstETH')
   })
 })
 

@@ -20,3 +20,29 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
+
+.errorFallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 200px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 24px;
+}
+
+.fallbackLink {
+  color: var(--color-primary, #4f8ef7);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.fallbackLink:hover {
+  text-decoration: underline;
+}

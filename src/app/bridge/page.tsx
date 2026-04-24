@@ -6,7 +6,7 @@ export const revalidate = 300
 
 export const metadata = {
   title: 'Bridge & Deploy — Capital Engine',
-  description: 'Bridge your stablecoins cross-chain — EVM or Solana — via Wormhole CCTP and NTT. No wrapped tokens. Deploy straight into the best yield opportunity.',
+  description: 'Bridge ETH, USDC, WBTC, wstETH and more cross-chain — EVM or Solana — via Wormhole. No wrapped tokens. Deploy straight into the highest CE-scored yield opportunity.',
 }
 
 export default async function BridgePage() {
@@ -19,8 +19,8 @@ export default async function BridgePage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Bridge &amp; Deploy</h1>
           <p className={styles.subtitle}>
-            Move stablecoins cross-chain — EVM or Solana — with Wormhole CCTP and NTT.
-            Native burn-and-mint, no wrapped tokens. Then deploy straight into the best opportunity.
+            Move ETH, USDC, WBTC, wstETH and more cross-chain — EVM or Solana — via Wormhole.
+            No wrapped tokens. Then deploy straight into the highest CE-scored opportunity.
           </p>
         </div>
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { Pool } from '@/types/protocol'
-import { defiLlamaChainToWormhole } from '@/lib/bridge'
+import { defiLlamaChainToWormhole, tokenForPoolSymbol, vaultTokenNote } from '@/lib/bridge'
 import { BridgeWidget } from '@/components/BridgeWidget/BridgeWidget'
 import { formatApy } from '@/lib/format'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
@@ -47,6 +47,11 @@ export function BridgeThenDeploy({ topPool }: Props) {
 
   const isOnEthereum = topPool.chain === 'Ethereum'
 
+  // Infer the token the user needs to bridge from the pool's symbol
+  const bridgeToken = tokenForPoolSymbol(topPool.symbol)
+  // Explain vault/LP tokens so the user knows not to search for the pool symbol in the bridge
+  const tokenNote = vaultTokenNote(topPool.symbol, bridgeToken, topPool.project)
+
   return (
     <div className={styles.wrapper} data-testid="bridge-then-deploy">
       {/* ── Narrative header ───────────────────────────────────────── */}
@@ -77,14 +82,19 @@ export function BridgeThenDeploy({ topPool }: Props) {
           <div className={styles.stepContent}>
             <div className={styles.stepTitle}>
               {isOnEthereum ? (
-                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Your USDC is already on Ethereum — ready to deploy</>
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Your {bridgeToken} is already on Ethereum — ready to deploy</>
               ) : (
-                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge USDC from Ethereum → {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" className={styles.chainInline} /> : null })()} {topPool.chain}</>
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge {bridgeToken} from Ethereum → {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" className={styles.chainInline} /> : null })()} {topPool.chain}</>
               )}
             </div>
             {!isOnEthereum && (
               <div className={styles.stepSub}>
-                Wormhole CCTP: native burn-and-mint · no wrapped tokens · ~1 min
+                Wormhole: native bridge · no wrapped tokens · ~1 min
+              </div>
+            )}
+            {tokenNote && (
+              <div className={styles.tokenNote}>
+                ℹ {tokenNote}
               </div>
             )}
           </div>
@@ -119,14 +129,20 @@ export function BridgeThenDeploy({ topPool }: Props) {
             {open ? 'Close bridge' : `Bridge to ${topPool.chain}`}
           </span>
           <span className={styles.bridgeTriggerSub}>
-            Wormhole Connect · CCTP · USDC/USDT
+            Wormhole Connect · {bridgeToken}
           </span>
         </button>
       )}
 
       {open && (
         <div id="bridge-widget-panel" className={styles.widgetContainer}>
-          <BridgeWidget targetChain={targetWormholeChain} />
+          <div className={styles.widgetHint}>
+            Select <strong>{bridgeToken}</strong> in the bridge widget below → {topPool.chain}
+          </div>
+          <BridgeWidget
+            targetChain={targetWormholeChain}
+            destToken={bridgeToken}
+          />
         </div>
       )}
     </div>

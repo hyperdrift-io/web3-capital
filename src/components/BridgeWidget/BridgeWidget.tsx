@@ -1,9 +1,10 @@
 'use client'
 
+import { Component, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import type { Chain } from '@wormhole-foundation/wormhole-connect'
 import type { config as WormholeConnectConfigNS, WormholeConnectTheme } from '@wormhole-foundation/wormhole-connect'
-import { BRIDGE_CHAINS, BRIDGE_TOKENS, usdcTokenForChain } from '@/lib/bridge'
+import { BRIDGE_CHAINS, BRIDGE_TOKENS } from '@/lib/bridge'
 import styles from './BridgeWidget.module.css'
 
 type WormholeConnectConfig = WormholeConnectConfigNS.WormholeConnectConfig
@@ -23,17 +24,71 @@ export type BridgeWidgetProps = {
   targetChain?: Chain
   /** Source chain — defaults to Ethereum. */
   sourceChain?: Chain
+  /**
+   * Pre-selected source token (Wormhole Connect v5 symbol string).
+   * Defaults to 'USDC'. Use tokenForPoolSymbol() to derive from pool data.
+   */
+  sourceToken?: string
+  /**
+   * Pre-selected destination token (Wormhole Connect v5 symbol string).
+   * Defaults to match sourceToken so the user sees a sensible pre-fill.
+   */
+  destToken?: string
 }
+
+// ── Error boundary ────────────────────────────────────────────────────────────
+
+type EBState = { hasError: boolean }
+
+class BridgeErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  state: EBState = { hasError: false }
+
+  static getDerivedStateFromError(): EBState {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className={styles.errorFallback}>
+          <p>The bridge widget failed to load.</p>
+          <a
+            href="https://portalbridge.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.fallbackLink}
+          >
+            Open Portal Bridge →
+          </a>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+// ── Widget ────────────────────────────────────────────────────────────────────
 
 /**
  * BridgeWidget — Wormhole Connect embedded with opinionated defaults.
  *
+ * Token IDs use Wormhole Connect v5 symbol strings (e.g. "USDC", "WETH")
+ * rather than legacy per-chain IDs ("USDCeth", "WETHarb"). The v5 widget
+ * resolves chain-specific contract addresses internally.
+ *
+ * Token pre-fill strategy (v5 constraint):
+ *   The v5 widget validates `defaultInputs.token` against its token store.
+ *   Setting the same symbol on both source and destination for non-native
+ *   tokens (e.g. source.token=USDC + destination.token=USDC) triggers a
+ *   validation error and silently drops both. We therefore only pre-fill
+ *   the destination token; the source is left for the user to confirm so
+ *   the widget stays valid across all chain/token combinations.
+ *
  * Restrictions applied:
- *   - Only the five EVM chains where Capital Engine pools live (Ethereum,
- *     Arbitrum, Base, Optimism, Polygon).
- *   - Only stablecoin tokens (USDC + USDT variants).
- *   - Source defaults to USDC on Ethereum.
- *   - Destination pre-filled from the highest-CE-scored pool's chain.
+ *   - Only the five EVM chains where Capital Engine pools live.
+ *   - Token whitelist: ETH, WETH, USDC, USDT, WBTC, wstETH, DAI.
+ *   - Source chain defaults to Ethereum; destination from highest-CE pool.
+ *   - Destination token pre-filled from the pool's inferred asset.
  *
  * Why Wormhole:
  *   - Supports CCTP (Circle's native USDC burn-and-mint): zero slippage,
@@ -41,21 +96,24 @@ export type BridgeWidgetProps = {
  *   - Works on all five chains in our set.
  *   - Embeddable React component — no iframe, no redirect.
  */
-export function BridgeWidget({ targetChain = 'Arbitrum', sourceChain = 'Ethereum' }: BridgeWidgetProps) {
-  const sourceToken = usdcTokenForChain(sourceChain)
-  const destToken = usdcTokenForChain(targetChain)
-
+export function BridgeWidget({
+  targetChain = 'Arbitrum',
+  sourceChain = 'Ethereum',
+  sourceToken: _sourceToken = 'USDC',
+  destToken,
+}: BridgeWidgetProps) {
   const config: WormholeConnectConfig = {
     network: 'Mainnet',
     chains:  BRIDGE_CHAINS,
     tokens:  [...BRIDGE_TOKENS],
     ui: {
       defaultInputs: {
-        source:      { chain: sourceChain, token: sourceToken },
+        source:      { chain: sourceChain },
+        // Only set destination.token — setting both source+destination to the
+        // same non-native symbol triggers a v5 validation error and drops both.
         destination: { chain: targetChain, token: destToken },
       },
-      showFooter:          false,
-      disableUserInputtedTokens: true,
+      showFooter: false,
     },
   }
 
@@ -74,7 +132,9 @@ export function BridgeWidget({ targetChain = 'Arbitrum', sourceChain = 'Ethereum
 
   return (
     <div className={styles.wrapper} data-testid="bridge-widget">
-      <WormholeConnect config={config} theme={theme} />
+      <BridgeErrorBoundary>
+        <WormholeConnect config={config} theme={theme} />
+      </BridgeErrorBoundary>
     </div>
   )
 }
