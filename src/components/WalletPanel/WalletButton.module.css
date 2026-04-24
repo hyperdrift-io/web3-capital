@@ -153,6 +153,16 @@
   color: var(--red);
 }
 
+.errorLink {
+  color: var(--red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+.errorLink:hover {
+  opacity: 0.8;
+}
+
 /* ── Connected dropdown extras ───────────────────────────── */
 
 .dropdownAddress {

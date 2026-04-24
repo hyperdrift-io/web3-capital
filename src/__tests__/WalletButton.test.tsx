@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { WalletButton } from '@/components/WalletPanel/WalletButton'
 
@@ -43,31 +43,46 @@ function setupMocks({
 beforeEach(() => {
   vi.clearAllMocks()
   localStorage.clear()
+  // WalletButton treats absence of window.ethereum as "no browser wallet" (Safari / no MetaMask).
+  // Most tests expect the injected-first UX after effects run.
+  Object.defineProperty(window, 'ethereum', {
+    value: {},
+    configurable: true,
+    writable: true,
+  })
+})
+
+afterEach(() => {
+  Reflect.deleteProperty(window, 'ethereum')
 })
 
 describe('WalletButton', () => {
   describe('no wallet installed', () => {
     it('shows an install prompt when no connectors are available', () => {
+      Reflect.deleteProperty(window, 'ethereum')
       setupMocks({ connectors: [] })
       const view = render(<WalletButton />)
-      expect(view.getByText(/install wallet/i)).toBeInTheDocument()
+      expect(view.getByText(/install metamask/i)).toBeInTheDocument()
     })
 
     it('install link points to metamask.io', () => {
+      Reflect.deleteProperty(window, 'ethereum')
       setupMocks({ connectors: [] })
       const view = render(<WalletButton />)
-      const link = view.getByRole('link', { name: /install wallet/i })
+      const link = view.getByRole('link', { name: /install metamask/i })
       expect(link).toHaveAttribute('href', 'https://metamask.io')
     })
   })
 
   describe('disconnected with connectors available', () => {
-    it('shows "Connect Wallet" as primary when injected preference is active', () => {
+    it('shows "Connect Wallet" as primary when injected preference is active', async () => {
       // Explicitly seed the pref so the hook's useEffect finds injected
       localStorage.setItem('wallet_connector_pref', 'injected')
       setupMocks()
       const view = render(<WalletButton />)
-      expect(view.getByRole('button', { name: /connect wallet/i })).toBeInTheDocument()
+      await waitFor(() => {
+        expect(view.getByRole('button', { name: /connect wallet/i })).toBeInTheDocument()
+      })
     })
 
     it('calls connect() with the injected connector on primary click', async () => {
@@ -75,14 +90,19 @@ describe('WalletButton', () => {
       localStorage.setItem('wallet_connector_pref', 'injected')
       setupMocks()
       const view = render(<WalletButton />)
-      await user.click(view.getByRole('button', { name: /connect wallet/i }))
+      const connectBtn = await waitFor(() =>
+        view.getByRole('button', { name: /connect wallet/i }),
+      )
+      await user.click(connectBtn)
       expect(mockConnect).toHaveBeenCalledWith({ connector: injectedConnector })
     })
 
-    it('shows "Connecting…" label while connection is pending', () => {
+    it('shows "Connecting…" label while connection is pending', async () => {
       setupMocks({ isPending: true })
       const view = render(<WalletButton />)
-      expect(view.getByText(/connecting…/i)).toBeInTheDocument()
+      await waitFor(() => {
+        expect(view.getByText(/connecting…/i)).toBeInTheDocument()
+      })
     })
 
     it('displays a simplified error when the user rejects the connection', () => {
@@ -95,6 +115,9 @@ describe('WalletButton', () => {
       const user = userEvent.setup()
       setupMocks()
       const view = render(<WalletButton />)
+      await waitFor(() => {
+        expect(view.getByRole('button', { name: /connect wallet/i })).toBeInTheDocument()
+      })
       const chevron = view.getByLabelText(/more wallet options/i)
       await user.click(chevron)
       expect(view.getByText(/smart wallet/i)).toBeInTheDocument()
