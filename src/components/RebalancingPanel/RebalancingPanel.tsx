@@ -2,12 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import { useAccount } from 'wagmi'
-import { useReadContract } from 'wagmi'
 import { useMultiChainBalances }  from '@/hooks/useMultiChainBalances'
 import { useYieldPositions }      from '@/hooks/useYieldPositions'
 import { useDevAddress }          from '@/hooks/useDevAddress'
+import { useEthUsdPrice }         from '@/hooks/useEthUsdPrice'
 import { buildAllocation }        from '@/lib/routing'
-import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
 import { formatApy }              from '@/lib/format'
 import { RouteButton }            from '@/components/RouteButton/RouteButton'
 import type { Pool }              from '@/types/protocol'
@@ -40,16 +39,7 @@ export function RebalancingPanel({ pools }: Props) {
   const address    = devAddress ?? walletAddress
   const [wizardAmount, setWizardAmount] = useState<number | null>(null)
 
-  const { data: priceData } = useReadContract({
-    abi:          AGGREGATOR_V3_ABI,
-    address:      ETH_USD_FEED[1],
-    functionName: 'latestRoundData',
-    chainId:      1,
-    query:        { refetchInterval: 30_000 },
-  })
-  const ethUsdPrice = priceData
-    ? parseChainlinkAnswer(priceData[1] as bigint)
-    : FALLBACK_ETH_USD
+  const ethUsdPrice = useEthUsdPrice()
 
   const { totalUsd: availableUsd } = useMultiChainBalances(address, ethUsdPrice)
   const { positions, summary }     = useYieldPositions(address, ethUsdPrice, pools)

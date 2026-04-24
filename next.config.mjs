@@ -1,8 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // Wormhole Connect and its SDK use ESM — Next.js needs to transpile them
-  transpilePackages: ['@wormhole-foundation/wormhole-connect'],
+  // Wormhole Connect ships pre-built, self-contained bundles with internal
+  // bare specifiers (e.g. "accounts" from @solana/accounts) that webpack can't
+  // resolve, and CSS built outside Next.js's pipeline. Marking it as a server
+  // external package prevents Next.js from bundling or statically analyzing it
+  // at build time. The widget is always loaded client-only via:
+  //   dynamic(() => import('@wormhole-foundation/wormhole-connect'), { ssr: false })
+  experimental: {
+    serverComponentsExternalPackages: ['@wormhole-foundation/wormhole-connect'],
+  },
   images: {
     remotePatterns: [
       { hostname: 'icons.llama.fi' },
@@ -34,6 +41,10 @@ const nextConfig = {
       '@react-native-async-storage/async-storage': false,
       'pino-pretty':                               false,
       encoding:                                    false,
+      // Bare 'accounts' specifier is referenced by @wagmi/core's tempo connector
+      // shim and wormhole-connect's pre-bundled Solana chunk. Neither code path
+      // is exercised at runtime — stub the module so webpack doesn't error.
+      accounts:                                    false,
     }
 
     // resolve.fallback is correct for packages that shadow Node built-ins.

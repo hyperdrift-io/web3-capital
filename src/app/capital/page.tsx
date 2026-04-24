@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { fetchTopPools } from '@/lib/defillama'
 import { CapitalProjection }  from '@/components/CapitalProjection/CapitalProjection'
 import { PortfolioView }      from '@/components/PortfolioView/PortfolioView'
@@ -53,10 +54,17 @@ export default async function CapitalPage() {
           />
         </div>
 
-        {/* ── Bridge first, then deploy ─────────────────────────── */}
-        <div className={styles.section} id="bridge">
-          <div className={styles.sectionLabel}>Bridge &amp; Deploy</div>
-          <BridgeThenDeploy topPool={topAnchorPool} />
+        {/* ── Bridge CTA ────────────────────────────────────────── */}
+        <div className={styles.section}>
+          <Link href="/bridge" className={styles.bridgeCta}>
+            <div className={styles.bridgeCtaInner}>
+              <span className={styles.bridgeCtaIcon}>⇄</span>
+              <div>
+                <div className={styles.bridgeCtaTitle}>Capital on a different chain?</div>
+                <div className={styles.bridgeCtaSub}>Bridge USDC cross-chain with Wormhole CCTP, then deploy in one flow →</div>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* ── Allocation wizard ─────────────────────────────────── */}

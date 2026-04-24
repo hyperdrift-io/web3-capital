@@ -6,6 +6,8 @@ import { defiLlamaChainToWormhole } from '@/lib/bridge'
 import { BridgeWidget } from '@/components/BridgeWidget/BridgeWidget'
 import { formatApy } from '@/lib/format'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
+import { NETWORK_ICON } from '@/lib/chainIcons'
+import { NetworkEthereum } from '@web3icons/react'
 import styles from './BridgeThenDeploy.module.css'
 
 type Props = {
@@ -56,7 +58,10 @@ export function BridgeThenDeploy({ topPool }: Props) {
             <div className={styles.opportunityRow}>
               <span className={styles.poolProject}>{topPool.project}</span>
               <span className={styles.poolSymbol}>{topPool.symbol}</span>
-              <span className={styles.chainPill}>{topPool.chain}</span>
+              <span className={styles.chainPill}>
+                {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" /> : null })()}
+                {topPool.chain}
+              </span>
               <span className={styles.poolApy}>{formatApy(topPool.apy)}</span>
               <CEScoreBreakdown pool={topPool}>
                 <span className={styles.ceScore}>◈ {topPool.capitalEfficiency}</span>
@@ -71,9 +76,11 @@ export function BridgeThenDeploy({ topPool }: Props) {
           <span className={styles.stepBadge}>2</span>
           <div className={styles.stepContent}>
             <div className={styles.stepTitle}>
-              {isOnEthereum
-                ? 'Your USDC is already on Ethereum — ready to deploy'
-                : `Bridge USDC from Ethereum → ${topPool.chain}`}
+              {isOnEthereum ? (
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Your USDC is already on Ethereum — ready to deploy</>
+              ) : (
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge USDC from Ethereum → {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" className={styles.chainInline} /> : null })()} {topPool.chain}</>
+              )}
             </div>
             {!isOnEthereum && (
               <div className={styles.stepSub}>

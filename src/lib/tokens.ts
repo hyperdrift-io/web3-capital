@@ -77,6 +77,21 @@ export const DEPLOYABLE_TOKENS: Record<number, TokenMeta[]> = {
       symbol: 'wstETH', decimals: 18, priceMode: 'eth-ratio', ethRatio: 1.06,
     },
   ],
+  // BNB Chain
+  56: [
+    {
+      address: '0x55d398326f99059fF775485246999027B3197955',
+      symbol: 'USDT', decimals: 18, priceMode: 'stablecoin',
+    },
+    {
+      address: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      symbol: 'USDC', decimals: 18, priceMode: 'stablecoin',
+    },
+    {
+      address: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+      symbol: 'WETH', decimals: 18, priceMode: 'eth-pegged',
+    },
+  ],
   // Polygon
   137: [
     {

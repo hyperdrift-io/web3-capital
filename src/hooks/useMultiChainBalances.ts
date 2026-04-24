@@ -30,12 +30,33 @@ const ERC20_ABI = [{
 export type ChainBalance = {
   chainId:   SupportedChainId
   chainName: string
+  nativeSymbol: string
   /** Native ETH/MATIC balance in wei */
   native:    bigint
+  /** Native token USD value (0 on chains without a configured native oracle) */
+  nativeUsd: number
   /** ERC-20 token balances */
   tokens:    { meta: TokenMeta; raw: bigint; usd: number }[]
   /** Total USD value (native + ERC-20) */
   totalUsd:  number
+}
+
+const NATIVE_SYMBOL: Record<SupportedChainId, string> = {
+  1: 'ETH',
+  42161: 'ETH',
+  8453: 'ETH',
+  10: 'ETH',
+  56: 'BNB',
+  137: 'MATIC',
+}
+
+function estimateNativeUsd(chainId: SupportedChainId, nativeWei: bigint, ethUsdPrice: number): number {
+  // ETH L1/L2 native tokens are ETH-priced. Non-ETH chain native assets are
+  // intentionally excluded until dedicated BNB/MATIC oracles are wired.
+  if (chainId !== 1 && chainId !== 42161 && chainId !== 8453 && chainId !== 10) {
+    return 0
+  }
+  return Number(nativeWei) / 1e18 * ethUsdPrice
 }
 
 export function useMultiChainBalances(
@@ -49,8 +70,10 @@ export function useMultiChainBalances(
   const ethArb  = useBalance({ address, chainId: 42161, query: { enabled } })
   const ethBase = useBalance({ address, chainId: 8453,  query: { enabled } })
   const ethOpt  = useBalance({ address, chainId: 10,    query: { enabled } })
+  const bnbMain = useBalance({ address, chainId: 56,    query: { enabled } })
+  const matic   = useBalance({ address, chainId: 137,   query: { enabled } })
 
-  const nativeResults = [ethMain, ethArb, ethBase, ethOpt]
+  const nativeResults = [ethMain, ethArb, ethBase, ethOpt, bnbMain, matic]
 
   // ── ERC-20 balances — one multicall batched across all chains ─────────────────
   const contracts = useMemo(() => {
@@ -87,7 +110,7 @@ export function useMultiChainBalances(
   const chains = useMemo((): ChainBalance[] => {
     return SUPPORTED_CHAIN_IDS.map((chainId, ci) => {
       const nativeWei = nativeResults[ci].data?.value ?? 0n
-      const nativeUsd = Number(nativeWei) / 1e18 * ethUsdPrice
+      const nativeUsd = estimateNativeUsd(chainId, nativeWei, ethUsdPrice)
 
       const chainTokens = DEPLOYABLE_TOKENS[chainId] ?? []
 
@@ -111,7 +134,9 @@ export function useMultiChainBalances(
       return {
         chainId,
         chainName: CHAIN_NAMES[chainId],
+        nativeSymbol: NATIVE_SYMBOL[chainId],
         native:    nativeWei,
+        nativeUsd,
         tokens:    tokenItems,
         totalUsd,
       }
@@ -119,7 +144,7 @@ export function useMultiChainBalances(
   }, [
     ethUsdPrice,
     // intentionally depend on each value (not the hook result objects)
-    ethMain.data, ethArb.data, ethBase.data, ethOpt.data,
+    ethMain.data, ethArb.data, ethBase.data, ethOpt.data, bnbMain.data, matic.data,
     erc20Data,
   ])
 

@@ -2,7 +2,7 @@
 
 import { useAccount } from 'wagmi'
 import { useReadContracts } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
+import { mainnet } from 'viem/chains'
 import { DEPLOYABLE_TOKENS, estimateUsdValue } from '@/lib/tokens'
 import { formatUsd } from '@/lib/format'
 import styles from './TokenBalances.module.css'

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Pool } from '@/types/protocol'
-import { formatUsd, formatApy, chainColor } from '@/lib/format'
+import { formatUsd, formatApy } from '@/lib/format'
+import { NETWORK_ICON } from '@/lib/chainIcons'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { buildRouteIntent } from '@/lib/routing'
@@ -37,13 +38,13 @@ export function YieldTable({ pools, updatedIds }: Props) {
   }
 
   const numericKeys: NumericSortKey[] = ['apy', 'tvlUsd', 'capitalEfficiency']
-  const sorted = [...pools].sort((a, b) => {
+  const sorted = useMemo(() => [...pools].sort((a, b) => {
     const mul = sortDir === 'desc' ? -1 : 1
     if (numericKeys.includes(sortKey as NumericSortKey)) {
       return ((a[sortKey as NumericSortKey] as number) - (b[sortKey as NumericSortKey] as number)) * mul
     }
     return (a[sortKey as StringSortKey] as string).localeCompare(b[sortKey as StringSortKey] as string) * mul
-  })
+  }), [pools, sortKey, sortDir])
 
   const pageCount = Math.ceil(sorted.length / PAGE_SIZE)
   const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -141,10 +142,7 @@ export function YieldTable({ pools, updatedIds }: Props) {
               </td>
               <td className={styles.cell}>
                 <span className={styles.chainDot}>
-                  <span
-                    className={styles.dot}
-                    style={{ background: chainColor(pool.chain) }}
-                  />
+                  {(() => { const I = NETWORK_ICON[pool.chain]; return I ? <I size={14} variant="branded" className={styles.chainIcon} /> : null })()}
                   {pool.chain}
                 </span>
               </td>
