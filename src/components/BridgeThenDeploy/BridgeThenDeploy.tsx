@@ -110,6 +110,8 @@ export function BridgeThenDeploy({ topPool }: Props) {
         <button
           className={styles.bridgeTrigger}
           onClick={() => setOpen(o => !o)}
+          aria-expanded={open}
+          aria-controls="bridge-widget-panel"
           data-testid="bridge-toggle"
         >
           <span className={styles.bridgeTriggerIcon}>{open ? '▲' : '⇄'}</span>
@@ -122,8 +124,8 @@ export function BridgeThenDeploy({ topPool }: Props) {
         </button>
       )}
 
-      {(open || isOnEthereum) && (
-        <div className={styles.widgetContainer}>
+      {open && (
+        <div id="bridge-widget-panel" className={styles.widgetContainer}>
           <BridgeWidget targetChain={targetWormholeChain} />
         </div>
       )}

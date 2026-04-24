@@ -30,8 +30,11 @@ describe('defiLlamaChainToWormhole', () => {
     expect(defiLlamaChainToWormhole('Polygon')).toBe('Polygon')
   })
 
+  it('maps Solana → Solana (EVM ↔ Solana via Wormhole NTT)', () => {
+    expect(defiLlamaChainToWormhole('Solana')).toBe('Solana')
+  })
+
   it('returns null for unsupported chains', () => {
-    expect(defiLlamaChainToWormhole('Solana')).toBeNull()
     expect(defiLlamaChainToWormhole('Avalanche')).toBeNull()
     expect(defiLlamaChainToWormhole('BSC')).toBeNull()
     expect(defiLlamaChainToWormhole('')).toBeNull()
@@ -61,10 +64,11 @@ describe('usdcTokenForChain', () => {
     expect(usdcTokenForChain('Polygon')).toBe('USDCpolygon')
   })
 
+  it('returns USDCsol for Solana', () => {
+    expect(usdcTokenForChain('Solana')).toBe('USDCsol')
+  })
+
   it('falls back to USDC for unknown chains', () => {
-    // A chain in the Wormhole SDK but not in our USDC map should gracefully
-    // return the generic 'USDC' identifier
-    expect(usdcTokenForChain('Solana')).toBe('USDC')
     expect(usdcTokenForChain('Avalanche')).toBe('USDC')
   })
 })
@@ -72,30 +76,32 @@ describe('usdcTokenForChain', () => {
 // ─── BRIDGE_CHAINS ────────────────────────────────────────────────────────────
 
 describe('BRIDGE_CHAINS', () => {
-  it('contains exactly the five supported EVM chains', () => {
-    expect(BRIDGE_CHAINS).toHaveLength(5)
+  it('contains the five EVM chains plus Solana', () => {
+    expect(BRIDGE_CHAINS).toHaveLength(6)
     expect(BRIDGE_CHAINS).toContain('Ethereum')
     expect(BRIDGE_CHAINS).toContain('Arbitrum')
     expect(BRIDGE_CHAINS).toContain('Base')
     expect(BRIDGE_CHAINS).toContain('Optimism')
     expect(BRIDGE_CHAINS).toContain('Polygon')
+    expect(BRIDGE_CHAINS).toContain('Solana')
   })
 
-  it('does not include non-EVM chains', () => {
-    expect(BRIDGE_CHAINS).not.toContain('Solana')
+  it('does not include unsupported chains', () => {
     expect(BRIDGE_CHAINS).not.toContain('Sui')
+    expect(BRIDGE_CHAINS).not.toContain('Avalanche')
   })
 })
 
 // ─── BRIDGE_TOKENS ────────────────────────────────────────────────────────────
 
 describe('BRIDGE_TOKENS', () => {
-  it('covers USDC variants for all five supported chains', () => {
+  it('covers USDC variants for all supported chains including Solana', () => {
     expect(BRIDGE_TOKENS).toContain('USDCeth')
     expect(BRIDGE_TOKENS).toContain('USDCarb')
     expect(BRIDGE_TOKENS).toContain('USDCbase')
     expect(BRIDGE_TOKENS).toContain('USDCop')
     expect(BRIDGE_TOKENS).toContain('USDCpolygon')
+    expect(BRIDGE_TOKENS).toContain('USDCsol')
   })
 
   it('includes USDT for mainnet stablecoin flows', () => {

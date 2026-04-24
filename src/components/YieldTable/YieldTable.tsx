@@ -67,41 +67,59 @@ export function YieldTable({ pools, updatedIds }: Props) {
       <table className={styles.table}>
         <thead className={styles.thead}>
           <tr>
-            <th
-              className={sortKey === 'project' ? styles.sorted : ''}
-              onClick={() => handleSort('project')}
-            >
-              Protocol / Pool {sortIcon('project')}
+            <th className={sortKey === 'project' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('project')}
+              >
+                Protocol / Pool {sortIcon('project')}
+              </button>
             </th>
-            <th
-              className={sortKey === 'apy' ? styles.sorted : ''}
-              onClick={() => handleSort('apy')}
-            >
-              APY {sortIcon('apy')}
+            <th className={sortKey === 'apy' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('apy')}
+              >
+                APY {sortIcon('apy')}
+              </button>
             </th>
-            <th
-              className={sortKey === 'tvlUsd' ? styles.sorted : ''}
-              onClick={() => handleSort('tvlUsd')}
-            >
-              TVL {sortIcon('tvlUsd')}
+            <th className={sortKey === 'tvlUsd' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('tvlUsd')}
+              >
+                TVL {sortIcon('tvlUsd')}
+              </button>
             </th>
-            <th
-              className={sortKey === 'capitalEfficiency' ? styles.sorted : ''}
-              onClick={() => handleSort('capitalEfficiency')}
-            >
-              CE Score {sortIcon('capitalEfficiency')}
+            <th className={sortKey === 'capitalEfficiency' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('capitalEfficiency')}
+              >
+                CE Score {sortIcon('capitalEfficiency')}
+              </button>
             </th>
-            <th
-              className={sortKey === 'chain' ? styles.sorted : ''}
-              onClick={() => handleSort('chain')}
-            >
-              Chain {sortIcon('chain')}
+            <th className={sortKey === 'chain' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('chain')}
+              >
+                Chain {sortIcon('chain')}
+              </button>
             </th>
-            <th
-              className={sortKey === 'band' ? styles.sorted : ''}
-              onClick={() => handleSort('band')}
-            >
-              Band {sortIcon('band')}
+            <th className={sortKey === 'band' ? styles.sorted : ''}>
+              <button
+                type="button"
+                className={styles.thButton}
+                onClick={() => handleSort('band')}
+              >
+                Band {sortIcon('band')}
+              </button>
             </th>
             <th className={styles.routeCol}>Route</th>
           </tr>

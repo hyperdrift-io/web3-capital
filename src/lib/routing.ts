@@ -142,6 +142,10 @@ export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
   },
 }
 
+const KNOWN_TOKEN_ADDRESSES = new Set(
+  Object.values(KNOWN_TOKEN).flatMap(chains => Object.values(chains)).map(a => a!.toLowerCase()),
+)
+
 // ── Non-tradeable vault token prefix patterns ─────────────────────────────────
 //
 // These prefixes identify receipt/vault tokens. Stripping them reveals the
@@ -162,14 +166,9 @@ const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
 export function resolveToToken(pool: { symbol: string; underlyingTokens: string[] | null }, chainId: number): string {
   const known = KNOWN_TOKEN
 
-  // Build a reverse address→symbol index for fast lookup
-  const knownAddresses = new Set(
-    Object.values(known).flatMap(chains => Object.values(chains)).map(a => a!.toLowerCase()),
-  )
-
   // 1. underlying token address that is DEX-tradeable
   const underlying = pool.underlyingTokens?.[0]
-  if (underlying && knownAddresses.has(underlying.toLowerCase())) {
+  if (underlying && KNOWN_TOKEN_ADDRESSES.has(underlying.toLowerCase())) {
     return underlying
   }
 

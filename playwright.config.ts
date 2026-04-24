@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command:             'npm run dev',
+    command:             'E2E_MOCK_YIELDS=1 npm run dev',
     url:                 'http://localhost:3000',
     reuseExistingServer: true,
     timeout:             120_000,

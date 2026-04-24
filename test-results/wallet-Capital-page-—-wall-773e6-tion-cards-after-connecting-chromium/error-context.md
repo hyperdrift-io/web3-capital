@@ -1,0 +1,111 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Capital Engine" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - text: Capital Engine
+      - navigation [ref=e6]:
+        - link "Overview" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - link "Yield" [ref=e8] [cursor=pointer]:
+          - /url: /yield
+        - link "Capital" [ref=e9] [cursor=pointer]:
+          - /url: /capital
+        - link "Bridge" [ref=e10] [cursor=pointer]:
+          - /url: /bridge
+      - button "0xd8dA…6045" [ref=e13] [cursor=pointer]:
+        - text: 0xd8dA…6045
+        - img [ref=e15]
+  - main [ref=e17]:
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - heading "Capital View" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Your full on-chain portfolio — across chains, active positions, and what you're leaving on the table.
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e27]: Total Portfolio Value
+          - generic [ref=e30]: Scanning chains…
+        - generic [ref=e32]: Capital by chain
+        - generic [ref=e44]: You're Earning
+      - generic [ref=e56]:
+        - generic [ref=e57]: 💡
+        - generic [ref=e58]:
+          - text: You have
+          - strong [ref=e59]: $571
+          - text: in undeployed capital across your wallets. Use the
+          - strong [ref=e60]: Deploy Capital Wizard
+          - text: below to put it to work.
+      - generic [ref=e61]:
+        - generic [ref=e62]: Single-chain projection
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]: Available Capital
+            - generic [ref=e66]:
+              - generic [ref=e67]: —
+              - generic [ref=e68]: ETH
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - generic [ref=e71]: Address
+                - generic [ref=e72]: 0xd8dA…6045
+              - generic [ref=e73]:
+                - generic [ref=e74]: Network
+                - generic [ref=e75]: Ethereum
+              - generic [ref=e76]:
+                - generic [ref=e77]: Block
+                - generic [ref=e78]: —
+              - generic [ref=e79]:
+                - generic [ref=e80]: ETH/USD
+                - generic [ref=e81]: $3,200 (est.)
+          - generic [ref=e86]:
+            - generic [ref=e87]: Top Yield Opportunities
+            - generic [ref=e88]:
+              - generic [ref=e89]:
+                - generic [ref=e90]: Anchor pick
+                - generic [ref=e91]:
+                  - generic [ref=e92]: spark
+                  - generic [ref=e93]: 6.40%
+                - generic [ref=e94]: DAI · Ethereum · CE 69 · Safety 100
+              - generic [ref=e95]:
+                - generic [ref=e96]: Balanced pick
+                - generic [ref=e97]:
+                  - generic [ref=e98]: pendle
+                  - generic [ref=e99]: 18.40%
+                - generic [ref=e100]: USDe · Ethereum · CE 80 · Safety 95
+          - generic [ref=e101]:
+            - generic [ref=e102]: Capital Projection
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - generic [ref=e105]: Anchor — Monthly
+                - generic [ref=e106]: $0.00
+                - generic [ref=e107]: 6.40% APY via spark
+              - generic [ref=e108]:
+                - generic [ref=e109]: Anchor — Annual
+                - generic [ref=e110]: $0.00
+                - generic [ref=e111]: on $0.00 principal
+              - generic [ref=e112]:
+                - generic [ref=e113]: Balanced — Monthly
+                - generic [ref=e114]: $0.00
+                - generic [ref=e115]: 18.40% APY via pendle
+              - generic [ref=e116]:
+                - generic [ref=e117]: Balanced — Annual
+                - generic [ref=e118]: $0.00
+                - generic [ref=e119]: on $0.00 principal
+            - paragraph [ref=e120]: Projections are illustrative. APY is variable and subject to protocol conditions. This does not constitute financial advice. ETH price estimated at $3,200.
+      - link "⇄ Capital on a different chain? Bridge USDC cross-chain with Wormhole CCTP, then deploy in one flow →" [ref=e122] [cursor=pointer]:
+        - /url: /bridge
+        - generic [ref=e123]:
+          - generic [ref=e124]: ⇄
+          - generic [ref=e125]:
+            - generic [ref=e126]: Capital on a different chain?
+            - generic [ref=e127]: Bridge USDC cross-chain with Wormhole CCTP, then deploy in one flow →
+      - generic [ref=e128]:
+        - generic [ref=e129]: Deploy Capital
+        - button "▼ Deploy Capital Wizard Enter an amount → get an optimised split → route to 1inch" [ref=e131] [cursor=pointer]:
+          - generic [ref=e132]: ▼
+          - generic [ref=e133]: Deploy Capital Wizard
+          - generic [ref=e134]: Enter an amount → get an optimised split → route to 1inch
+  - alert [ref=e135]
+```

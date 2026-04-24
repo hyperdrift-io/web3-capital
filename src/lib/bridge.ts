@@ -4,9 +4,15 @@
  * Maps DeFi Llama chain names → Wormhole SDK Chain names and provides
  * the opinionated config used by the BridgeWidget.
  *
- * Supported flow: stablecoins (USDC/USDT) on the five EVM chains where
- * Capital Engine's top pools live.  The user is never shown chains or
- * tokens outside this set, so the widget stays minimal and purposeful.
+ * Supported flow: stablecoins (USDC/USDT) across five EVM chains and Solana,
+ * covering the pools where Capital Engine's top opportunities live.
+ * The user is never shown chains or tokens outside this set, so the widget
+ * stays minimal and purposeful.
+ *
+ * Solana is included because Wormhole's NTT (Native Token Transfers) enables
+ * genuine EVM ↔ Solana USDC movement without wrapped tokens — the same
+ * primitive that powers Sunrise (sunrisedefi.com), Wormhole Labs' Solana
+ * asset gateway.
  */
 
 import type { Chain } from '@wormhole-foundation/wormhole-connect'
@@ -15,7 +21,7 @@ import type { Chain } from '@wormhole-foundation/wormhole-connect'
 
 /**
  * DeFi Llama chain name → Wormhole SDK Chain name.
- * Only the five chains supported by the bridge widget are included.
+ * Covers five EVM chains plus Solana (via Wormhole NTT).
  */
 export const DEFI_LLAMA_TO_WORMHOLE: Record<string, Chain> = {
   Ethereum: 'Ethereum',
@@ -23,6 +29,7 @@ export const DEFI_LLAMA_TO_WORMHOLE: Record<string, Chain> = {
   Base:     'Base',
   Optimism: 'Optimism',
   Polygon:  'Polygon',
+  Solana:   'Solana',
 }
 
 /** Wormhole Chain names available in the bridge widget. */
@@ -32,6 +39,7 @@ export const BRIDGE_CHAINS: Chain[] = [
   'Base',
   'Optimism',
   'Polygon',
+  'Solana',
 ]
 
 // ── Token identifiers ─────────────────────────────────────────────────────────
@@ -47,6 +55,7 @@ export const BRIDGE_TOKENS = [
   'USDCbase',
   'USDCop',
   'USDCpolygon',
+  'USDCsol',
   'USDT',
   'USDTeth',
 ] as const
@@ -72,6 +81,7 @@ export function usdcTokenForChain(chain: Chain): string {
     Base:     'USDCbase',
     Optimism: 'USDCop',
     Polygon:  'USDCpolygon',
+    Solana:   'USDCsol',
   }
   return map[chain] ?? 'USDC'
 }
