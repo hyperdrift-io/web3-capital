@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import type { Pool } from '@/types/protocol'
 import { formatUsd, formatApy } from '@/lib/format'
 import { NETWORK_ICON } from '@/lib/chainIcons'
+import { PROTOCOL_ICON, type ProtocolIconComponent } from '@/lib/protocolIcons'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { buildRouteIntent } from '@/lib/routing'
@@ -21,6 +22,7 @@ type Props = {
 }
 
 const PAGE_SIZE = 25
+const NUMERIC_SORT_KEYS: NumericSortKey[] = ['apy', 'tvlUsd', 'capitalEfficiency']
 
 export function YieldTable({ pools, updatedIds }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('capitalEfficiency')
@@ -37,10 +39,9 @@ export function YieldTable({ pools, updatedIds }: Props) {
     setPage(0)
   }
 
-  const numericKeys: NumericSortKey[] = ['apy', 'tvlUsd', 'capitalEfficiency']
   const sorted = useMemo(() => [...pools].sort((a, b) => {
     const mul = sortDir === 'desc' ? -1 : 1
-    if (numericKeys.includes(sortKey as NumericSortKey)) {
+    if (NUMERIC_SORT_KEYS.includes(sortKey as NumericSortKey)) {
       return ((a[sortKey as NumericSortKey] as number) - (b[sortKey as NumericSortKey] as number)) * mul
     }
     return (a[sortKey as StringSortKey] as string).localeCompare(b[sortKey as StringSortKey] as string) * mul
@@ -111,11 +112,20 @@ export function YieldTable({ pools, updatedIds }: Props) {
               <td colSpan={7} className={styles.empty}>No pools match your filters</td>
             </tr>
           )}
-          {paged.map(pool => (
+          {paged.map(pool => {
+            const ProtocolIcon = PROTOCOL_ICON[pool.project] as ProtocolIconComponent | undefined
+            const ChainIcon = NETWORK_ICON[pool.chain]
+
+            return (
             <tr key={pool.pool} className={styles.row}>
               <td className={styles.cell}>
                 <div className={styles.projectCell}>
-                  <span className={styles.project}>{pool.project}</span>
+                  <div className={styles.projectRow}>
+                    {ProtocolIcon
+                      ? <ProtocolIcon size={16} variant="branded" className={styles.protocolIcon} />
+                      : <span className={styles.protocolIconFallback}>{pool.project.charAt(0).toUpperCase()}</span>}
+                    <span className={styles.project}>{pool.project}</span>
+                  </div>
                   <span className={styles.symbol}>{pool.symbol}</span>
                 </div>
               </td>
@@ -142,7 +152,7 @@ export function YieldTable({ pools, updatedIds }: Props) {
               </td>
               <td className={styles.cell}>
                 <span className={styles.chainDot}>
-                  {(() => { const I = NETWORK_ICON[pool.chain]; return I ? <I size={14} variant="branded" className={styles.chainIcon} /> : null })()}
+                  {ChainIcon ? <ChainIcon size={14} variant="branded" className={styles.chainIcon} /> : null}
                   {pool.chain}
                 </span>
               </td>
@@ -151,14 +161,15 @@ export function YieldTable({ pools, updatedIds }: Props) {
               </td>
               <td className={`${styles.cell} ${styles.routeCell}`}>
                 {(() => {
-                  const intent = buildRouteIntent(pool, 1_000)
+                  const intent = buildRouteIntent(pool)
                   return intent
                     ? <RouteButton intent={intent} amountUsd={1_000} variant="compact" />
                     : null
                 })()}
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
       </div>

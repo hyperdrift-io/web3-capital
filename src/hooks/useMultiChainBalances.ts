@@ -73,7 +73,10 @@ export function useMultiChainBalances(
   const bnbMain = useBalance({ address, chainId: 56,    query: { enabled } })
   const matic   = useBalance({ address, chainId: 137,   query: { enabled } })
 
-  const nativeResults = [ethMain, ethArb, ethBase, ethOpt, bnbMain, matic]
+  const nativeResults = useMemo(
+    () => [ethMain, ethArb, ethBase, ethOpt, bnbMain, matic],
+    [ethMain, ethArb, ethBase, ethOpt, bnbMain, matic],
+  )
 
   // ── ERC-20 balances — one multicall batched across all chains ─────────────────
   const contracts = useMemo(() => {
@@ -143,8 +146,7 @@ export function useMultiChainBalances(
     })
   }, [
     ethUsdPrice,
-    // intentionally depend on each value (not the hook result objects)
-    ethMain.data, ethArb.data, ethBase.data, ethOpt.data, bnbMain.data, matic.data,
+    nativeResults,
     erc20Data,
   ])
 

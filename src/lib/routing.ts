@@ -214,7 +214,7 @@ export type RouteIntent = {
  * where {to} is the pool's first underlying token address when available,
  * otherwise the pool symbol (1inch accepts well-known symbols).
  */
-export function buildRouteIntent(pool: Pool, amountUsd: number): RouteIntent | null {
+export function buildRouteIntent(pool: Pool): RouteIntent | null {
   const chainId = CHAIN_ID[pool.chain]
   if (!chainId) return null
 
@@ -337,7 +337,7 @@ export function buildAllocation(
     const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
     const amountUsd  = totalUsd * fraction
     const bestPool   = pools.filter(p => p.band === band)[0] ?? null
-    const intent     = bestPool ? buildRouteIntent(bestPool, amountUsd) : null
+    const intent     = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
       band,

@@ -70,7 +70,7 @@ export function PortfolioView({ pools }: Props) {
 
   const ethUsdPrice = useEthUsdPrice()
 
-  const { chains, chainsWithBalance, totalUsd, isLoading: balancesLoading } =
+  const { chainsWithBalance, totalUsd, isLoading: balancesLoading } =
     useMultiChainBalances(address, ethUsdPrice)
 
   const { positions, summary, isLoading: positionsLoading } =

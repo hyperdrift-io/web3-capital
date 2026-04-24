@@ -4,7 +4,6 @@ import { CapitalProjection }  from '@/components/CapitalProjection/CapitalProjec
 import { PortfolioView }      from '@/components/PortfolioView/PortfolioView'
 import { RebalancingPanel }   from '@/components/RebalancingPanel/RebalancingPanel'
 import { AllocationWizard }   from '@/components/AllocationWizard/AllocationWizard'
-import { BridgeThenDeploy }   from '@/components/BridgeThenDeploy/BridgeThenDeploy'
 import styles from './page.module.css'
 
 export const revalidate = 300

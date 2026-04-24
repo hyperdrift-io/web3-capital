@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { useMultiChainBalances }  from '@/hooks/useMultiChainBalances'
 import { useYieldPositions }      from '@/hooks/useYieldPositions'
@@ -37,7 +37,6 @@ export function RebalancingPanel({ pools }: Props) {
   const { address: walletAddress } = useAccount()
   const devAddress = useDevAddress()
   const address    = devAddress ?? walletAddress
-  const [wizardAmount, setWizardAmount] = useState<number | null>(null)
 
   const ethUsdPrice = useEthUsdPrice()
 
@@ -46,7 +45,6 @@ export function RebalancingPanel({ pools }: Props) {
 
   // ── Compute optimal allocation for the same capital ───────────────────────
   const deployed      = summary?.totalUsd ?? 0
-  const deployAmount  = wizardAmount ?? deployed
 
   const optimal = useMemo(() => {
     if (deployed === 0) return null
@@ -95,7 +93,6 @@ export function RebalancingPanel({ pools }: Props) {
           label="You're earning"
           apy={summary.weightedApy}
           annualReturn={summary.annualReturn}
-          usd={deployed}
           variant="current"
           positionCount={positions.length}
         />
@@ -104,7 +101,6 @@ export function RebalancingPanel({ pools }: Props) {
           label="You could earn"
           apy={optimal!.weightedApy}
           annualReturn={deployed * (optimal!.weightedApy / 100)}
-          usd={deployed}
           variant="optimal"
         />
       </div>
@@ -146,7 +142,6 @@ export function RebalancingPanel({ pools }: Props) {
         <button
           className={styles.wizardCta}
           onClick={() => {
-            setWizardAmount(deployed)
             document.getElementById('allocation-wizard')?.scrollIntoView({
               behavior: 'smooth', block: 'start',
             })
@@ -164,11 +159,10 @@ export function RebalancingPanel({ pools }: Props) {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function ComparisonCard({ label, apy, annualReturn, usd, variant, positionCount }: {
+function ComparisonCard({ label, apy, annualReturn, variant, positionCount }: {
   label:          string
   apy:            number
   annualReturn:   number
-  usd:            number
   variant:        'current' | 'optimal'
   positionCount?: number
 }) {

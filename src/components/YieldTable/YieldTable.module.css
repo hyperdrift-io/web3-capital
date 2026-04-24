@@ -53,6 +53,33 @@
   gap: 2px;
 }
 
+.projectRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.protocolIcon {
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.protocolIconFallback {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .project {
   font-weight: 500;
   text-transform: capitalize;
