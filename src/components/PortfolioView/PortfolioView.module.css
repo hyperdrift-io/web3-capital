@@ -183,10 +183,6 @@
   border-color: var(--accent);
 }
 
-.chainCardEmpty {
-  opacity: 0.5;
-}
-
 .chainCardSkeleton {
   animation: shimmer 1.5s ease-in-out infinite;
 }
@@ -194,8 +190,19 @@
 .chainCardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-2);
+}
+
+.chainNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.chainIcon {
+  flex-shrink: 0;
+  display: block;
 }
 
 .chainName {
@@ -239,6 +246,24 @@
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
+}
+
+.assetRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tokenIcon {
+  flex-shrink: 0;
+  display: block;
+  border-radius: 50%;
+}
+
+.chainIconSmall {
+  flex-shrink: 0;
+  display: block;
+  opacity: 0.7;
 }
 
 .assetSymbol {
@@ -286,6 +311,18 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
+
+.positionAssetRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.positionChainRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .protocolBadge {

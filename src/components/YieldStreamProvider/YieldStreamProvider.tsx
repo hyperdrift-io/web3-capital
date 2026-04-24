@@ -1,11 +1,17 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import type { Pool } from '@/types/protocol'
 import { useYieldStream, type StreamStatus } from '@/hooks/useYieldStream'
 import { AllocationBands } from '@/components/AllocationBands/AllocationBands'
-import { YieldScatterChart } from '@/components/YieldScatterChart/YieldScatterChart'
 import { YieldTable } from '@/components/YieldTable/YieldTable'
+
 import styles from './YieldStreamProvider.module.css'
+
+const YieldScatterChart = dynamic(
+  () => import('@/components/YieldScatterChart/YieldScatterChart').then(m => m.YieldScatterChart),
+  { ssr: false, loading: () => <div style={{ height: 420 }} /> }
+)
 
 type Props = {
   initialPools: Pool[]

@@ -6,11 +6,13 @@ import { formatAddress } from '@/lib/format'
 import { CONNECTOR_ID, type ConnectorId } from '@/lib/wagmi'
 import styles from './WalletButton.module.css'
 
+const MM_ADDR_KEY = 'last_mm_address'
+
 const PREF_KEY = 'wallet_connector_pref'
 
 function useConnectorPref() {
-  // Porto (smart wallet / passkey) is the default; hydrate from localStorage after mount to avoid SSR mismatch
-  const [pref, setPref] = useState<ConnectorId>(CONNECTOR_ID.porto)
+  // MetaMask/browser wallet is the default; hydrate from localStorage after mount to avoid SSR mismatch
+  const [pref, setPref] = useState<ConnectorId>(CONNECTOR_ID.injected)
 
   useEffect(() => {
     const stored = localStorage.getItem(PREF_KEY) as ConnectorId | null
@@ -72,13 +74,20 @@ function LogOutIcon() {
 }
 
 export function WalletButton() {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, connector: activeConnector } = useAccount()
   const { connect, connectors, isPending, error } = useConnect()
   const { disconnect } = useDisconnect()
   const [pref, updatePref] = useConnectorPref()
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
+
+  // Persist the MetaMask address so Porto can reuse it later
+  useEffect(() => {
+    if (isConnected && address && activeConnector?.id === CONNECTOR_ID.injected) {
+      localStorage.setItem(MM_ADDR_KEY, address)
+    }
+  }, [isConnected, address, activeConnector?.id])
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -159,6 +168,15 @@ export function WalletButton() {
     if (!connector) return
     if (newPref) updatePref(newPref)
     setOpen(false)
+    if (connector.id === CONNECTOR_ID.porto) {
+      const lastMmAddr = localStorage.getItem(MM_ADDR_KEY) ?? undefined
+      if (lastMmAddr) {
+        // Ask Porto to restore the same account used by MetaMask
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        connect({ connector, capabilities: { selectAccount: { address: lastMmAddr } } } as any)
+        return
+      }
+    }
     connect({ connector })
   }
 

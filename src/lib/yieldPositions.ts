@@ -187,7 +187,7 @@ export const YIELD_TOKENS: Record<number, YieldToken[]> = {
   ],
 }
 
-export const SUPPORTED_CHAIN_IDS = [1, 42161, 8453, 10] as const
+export const SUPPORTED_CHAIN_IDS = [1, 42161, 8453, 10, 56, 137] as const
 export type SupportedChainId = typeof SUPPORTED_CHAIN_IDS[number]
 
 export const CHAIN_NAMES: Record<SupportedChainId, string> = {
@@ -195,6 +195,8 @@ export const CHAIN_NAMES: Record<SupportedChainId, string> = {
   42161: 'Arbitrum',
   8453:  'Base',
   10:    'Optimism',
+  56:    'BNB Chain',
+  137:   'Polygon',
 }
 
 // ── Pool matching ──────────────────────────────────────────────────────────────

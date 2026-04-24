@@ -1,14 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Pool } from '@/types/protocol'
-import { formatUsd, formatApy, chainColor } from '@/lib/format'
+import { formatUsd, formatApy } from '@/lib/format'
+import { NETWORK_ICON } from '@/lib/chainIcons'
+import { PROTOCOL_ICON, type ProtocolIconComponent } from '@/lib/protocolIcons'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { buildRouteIntent } from '@/lib/routing'
 import styles from './YieldTable.module.css'
 
-type SortKey = 'apy' | 'tvlUsd' | 'capitalEfficiency'
+type NumericSortKey = 'apy' | 'tvlUsd' | 'capitalEfficiency'
+type StringSortKey  = 'project' | 'chain' | 'band'
+type SortKey = NumericSortKey | StringSortKey
 type SortDir = 'asc' | 'desc'
 
 type Props = {
@@ -17,9 +21,13 @@ type Props = {
   updatedIds?: ReadonlySet<string>
 }
 
+const PAGE_SIZE = 25
+const NUMERIC_SORT_KEYS: NumericSortKey[] = ['apy', 'tvlUsd', 'capitalEfficiency']
+
 export function YieldTable({ pools, updatedIds }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('capitalEfficiency')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [page, setPage] = useState(0)
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
@@ -28,12 +36,19 @@ export function YieldTable({ pools, updatedIds }: Props) {
       setSortKey(key)
       setSortDir('desc')
     }
+    setPage(0)
   }
 
-  const sorted = [...pools].sort((a, b) => {
+  const sorted = useMemo(() => [...pools].sort((a, b) => {
     const mul = sortDir === 'desc' ? -1 : 1
-    return (a[sortKey] - b[sortKey]) * mul
-  })
+    if (NUMERIC_SORT_KEYS.includes(sortKey as NumericSortKey)) {
+      return ((a[sortKey as NumericSortKey] as number) - (b[sortKey as NumericSortKey] as number)) * mul
+    }
+    return (a[sortKey as StringSortKey] as string).localeCompare(b[sortKey as StringSortKey] as string) * mul
+  }), [pools, sortKey, sortDir])
+
+  const pageCount = Math.ceil(sorted.length / PAGE_SIZE)
+  const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   function ceClass(score: number) {
     if (score >= 70) return styles.ceHigh
@@ -47,11 +62,17 @@ export function YieldTable({ pools, updatedIds }: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div>
+      <div className={styles.wrapper}>
       <table className={styles.table}>
         <thead className={styles.thead}>
           <tr>
-            <th>Protocol / Pool</th>
+            <th
+              className={sortKey === 'project' ? styles.sorted : ''}
+              onClick={() => handleSort('project')}
+            >
+              Protocol / Pool {sortIcon('project')}
+            </th>
             <th
               className={sortKey === 'apy' ? styles.sorted : ''}
               onClick={() => handleSort('apy')}
@@ -70,22 +91,41 @@ export function YieldTable({ pools, updatedIds }: Props) {
             >
               CE Score {sortIcon('capitalEfficiency')}
             </th>
-            <th>Chain</th>
-            <th>Band</th>
+            <th
+              className={sortKey === 'chain' ? styles.sorted : ''}
+              onClick={() => handleSort('chain')}
+            >
+              Chain {sortIcon('chain')}
+            </th>
+            <th
+              className={sortKey === 'band' ? styles.sorted : ''}
+              onClick={() => handleSort('band')}
+            >
+              Band {sortIcon('band')}
+            </th>
             <th className={styles.routeCol}>Route</th>
           </tr>
         </thead>
         <tbody>
-          {sorted.length === 0 && (
+          {paged.length === 0 && (
             <tr>
               <td colSpan={7} className={styles.empty}>No pools match your filters</td>
             </tr>
           )}
-          {sorted.map(pool => (
+          {paged.map(pool => {
+            const ProtocolIcon = PROTOCOL_ICON[pool.project] as ProtocolIconComponent | undefined
+            const ChainIcon = NETWORK_ICON[pool.chain]
+
+            return (
             <tr key={pool.pool} className={styles.row}>
               <td className={styles.cell}>
                 <div className={styles.projectCell}>
-                  <span className={styles.project}>{pool.project}</span>
+                  <div className={styles.projectRow}>
+                    {ProtocolIcon
+                      ? <ProtocolIcon size={16} variant="branded" className={styles.protocolIcon} />
+                      : <span className={styles.protocolIconFallback}>{pool.project.charAt(0).toUpperCase()}</span>}
+                    <span className={styles.project}>{pool.project}</span>
+                  </div>
                   <span className={styles.symbol}>{pool.symbol}</span>
                 </div>
               </td>
@@ -112,10 +152,7 @@ export function YieldTable({ pools, updatedIds }: Props) {
               </td>
               <td className={styles.cell}>
                 <span className={styles.chainDot}>
-                  <span
-                    className={styles.dot}
-                    style={{ background: chainColor(pool.chain) }}
-                  />
+                  {ChainIcon ? <ChainIcon size={14} variant="branded" className={styles.chainIcon} /> : null}
                   {pool.chain}
                 </span>
               </td>
@@ -124,16 +161,39 @@ export function YieldTable({ pools, updatedIds }: Props) {
               </td>
               <td className={`${styles.cell} ${styles.routeCell}`}>
                 {(() => {
-                  const intent = buildRouteIntent(pool, 1_000)
+                  const intent = buildRouteIntent(pool)
                   return intent
                     ? <RouteButton intent={intent} amountUsd={1_000} variant="compact" />
                     : null
                 })()}
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
+      </div>
+      {pageCount > 1 && (
+        <div className={styles.pager}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+          >
+            ← Prev
+          </button>
+          <span className={styles.pageInfo}>
+            {page + 1} / {pageCount}
+          </span>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+            disabled={page === pageCount - 1}
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

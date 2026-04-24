@@ -1,0 +1,165 @@
+.wrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Narrative steps ─────────────────────────────────────────────────── */
+
+.narrative {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.narrativeStep {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.narrativeArrow {
+  color: var(--text-muted);
+  padding-left: calc(28px + var(--space-3));
+  font-size: 18px;
+  line-height: 1;
+}
+
+.stepBadge {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: 4px;
+}
+
+.stepTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stepSub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ── Opportunity row ─────────────────────────────────────────────────── */
+
+.opportunityRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+.poolProject {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.poolSymbol {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.chainPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.chainInline {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.poolApy {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  font-family: var(--font-mono);
+}
+
+.ceScore {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── Bridge toggle ───────────────────────────────────────────────────── */
+
+.bridgeTrigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  text-align: left;
+}
+
+.bridgeTrigger:hover {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.bridgeTriggerIcon {
+  font-size: 18px;
+  color: var(--accent);
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.bridgeTriggerLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.bridgeTriggerSub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Widget container ────────────────────────────────────────────────── */
+
+.widgetContainer {
+  margin-top: var(--space-2);
+}

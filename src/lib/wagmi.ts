@@ -1,5 +1,5 @@
-import { createConfig, http } from 'wagmi'
-import { mainnet, arbitrum, base, optimism, polygon } from 'wagmi/chains'
+import { createConfig, http, cookieStorage, createStorage } from 'wagmi'
+import { mainnet, arbitrum, base, optimism, polygon, bsc } from 'viem/chains'
 import { injected } from 'wagmi/connectors'
 import { porto } from 'porto/wagmi'
 
@@ -34,6 +34,7 @@ const PUBLIC_RPCS: Record<number, string> = {
   [arbitrum.id]: 'https://arb1.arbitrum.io/rpc',
   [base.id]:     'https://mainnet.base.org',
   [optimism.id]: 'https://mainnet.optimism.io',
+  [bsc.id]:      'https://bsc-dataseed.binance.org',
   [polygon.id]:  'https://polygon-rpc.com',
 }
 
@@ -42,6 +43,7 @@ const ALCHEMY_RPCS: Record<number, string> = {
   [arbitrum.id]: `https://arb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
   [base.id]:     `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`,
   [optimism.id]: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+  [bsc.id]:      `https://bnb-mainnet.g.alchemy.com/v2/${alchemyKey}`,
   [polygon.id]:  `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}`,
 }
 
@@ -52,14 +54,16 @@ function rpcUrl(chainId: number, envVar: string | undefined): string {
 }
 
 export const wagmiConfig = createConfig({
-  chains: [mainnet, arbitrum, base, optimism, polygon],
+  chains: [mainnet, arbitrum, base, optimism, bsc, polygon],
   ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
   connectors: [injected(), porto()],
   transports: {
     [mainnet.id]:  http(rpcUrl(mainnet.id,  process.env.NEXT_PUBLIC_RPC_MAINNET)),
     [arbitrum.id]: http(rpcUrl(arbitrum.id, process.env.NEXT_PUBLIC_RPC_ARBITRUM)),
     [base.id]:     http(rpcUrl(base.id,     process.env.NEXT_PUBLIC_RPC_BASE)),
     [optimism.id]: http(rpcUrl(optimism.id, process.env.NEXT_PUBLIC_RPC_OPTIMISM)),
+    [bsc.id]:      http(rpcUrl(bsc.id,      process.env.NEXT_PUBLIC_RPC_BSC)),
     [polygon.id]:  http(rpcUrl(polygon.id,  process.env.NEXT_PUBLIC_RPC_POLYGON)),
   },
 })

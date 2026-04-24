@@ -31,3 +31,43 @@
   color: var(--text-muted);
   margin-bottom: var(--space-4);
 }
+
+/* ── Bridge CTA ─────────────────────────────────────────────── */
+.bridgeCta {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.bridgeCta:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-elevated));
+}
+
+.bridgeCtaInner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.bridgeCtaIcon {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.bridgeCtaTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.bridgeCtaSub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}

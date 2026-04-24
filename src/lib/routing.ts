@@ -48,6 +48,150 @@ export const USDC_ADDRESS: Record<number, `0x${string}`> = {
   56:    '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
 }
 
+// ── Known DEX-tradeable token addresses ──────────────────────────────────────
+//
+// Receipt/vault tokens (csyUSDC, aUSDC, cUSDC, etc.) are NOT tradeable on
+// 1inch — they are issued by lending protocols after deposit. This map lets us
+// resolve the underlying tradeable base asset from well-known symbols.
+//
+// Key: uppercase symbol — Value: chainId → contract address
+
+type ChainAddresses = Partial<Record<number, `0x${string}`>>
+
+export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
+  USDC: {
+    1:     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+    8453:  '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    10:    '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+    137:   '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+    56:    '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+    43114: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+  },
+  USDT: {
+    1:     '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    42161: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    10:    '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+    137:   '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+  },
+  DAI: {
+    1:     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    42161: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+    10:    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+    137:   '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+  },
+  WETH: {
+    1:     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    42161: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    8453:  '0x4200000000000000000000000000000000000006',
+    10:    '0x4200000000000000000000000000000000000006',
+    137:   '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+  },
+  WSTETH: {
+    1:     '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+    42161: '0x5979D7b546E38E414F7E9822514be443A4800529',
+    8453:  '0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452',
+    10:    '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+  },
+  STETH: {
+    1:     '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+  },
+  WEETH: {
+    1:     '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+    42161: '0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe',
+    8453:  '0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A',
+  },
+  RETH: {
+    1:     '0xae78736Cd615f374D3085123A210448E74Fc6393',
+    42161: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA',
+    10:    '0x9Bcef72be871e61ED4fBbc7630889beE758eb81D',
+  },
+  CBETH: {
+    1:     '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
+    8453:  '0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22',
+  },
+  WBTC: {
+    1:     '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    42161: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+    10:    '0x68f180fcCe6836688e9084f035309E29Bf0A2095',
+    137:   '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
+  },
+  GHO: {
+    1:     '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+    42161: '0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33',
+  },
+  CRVUSD: {
+    1:     '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+  },
+  LUSD: {
+    1:     '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
+  },
+  FRAX: {
+    1:     '0x853d955aCEf822Db058eb8505911ED77F175b99e',
+  },
+  SUSDE: {
+    1:     '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+    42161: '0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2',
+  },
+  USDE: {
+    1:     '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+    42161: '0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34',
+  },
+  SDAI: {
+    1:     '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
+  },
+}
+
+// ── Non-tradeable vault token prefix patterns ─────────────────────────────────
+//
+// These prefixes identify receipt/vault tokens. Stripping them reveals the
+// underlying base asset symbol which we can look up in KNOWN_TOKEN.
+//
+// Order matters: try longest match first.
+const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+
+/**
+ * Resolve the best 1inch `dst` token for a given pool.
+ *
+ * Strategy (in order):
+ * 1. If underlyingTokens[0] is a known tradeable address → use it.
+ * 2. If the pool symbol is a known tradeable symbol → use its address.
+ * 3. Strip vault prefixes from the symbol and retry step 2.
+ * 4. Fall back to the raw symbol string (1inch may still resolve it).
+ */
+export function resolveToToken(pool: { symbol: string; underlyingTokens: string[] | null }, chainId: number): string {
+  const known = KNOWN_TOKEN
+
+  // Build a reverse address→symbol index for fast lookup
+  const knownAddresses = new Set(
+    Object.values(known).flatMap(chains => Object.values(chains)).map(a => a!.toLowerCase()),
+  )
+
+  // 1. underlying token address that is DEX-tradeable
+  const underlying = pool.underlyingTokens?.[0]
+  if (underlying && knownAddresses.has(underlying.toLowerCase())) {
+    return underlying
+  }
+
+  const sym = pool.symbol.toUpperCase()
+
+  // 2. exact symbol match
+  const direct = known[sym]?.[chainId]
+  if (direct) return direct
+
+  // 3. strip vault prefix and retry
+  for (const prefix of VAULT_PREFIXES) {
+    if (sym.startsWith(prefix.toUpperCase())) {
+      const base = sym.slice(prefix.length)
+      const fromBase = known[base]?.[chainId]
+      if (fromBase) return fromBase
+    }
+  }
+
+  // 4. last resort — let 1inch try to interpret the symbol
+  return pool.symbol
+}
+
 // ── Deep-link builder ─────────────────────────────────────────────────────────
 
 export type RouteIntent = {
@@ -65,30 +209,30 @@ export type RouteIntent = {
  *
  * Returns null if the pool's chain is not supported by 1inch or we can't
  * determine the target token.
+ *
+ * URL format: https://app.1inch.io/swap?src={chain}:{from}&dst={chain}:{to}
+ * where {to} is the pool's first underlying token address when available,
+ * otherwise the pool symbol (1inch accepts well-known symbols).
  */
-export function buildRouteIntent(pool: Pool, amountUsd: number): RouteIntent | null {
+export function buildRouteIntent(pool: Pool): RouteIntent | null {
   const chainId = CHAIN_ID[pool.chain]
   if (!chainId) return null
 
   const fromAddress = USDC_ADDRESS[chainId]
   if (!fromAddress) return null
 
-  // Resolve the target token: use the pool's first underlying token if available,
-  // otherwise fall back to the symbol (1inch accepts well-known symbols too)
-  const toAddress  = pool.underlyingTokens?.[0] ?? null
-  const toToken    = toAddress ?? pool.symbol
+  // Resolve destination: strips vault/receipt token prefixes to find the
+  // underlying tradeable base asset (e.g. csyUSDC → USDC, aWETH → WETH).
+  const toToken = resolveToToken(pool, chainId)
 
-  // Check if source and target are the same (direct deposit, not a swap)
-  const isSameToken = toAddress
-    ? toAddress.toLowerCase() === fromAddress.toLowerCase()
-    : pool.symbol.toUpperCase() === 'USDC'
-
-  // Amount in raw USDC units (6 decimals) — 1inch reads `inputCurrency` param
-  const amountRaw = Math.floor(amountUsd * 1_000_000).toString()
+  // Check if source and target are the same (direct USDC deposit, no swap needed)
+  const isSameToken =
+    toToken.toLowerCase() === fromAddress.toLowerCase() ||
+    toToken.toUpperCase() === 'USDC'
 
   const url = isSameToken
     ? `https://app.aave.com` // direct deposit: Aave for USDC pools
-    : `https://app.1inch.io/#/${chainId}/simple/swap/${fromAddress}/${toToken}?inputCurrency=${amountRaw}`
+    : `https://app.1inch.io/swap?src=${chainId}:${fromAddress}&dst=${chainId}:${toToken}`
 
   return {
     url,
@@ -193,7 +337,7 @@ export function buildAllocation(
     const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
     const amountUsd  = totalUsd * fraction
     const bestPool   = pools.filter(p => p.band === band)[0] ?? null
-    const intent     = bestPool ? buildRouteIntent(bestPool, amountUsd) : null
+    const intent     = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
       band,

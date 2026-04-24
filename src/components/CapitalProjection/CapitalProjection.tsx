@@ -1,7 +1,7 @@
 'use client'
 
 import { useAccount, useBalance, useBlockNumber, useReadContract } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
+import { mainnet } from 'viem/chains'
 import type { Pool } from '@/types/protocol'
 import { formatUsd, formatApy, formatAddress, formatEther } from '@/lib/format'
 import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'

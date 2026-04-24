@@ -1,15 +1,53 @@
 'use client'
 
+import type { ComponentType } from 'react'
 import { useAccount } from 'wagmi'
-import { useReadContract } from 'wagmi'
+import {
+  NetworkEthereum,
+  NetworkArbitrumOne,
+  NetworkBase,
+  NetworkOptimism,
+  NetworkBinanceSmartChain,
+  NetworkPolygon,
+  TokenETH,
+  TokenUSDC,
+  TokenUSDT,
+  TokenBNB,
+  TokenMATIC,
+} from '@web3icons/react'
 import { useMultiChainBalances } from '@/hooks/useMultiChainBalances'
 import { useYieldPositions }     from '@/hooks/useYieldPositions'
 import { useDevAddress }         from '@/hooks/useDevAddress'
-import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
+import { useEthUsdPrice }        from '@/hooks/useEthUsdPrice'
+import { FALLBACK_ETH_USD } from '@/lib/chainlink'
 import { CHAIN_NAMES } from '@/lib/yieldPositions'
 import { formatUsd } from '@/lib/format'
 import type { Pool } from '@/types/protocol'
 import styles from './PortfolioView.module.css'
+
+// Structural icon type matching how we render: size, variant, className.
+// Using the concrete variant union from @web3icons/common to satisfy the
+// library's TVariant constraint without importing the full IconComponent type.
+type AnyIcon = ComponentType<{ size?: number | string; variant?: 'mono' | 'branded' | 'background'; className?: string }>
+
+const CHAIN_ICON: Record<number, AnyIcon> = {
+  1:     NetworkEthereum,
+  42161: NetworkArbitrumOne,
+  8453:  NetworkBase,
+  10:    NetworkOptimism,
+  56:    NetworkBinanceSmartChain,
+  137:   NetworkPolygon,
+}
+
+// WETH reuses the ETH icon (same brand). wstETH/stETH have no icon in the library.
+const TOKEN_ICON: Record<string, AnyIcon> = {
+  ETH:   TokenETH,
+  WETH:  TokenETH,
+  USDC:  TokenUSDC,
+  USDT:  TokenUSDT,
+  BNB:   TokenBNB,
+  MATIC: TokenMATIC,
+}
 
 type Props = {
   pools: Pool[]
@@ -19,7 +57,7 @@ type Props = {
  * Portfolio Overview — Iteration 4
  *
  * Full cross-chain capital picture:
- * - 4.1 Multi-chain balance aggregation (native + ERC-20 across 4 chains)
+ * - 4.1 Multi-chain balance aggregation (native + ERC-20 across supported chains)
  * - 4.2 Yield position detection (Aave v3 + Compound v3 aTokens/cTokens)
  *
  * Surfaces active positions as "You're Earning" with live APY from DeFi Llama.
@@ -30,19 +68,9 @@ export function PortfolioView({ pools }: Props) {
   const devAddress = useDevAddress()
   const address    = devAddress ?? walletAddress
 
-  // Live ETH/USD price (reuses same Chainlink feed as CapitalProjection)
-  const { data: priceData } = useReadContract({
-    abi:          AGGREGATOR_V3_ABI,
-    address:      ETH_USD_FEED[1],
-    functionName: 'latestRoundData',
-    chainId:      1,
-    query:        { refetchInterval: 30_000 },
-  })
-  const ethUsdPrice = priceData
-    ? parseChainlinkAnswer(priceData[1] as bigint)
-    : FALLBACK_ETH_USD
+  const ethUsdPrice = useEthUsdPrice()
 
-  const { chains, chainsWithBalance, totalUsd, isLoading: balancesLoading } =
+  const { chainsWithBalance, totalUsd, isLoading: balancesLoading } =
     useMultiChainBalances(address, ethUsdPrice)
 
   const { positions, summary, isLoading: positionsLoading } =
@@ -97,7 +125,9 @@ export function PortfolioView({ pools }: Props) {
           }
         </div>
         <div className={styles.headerMeta}>
-          <span className={styles.chainCount}>Across {SUPPORTED_CHAIN_IDS.length} chains</span>
+          <span className={styles.chainCount}>
+            {isLoading ? 'Scanning chains…' : chainsWithBalance.length > 0 ? `Across ${chainsWithBalance.length} chain${chainsWithBalance.length !== 1 ? 's' : ''}` : 'No assets found'}
+          </span>
           {ethUsdPrice !== FALLBACK_ETH_USD && (
             <span className={styles.priceTag}>ETH {formatUsd(ethUsdPrice, false)}</span>
           )}
@@ -105,22 +135,23 @@ export function PortfolioView({ pools }: Props) {
       </div>
 
       {/* ── Chain breakdown — 4.1 ────────────────────────────────── */}
-      <div className={styles.section}>
-        <div className={styles.sectionLabel}>Capital by chain</div>
-        <div className={styles.chainGrid}>
-          {isLoading
-            ? SUPPORTED_CHAIN_IDS.map(id => <ChainCardSkeleton key={id} />)
-            : chains.map(chain => (
-                <ChainCard
-                  key={chain.chainId}
-                  chain={chain}
-                  ethUsdPrice={ethUsdPrice}
-                  share={totalUsd > 0 ? chain.totalUsd / totalUsd : 0}
-                />
-              ))
-          }
+      {(isLoading || chainsWithBalance.length > 0) && (
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>Capital by chain</div>
+          <div className={styles.chainGrid}>
+            {isLoading
+              ? [0, 1, 2].map(i => <ChainCardSkeleton key={i} />)
+              : chainsWithBalance.map(chain => (
+                  <ChainCard
+                    key={chain.chainId}
+                    chain={chain}
+                    share={totalUsd > 0 ? chain.totalUsd / totalUsd : 0}
+                  />
+                ))
+            }
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Active positions — 4.2 ───────────────────────────────── */}
       <div className={styles.section}>
@@ -189,49 +220,57 @@ export function PortfolioView({ pools }: Props) {
 
 import type { ChainBalance } from '@/hooks/useMultiChainBalances'
 
-function ChainCard({ chain, ethUsdPrice, share }: {
+function ChainCard({ chain, share }: {
   chain:        ChainBalance
-  ethUsdPrice:  number
   share:        number
 }) {
-  const ethBalance = Number(chain.native) / 1e18
-  const isEmpty    = chain.totalUsd < 0.01
+  const ChainIconComp = CHAIN_ICON[chain.chainId]
 
   return (
-    <div className={`${styles.chainCard} ${isEmpty ? styles.chainCardEmpty : ''}`}>
+    <div className={styles.chainCard}>
       <div className={styles.chainCardHeader}>
-        <span className={styles.chainName}>{chain.chainName}</span>
-        <span className={styles.chainUsd}>
-          {isEmpty ? '—' : formatUsd(chain.totalUsd)}
-        </span>
+        <div className={styles.chainNameRow}>
+          {ChainIconComp && (
+            <ChainIconComp
+              size={18}
+              variant="branded"
+              className={styles.chainIcon}
+            />
+          )}
+          <span className={styles.chainName}>{chain.chainName}</span>
+        </div>
+        <span className={styles.chainUsd}>{formatUsd(chain.totalUsd)}</span>
       </div>
 
-      {/* Share bar */}
-      {!isEmpty && (
-        <div className={styles.shareBar}>
-          <div
-            className={styles.shareBarFill}
-            style={{ width: `${Math.round(share * 100)}%` }}
-          />
-        </div>
-      )}
+      <div className={styles.shareBar}>
+        <div
+          className={styles.shareBarFill}
+          style={{ width: `${Math.round(share * 100)}%` }}
+        />
+      </div>
 
       <div className={styles.chainAssets}>
-        {ethBalance > 0.0001 && (
+        {chain.nativeUsd > 0.01 && (
           <div className={styles.assetRow}>
-            <span className={styles.assetSymbol}>ETH</span>
-            <span className={styles.assetUsd}>{formatUsd(ethBalance * ethUsdPrice)}</span>
+            <span className={styles.assetRowLeft}>
+              {(() => { const I = TOKEN_ICON[chain.nativeSymbol]; return I ? <I size={16} variant="branded" className={styles.tokenIcon} /> : null })()}
+              <span className={styles.assetSymbol}>{chain.nativeSymbol}</span>
+            </span>
+            <span className={styles.assetUsd}>{formatUsd(chain.nativeUsd)}</span>
           </div>
         )}
-        {chain.tokens.map(t => (
-          <div key={t.meta.address} className={styles.assetRow}>
-            <span className={styles.assetSymbol}>{t.meta.symbol}</span>
-            <span className={styles.assetUsd}>{formatUsd(t.usd)}</span>
-          </div>
-        ))}
-        {isEmpty && (
-          <span className={styles.assetEmpty}>No assets</span>
-        )}
+        {chain.tokens.map(t => {
+          const TokenIconComp = TOKEN_ICON[t.meta.symbol]
+          return (
+            <div key={t.meta.address} className={styles.assetRow}>
+              <span className={styles.assetRowLeft}>
+                {TokenIconComp && <TokenIconComp size={16} variant="branded" className={styles.tokenIcon} />}
+                <span className={styles.assetSymbol}>{t.meta.symbol}</span>
+              </span>
+              <span className={styles.assetUsd}>{formatUsd(t.usd)}</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -243,8 +282,10 @@ import type { DetectedPosition } from '@/lib/yieldPositions'
 
 function PositionRow({ pos }: { pos: DetectedPosition }) {
   const { token, chainId, usdValue, apy } = pos
-  const protocolLabel = token.protocol === 'aave-v3' ? 'Aave v3' : 'Compound v3'
-  const chainName     = CHAIN_NAMES[chainId]
+  const protocolLabel   = token.protocol === 'aave-v3' ? 'Aave v3' : 'Compound v3'
+  const chainName       = CHAIN_NAMES[chainId]
+  const ChainIconComp   = CHAIN_ICON[chainId]
+  const TokenIconComp   = TOKEN_ICON[token.underlying]
 
   return (
     <div className={styles.positionRow}>
@@ -252,8 +293,14 @@ function PositionRow({ pos }: { pos: DetectedPosition }) {
         <span className={`${styles.protocolBadge} ${styles[`protocol--${token.protocol}`]}`}>
           {protocolLabel}
         </span>
-        <span className={styles.positionAsset}>{token.underlying}</span>
-        <span className={styles.positionChain}>{chainName}</span>
+        <span className={styles.positionAssetRow}>
+          {TokenIconComp && <TokenIconComp size={16} variant="branded" className={styles.tokenIcon} />}
+          <span className={styles.positionAsset}>{token.underlying}</span>
+        </span>
+        <span className={styles.positionChainRow}>
+          {ChainIconComp && <ChainIconComp size={12} variant="mono" className={styles.chainIconSmall} />}
+          <span className={styles.positionChain}>{chainName}</span>
+        </span>
       </div>
 
       <div className={styles.positionRight}>
@@ -288,5 +335,3 @@ function PositionSkeleton() {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const SUPPORTED_CHAIN_IDS = [1, 42161, 8453, 10] as const
