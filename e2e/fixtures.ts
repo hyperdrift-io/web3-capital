@@ -68,6 +68,7 @@ export const test = base.extend<{
     await page.addInitScript(() => {
       localStorage.removeItem('wagmi.store')
       localStorage.removeItem('wallet_connector_pref')
+      localStorage.removeItem('last_mm_address')
     })
     await use(page)
   },
@@ -76,6 +77,8 @@ export const test = base.extend<{
     await injectMockWallet(page)
     await page.addInitScript(() => {
       localStorage.removeItem('wagmi.store')
+      localStorage.setItem('wallet_connector_pref', 'injected')
+      localStorage.removeItem('last_mm_address')
     })
     await use(page)
   },

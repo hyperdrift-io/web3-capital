@@ -72,7 +72,7 @@ test.describe('Yield page', () => {
   test('clicking APY header sorts pools by APY descending', async ({ page }) => {
     await page.locator('tbody tr').first().waitFor({ timeout: 15_000 })
 
-    await page.getByRole('columnheader', { name: /apy/i }).click()
+    await page.getByRole('button', { name: /apy/i }).click()
 
     // Give React a tick to re-sort
     await page.waitForTimeout(200)
@@ -92,7 +92,7 @@ test.describe('Yield page', () => {
   test('clicking APY header twice reverses to ascending', async ({ page }) => {
     await page.locator('tbody tr').first().waitFor({ timeout: 15_000 })
 
-    const apyHeader = page.getByRole('columnheader', { name: /apy/i })
+    const apyHeader = page.getByRole('button', { name: /apy/i })
     await apyHeader.click()
     await apyHeader.click()
     await page.waitForTimeout(200)
@@ -114,9 +114,9 @@ test.describe('Yield page', () => {
     await page.locator('tbody tr').first().waitFor({ timeout: 15_000 })
 
     // All three band cards should be present
-    await expect(page.getByText('Anchor')).toBeVisible()
-    await expect(page.getByText('Balanced')).toBeVisible()
-    await expect(page.getByText('Opportunistic')).toBeVisible()
+    await expect(page.getByText('Anchor', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Balanced', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Opportunistic', { exact: true }).first()).toBeVisible()
 
     // Each band shows a pool count (e.g. "42 pools")
     const poolCounts = page.getByText(/\d+ pools/)

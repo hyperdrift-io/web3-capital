@@ -52,7 +52,7 @@ describe('YieldTable sorting', () => {
   it('clicking APY header sorts by APY descending', async () => {
     const user = userEvent.setup()
     const view = render(<YieldTable pools={pools} />)
-    await user.click(view.getByRole('columnheader', { name: /apy/i }))
+    await user.click(view.getByRole('button', { name: /apy/i }))
     const names = getProjectNames(view)
     expect(names[0]).toContain('compound') // 7.2%
     expect(names[1]).toContain('aave')     // 4.5%
@@ -62,7 +62,7 @@ describe('YieldTable sorting', () => {
   it('clicking the same header a second time reverses to ascending', async () => {
     const user = userEvent.setup()
     const view = render(<YieldTable pools={pools} />)
-    const apyHeader = view.getByRole('columnheader', { name: /apy/i })
+    const apyHeader = view.getByRole('button', { name: /apy/i })
     await user.click(apyHeader)
     await user.click(apyHeader)
     const names = getProjectNames(view)
@@ -75,12 +75,12 @@ describe('YieldTable sorting', () => {
     const view = render(<YieldTable pools={pools} />)
 
     // Sort APY asc
-    const apyHeader = view.getByRole('columnheader', { name: /apy/i })
+    const apyHeader = view.getByRole('button', { name: /apy/i })
     await user.click(apyHeader)
     await user.click(apyHeader) // now asc
 
     // Switch to TVL — should reset to desc (highest TVL first)
-    await user.click(view.getByRole('columnheader', { name: /tvl/i }))
+    await user.click(view.getByRole('button', { name: /tvl/i }))
     const names = getProjectNames(view)
     expect(names[0]).toContain('aave')     // $2B
     expect(names[2]).toContain('curve')    // $100M

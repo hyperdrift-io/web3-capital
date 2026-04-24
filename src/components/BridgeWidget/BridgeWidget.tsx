@@ -42,6 +42,7 @@ export type BridgeWidgetProps = {
  *   - Embeddable React component — no iframe, no redirect.
  */
 export function BridgeWidget({ targetChain = 'Arbitrum', sourceChain = 'Ethereum' }: BridgeWidgetProps) {
+  const sourceToken = usdcTokenForChain(sourceChain)
   const destToken = usdcTokenForChain(targetChain)
 
   const config: WormholeConnectConfig = {
@@ -50,7 +51,7 @@ export function BridgeWidget({ targetChain = 'Arbitrum', sourceChain = 'Ethereum
     tokens:  [...BRIDGE_TOKENS],
     ui: {
       defaultInputs: {
-        source:      { chain: sourceChain, token: 'USDCeth' },
+        source:      { chain: sourceChain, token: sourceToken },
         destination: { chain: targetChain, token: destToken },
       },
       showFooter:          false,

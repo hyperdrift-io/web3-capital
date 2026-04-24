@@ -1,6 +1,7 @@
 import type { Pool, AllocationBand } from '@/types/protocol'
 
 const YIELDS_API = 'https://yields.llama.fi/pools'
+const USE_E2E_MOCK_YIELDS = process.env.E2E_MOCK_YIELDS === '1'
 
 // Protocols with established track records — higher safety weight
 const TIER_1_PROTOCOLS = new Set([
@@ -68,6 +69,23 @@ export function safetyScore(pool: RawPool): number {
   if (pool.apyBase === 0 && (pool.apyReward ?? 0) > 0) score -= 10
 
   return Math.max(0, Math.min(100, score))
+}
+
+function getE2EMockRawPools(): RawPool[] {
+  return [
+    { pool: 'pool-aave', symbol: 'USDC', project: 'aave-v3', chain: 'Ethereum', apy: 4.2, apyBase: 4.2, apyReward: null, apyPct7d: 0.3, tvlUsd: 2_400_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-compound', symbol: 'USDC', project: 'compound-v3', chain: 'Base', apy: 5.8, apyBase: 5.8, apyReward: null, apyPct7d: 0.4, tvlUsd: 1_700_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-spark', symbol: 'DAI', project: 'spark', chain: 'Ethereum', apy: 6.4, apyBase: 6.4, apyReward: null, apyPct7d: -0.1, tvlUsd: 980_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-curve', symbol: 'crvUSD', project: 'curve-dex', chain: 'Arbitrum', apy: 3.1, apyBase: 3.1, apyReward: null, apyPct7d: 0.2, tvlUsd: 620_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-pendle', symbol: 'USDe', project: 'pendle', chain: 'Ethereum', apy: 18.4, apyBase: 11.2, apyReward: 7.2, apyPct7d: 1.2, tvlUsd: 430_000_000, stablecoin: false, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-balancer', symbol: 'wstETH-ETH', project: 'balancer', chain: 'Base', apy: 14.6, apyBase: 8.3, apyReward: 6.3, apyPct7d: 0.7, tvlUsd: 260_000_000, stablecoin: false, ilRisk: 'YES', exposure: 'lp', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-gmx', symbol: 'WETH', project: 'gmx', chain: 'Arbitrum', apy: 20.2, apyBase: 14.2, apyReward: 6, apyPct7d: 0.9, tvlUsd: 145_000_000, stablecoin: false, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-morpho', symbol: 'USDC', project: 'morpho-blue', chain: 'Ethereum', apy: 16.1, apyBase: 16.1, apyReward: null, apyPct7d: 0.6, tvlUsd: 88_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-fluid', symbol: 'USDC', project: 'fluid', chain: 'Base', apy: 31.6, apyBase: 19.1, apyReward: 12.5, apyPct7d: 1.6, tvlUsd: 42_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-sonne', symbol: 'WETH', project: 'sonne-finance', chain: 'Optimism', apy: 27.3, apyBase: 17.8, apyReward: 9.5, apyPct7d: 2.1, tvlUsd: 24_000_000, stablecoin: false, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-tarot', symbol: 'USDT', project: 'tarot', chain: 'Optimism', apy: 35.5, apyBase: 21.4, apyReward: 14.1, apyPct7d: 3.4, tvlUsd: 9_000_000, stablecoin: true, ilRisk: null, exposure: 'single', underlyingTokens: null, rewardTokens: null },
+    { pool: 'pool-pancake', symbol: 'USDT-USDC', project: 'pancakeswap-v3', chain: 'BSC', apy: 22.7, apyBase: 7.9, apyReward: 14.8, apyPct7d: 1.4, tvlUsd: 165_000_000, stablecoin: true, ilRisk: 'YES', exposure: 'lp', underlyingTokens: null, rewardTokens: null },
+  ]
 }
 
 export function capitalEfficiency(pool: RawPool, safety: number): number {
@@ -167,6 +185,12 @@ function enrichPool(raw: RawPool): Pool {
 }
 
 export async function fetchPools(): Promise<Pool[]> {
+  if (USE_E2E_MOCK_YIELDS) {
+    return getE2EMockRawPools()
+      .map(enrichPool)
+      .sort((a, b) => b.capitalEfficiency - a.capitalEfficiency)
+  }
+
   const res = await fetch(YIELDS_API, {
     cache: 'no-store', // response ~17MB; Next.js fetch cache has 2MB limit
   })
