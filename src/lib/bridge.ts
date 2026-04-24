@@ -9,7 +9,7 @@
  * tokens outside this set, so the widget stays minimal and purposeful.
  */
 
-import type { Chain } from '@wormhole-foundation/sdk'
+import type { Chain } from '@wormhole-foundation/wormhole-connect'
 
 // ── Chain mapping ─────────────────────────────────────────────────────────────
 

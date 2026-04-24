@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi'
+import { createConfig, http, cookieStorage, createStorage } from 'wagmi'
 import { mainnet, arbitrum, base, optimism, polygon } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 import { porto } from 'porto/wagmi'
@@ -54,6 +54,7 @@ function rpcUrl(chainId: number, envVar: string | undefined): string {
 export const wagmiConfig = createConfig({
   chains: [mainnet, arbitrum, base, optimism, polygon],
   ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
   connectors: [injected(), porto()],
   transports: {
     [mainnet.id]:  http(rpcUrl(mainnet.id,  process.env.NEXT_PUBLIC_RPC_MAINNET)),

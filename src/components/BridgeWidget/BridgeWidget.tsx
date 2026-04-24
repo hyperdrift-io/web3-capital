@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import type { Chain } from '@wormhole-foundation/sdk'
+import type { Chain } from '@wormhole-foundation/wormhole-connect'
 import type { config as WormholeConnectConfigNS, WormholeConnectTheme } from '@wormhole-foundation/wormhole-connect'
 import { BRIDGE_CHAINS, BRIDGE_TOKENS, usdcTokenForChain } from '@/lib/bridge'
 import styles from './BridgeWidget.module.css'

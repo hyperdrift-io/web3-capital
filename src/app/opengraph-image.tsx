@@ -43,6 +43,8 @@ export default function OgImage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
+              display: 'flex',
+              flexDirection: 'column',
               fontSize: '72px',
               fontWeight: 700,
               color: '#f8fafc',
@@ -50,9 +52,8 @@ export default function OgImage() {
               letterSpacing: '-0.02em',
             }}
           >
-            DeFi Yield
-            <br />
-            Intelligence
+            <span>DeFi Yield</span>
+            <span>Intelligence</span>
           </div>
           <div
             style={{

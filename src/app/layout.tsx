@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { JetBrains_Mono } from 'next/font/google'
+import { headers } from 'next/headers'
+import { cookieToInitialState } from 'wagmi'
 import { Providers } from '@/components/Providers'
 import { Header } from '@/components/Header/Header'
 import { Analytics } from '@/components/Analytics'
+import { wagmiConfig } from '@/lib/wagmi'
 import './globals.css'
 
 const inter = Inter({
@@ -48,11 +51,14 @@ export const metadata: Metadata = {
   alternates: { canonical: baseUrl },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers()
+  const initialState = cookieToInitialState(wagmiConfig, headersList.get('cookie'))
+
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <Providers>
+        <Providers initialState={initialState}>
           <Header />
           <main>{children}</main>
         </Providers>
