@@ -9,10 +9,44 @@ import styles from './BridgeWidget.module.css'
 
 type WormholeConnectConfig = WormholeConnectConfigNS.WormholeConnectConfig
 
+const WORMHOLE_RELOAD_KEY = 'wormhole_widget_chunk_retry'
+
+function BridgeWidgetFallback() {
+  return (
+    <div className={styles.errorFallback}>
+      <p>The bridge widget failed to load.</p>
+      <a
+        href="https://portalbridge.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.fallbackLink}
+      >
+        Open Portal Bridge →
+      </a>
+    </div>
+  )
+}
+
 // Lazy-load the heavy Wormhole Connect bundle — it's only needed when the
 // user actually opens the bridge panel.
 const WormholeConnect = dynamic(
-  () => import('@wormhole-foundation/wormhole-connect'),
+  async () => {
+    try {
+      return await import('@wormhole-foundation/wormhole-connect')
+    } catch (error) {
+      if (typeof window !== 'undefined') {
+        const message = String(error)
+        const isChunkOrSyntaxFailure = /ChunkLoadError|Loading chunk|Invalid or unexpected token|Unexpected token/i.test(message)
+        // One self-heal attempt for stale/corrupt chunk fetches (common right
+        // after deploys while some clients still hold old runtime state).
+        if (isChunkOrSyntaxFailure && !window.sessionStorage.getItem(WORMHOLE_RELOAD_KEY)) {
+          window.sessionStorage.setItem(WORMHOLE_RELOAD_KEY, '1')
+          window.location.reload()
+        }
+      }
+      return { default: BridgeWidgetFallback }
+    }
+  },
   {
     ssr: false,
     loading: () => <div className={styles.loading}>Loading bridge…</div>,
@@ -49,19 +83,7 @@ class BridgeErrorBoundary extends Component<{ children: ReactNode }, EBState> {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <div className={styles.errorFallback}>
-          <p>The bridge widget failed to load.</p>
-          <a
-            href="https://portalbridge.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.fallbackLink}
-          >
-            Open Portal Bridge →
-          </a>
-        </div>
-      )
+      return <BridgeWidgetFallback />
     }
     return this.props.children
   }
