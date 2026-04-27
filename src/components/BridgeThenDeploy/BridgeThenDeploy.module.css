@@ -182,24 +182,20 @@
 /* ── Bridge modal ───────────────────────────────────────────────────── */
 
 .modal {
-  /* Reset browser <dialog> defaults */
+  /* Do NOT set display, position, width or height here.
+   * The browser controls <dialog> visibility via its own display toggling.
+   * Overriding display breaks showModal() and the backdrop entirely. */
   padding: 0;
   border: none;
   background: transparent;
-  max-width: none;
-  max-height: none;
-  width: 100%;
-  height: 100%;
-  /* Full-viewport overlay */
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
+  /* Constrain size — native dialog centers itself in the viewport */
+  max-width: min(620px, 96vw);
+  max-height: 92dvh;
+  border-radius: var(--radius-lg);
+  overflow: visible;
 }
 
-/* Native <dialog> backdrop */
+/* Dark blurred backdrop via native ::backdrop */
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
@@ -213,11 +209,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  width: min(600px, 94vw);
-  max-height: 92vh;
+  width: min(620px, 96vw);
+  max-height: 90dvh;
   overflow-y: auto;
-  /* Keep panel on top of backdrop click detection */
-  position: relative;
 }
 
 .modalHeader {
@@ -236,12 +230,12 @@
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   transition: color var(--transition), background var(--transition);
-  line-height: 1;
 }
 
 .modalClose:hover {
