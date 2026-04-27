@@ -6,8 +6,6 @@ import { formatAddress } from '@/lib/format'
 import { CONNECTOR_ID } from '@/lib/wagmi'
 import styles from './WalletButton.module.css'
 
-const PREF_KEY = 'wallet_connector_pref'
-
 function friendlyError(msg: string): { text: string; showInstall: boolean } {
   const lower = msg.toLowerCase()
   if (lower.includes('provider not found') || lower.includes('no injected provider') || lower.includes('ethereum provider') || lower.includes('metamask extension not found') || lower.includes('failed to connect to metamask')) {
@@ -117,12 +115,7 @@ export function WalletButton() {
               className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
               onClick={() => {
                 setOpen(false)
-                try {
-                  disconnect({ connector: activeConnector })
-                } catch {
-                  localStorage.removeItem(PREF_KEY)
-                  window.location.reload()
-                }
+                disconnect({ connector: activeConnector })
               }}
             >
               <LogOutIcon />

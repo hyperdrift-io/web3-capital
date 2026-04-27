@@ -25,7 +25,7 @@ export function RouteButton({ intent, amountUsd, variant = 'full', estimatedOutp
   const depositTarget = protocolLabel ?? 'Aave'
   const label = isSameToken ? `Deposit on ${depositTarget}` : `Swap on 1inch`
   const sublabel = isSameToken
-    ? `${formatUsd(amountUsd)} USDC → ${toSymbol} pool`
+    ? `${formatUsd(amountUsd)} ${fromSymbol} → ${toSymbol} pool`
     : estimatedOutput
       ? `${formatUsd(amountUsd)} ${fromSymbol} → ${estimatedOutput}`
       : `${formatUsd(amountUsd)} ${fromSymbol} → ${toSymbol}`

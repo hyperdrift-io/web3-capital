@@ -113,7 +113,7 @@ export function BridgeThenDeploy({ topPool }: Props) {
               Deploy into {topPool.project}
             </div>
             {routeIntent ? (
-              <RouteButton intent={routeIntent} amountUsd={0} variant="full" />
+              <RouteButton intent={routeIntent} amountUsd={0} variant="compact" />
             ) : (
               <div className={styles.stepSub}>
                 Pre-filled routing — one click to 1inch or direct deposit

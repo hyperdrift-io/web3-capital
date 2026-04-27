@@ -30,8 +30,8 @@ describe('defiLlamaChainToWormhole', () => {
     expect(defiLlamaChainToWormhole('Polygon')).toBe('Polygon')
   })
 
-  it('maps BSC (BNB Chain) → Bsc', () => {
-    expect(defiLlamaChainToWormhole('BSC')).toBe('Bsc')
+  it('returns null for BSC (excluded: CoinGecko free-tier 400 on multi-contract requests)', () => {
+    expect(defiLlamaChainToWormhole('BSC')).toBeNull()
   })
 
   it('maps Solana → Solana (EVM ↔ Solana via Wormhole NTT)', () => {
@@ -94,14 +94,14 @@ describe('tokenForPoolSymbol', () => {
 // ─── BRIDGE_CHAINS ────────────────────────────────────────────────────────────
 
 describe('BRIDGE_CHAINS', () => {
-  it('contains the six EVM chains plus Solana', () => {
-    expect(BRIDGE_CHAINS).toHaveLength(7)
+  it('contains the five EVM chains plus Solana', () => {
+    expect(BRIDGE_CHAINS).toHaveLength(6)
     expect(BRIDGE_CHAINS).toContain('Ethereum')
     expect(BRIDGE_CHAINS).toContain('Arbitrum')
     expect(BRIDGE_CHAINS).toContain('Base')
     expect(BRIDGE_CHAINS).toContain('Optimism')
     expect(BRIDGE_CHAINS).toContain('Polygon')
-    expect(BRIDGE_CHAINS).toContain('Bsc')
+    expect(BRIDGE_CHAINS).not.toContain('Bsc') // excluded: CoinGecko free-tier 400
     expect(BRIDGE_CHAINS).toContain('Solana')
   })
 
@@ -143,7 +143,7 @@ describe('BRIDGE_TOKENS', () => {
 // ─── DEFI_LLAMA_TO_WORMHOLE map consistency ───────────────────────────────────
 
 describe('DEFI_LLAMA_TO_WORMHOLE', () => {
-  it('covers the same chains as BRIDGE_CHAINS', () => {
+  it('covers all chains in BRIDGE_CHAINS', () => {
     const mapped = Object.values(DEFI_LLAMA_TO_WORMHOLE)
     for (const chain of BRIDGE_CHAINS) {
       expect(mapped).toContain(chain)

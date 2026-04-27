@@ -9,8 +9,8 @@ export const metadata = {
   description: 'Bridge ETH, USDC, WBTC, wstETH and more cross-chain — EVM or Solana — via Wormhole. No wrapped tokens. Deploy straight into the highest CE-scored yield opportunity.',
 }
 
-export default async function BridgePage({ searchParams }: { searchParams: Promise<{ pool?: string }> }) {
-  const { pool: poolId } = await searchParams
+export default async function BridgePage({ searchParams }: { searchParams: { pool?: string } }) {
+  const { pool: poolId } = searchParams
   const pools = await fetchTopPools(150)
   const topAnchorPool = poolId
     ? (pools.find(p => p.pool === poolId) ?? pools.find(p => p.band === 'anchor') ?? null)

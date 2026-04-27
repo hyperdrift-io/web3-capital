@@ -112,12 +112,8 @@ export function BridgeWidget({
   // "Can't call setAmount without a fromChain and token" console warning.
   const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
 
-  // Exclude Bsc/BNB from the bridge widget: Wormhole fetches CoinGecko prices
-  // for every whitelisted token on the selected chain. With BSC selected,
-  // the free-tier API returns 400 for multi-contract requests (limit = 1),
-  // which blocks routing/confirm state. Capital Engine's primary flows are
-  // ETH-ecosystem only; users needing BSC can use portalbridge.com directly.
-  const widgetChains = BRIDGE_CHAINS.filter(c => c !== 'Bsc')
+  // BRIDGE_CHAINS already excludes Bsc (CoinGecko free-tier 400 issue).
+  const widgetChains = BRIDGE_CHAINS
 
   const config: WormholeConnectConfig = {
     network: 'Mainnet',

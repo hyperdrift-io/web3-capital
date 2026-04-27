@@ -259,10 +259,10 @@ function isDirectDeposit(
 ): boolean {
   if (toToken.toLowerCase() === fromAddress.toLowerCase()) return true
   if (toToken.toUpperCase() === sourceSymbol.toUpperCase()) return true
-  // toToken wasn't found in KNOWN_TOKEN — resolveToToken returned the raw symbol.
-  // Vault receipt tokens (STEAKUSDC, aUSDC, cUSDC…) that live outside our map
-  // always require a direct deposit, not a DEX swap.
-  if (toToken === pool.symbol) return true
+  // Note: the former "toToken === pool.symbol" fallback has been removed.
+  // Vault receipt tokens not in KNOWN_TOKEN (e.g. STEAKUSDC, crvUSD) were
+  // being incorrectly flagged as direct deposits — they still require
+  // either a DEX swap or a separate deposit step.
   return false
 }
 
@@ -319,7 +319,10 @@ export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): R
   if (!chainId) return null
 
   const sourceKey = sourceBridgeToken.toUpperCase()
-  const fromAddress = KNOWN_TOKEN[sourceKey]?.[chainId] ?? USDC_ADDRESS[chainId]
+  // Strict lookup — no USDC fallback. If the source token isn't in KNOWN_TOKEN
+  // for this chain, return null rather than silently routing from USDC while
+  // still labelling the intent with the bridge token (address/symbol mismatch).
+  const fromAddress = KNOWN_TOKEN[sourceKey]?.[chainId]
   if (!fromAddress) return null
 
   const toToken = resolveToToken(pool, chainId)
