@@ -255,7 +255,6 @@ function isDirectDeposit(
   toToken: string,
   fromAddress: string,
   sourceSymbol: string,
-  pool: { symbol: string },
 ): boolean {
   if (toToken.toLowerCase() === fromAddress.toLowerCase()) return true
   if (toToken.toUpperCase() === sourceSymbol.toUpperCase()) return true
@@ -287,7 +286,7 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
   // underlying tradeable base asset (e.g. csyUSDC → USDC, aWETH → WETH).
   const toToken = resolveToToken(pool, chainId)
 
-  const isSameToken = isDirectDeposit(toToken, fromAddress, 'USDC', pool)
+  const isSameToken = isDirectDeposit(toToken, fromAddress, 'USDC')
 
   const url = isSameToken
     ? getProtocolDepositUrl(pool.project, pool.chain)
@@ -327,7 +326,7 @@ export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): R
 
   const toToken = resolveToToken(pool, chainId)
 
-  const isSameToken = isDirectDeposit(toToken, fromAddress, sourceKey, pool)
+  const isSameToken = isDirectDeposit(toToken, fromAddress, sourceKey)
 
   const url = isSameToken
     ? getProtocolDepositUrl(pool.project, pool.chain)
