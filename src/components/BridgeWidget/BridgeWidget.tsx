@@ -1,7 +1,6 @@
 'use client'
 
-import { Component, type ReactNode } from 'react'
-import dynamic from 'next/dynamic'
+import { useEffect, useRef } from 'react'
 import type { Chain } from '@wormhole-foundation/wormhole-connect'
 import type { config as WormholeConnectConfigNS, WormholeConnectTheme } from '@wormhole-foundation/wormhole-connect'
 import { BRIDGE_CHAINS, BRIDGE_RPCS, BRIDGE_TOKENS } from '@/lib/bridge'
@@ -9,49 +8,12 @@ import styles from './BridgeWidget.module.css'
 
 type WormholeConnectConfig = WormholeConnectConfigNS.WormholeConnectConfig
 
-const WORMHOLE_RELOAD_KEY = 'wormhole_widget_chunk_retry'
-
-function BridgeWidgetFallback() {
-  return (
-    <div className={styles.errorFallback}>
-      <p>The bridge widget failed to load.</p>
-      <a
-        href="https://portalbridge.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.fallbackLink}
-      >
-        Open Portal Bridge →
-      </a>
-    </div>
-  )
-}
-
-// Lazy-load the heavy Wormhole Connect bundle — it's only needed when the
-// user actually opens the bridge panel.
-const WormholeConnect = dynamic(
-  async () => {
-    try {
-      return await import('@wormhole-foundation/wormhole-connect')
-    } catch (error) {
-      if (typeof window !== 'undefined') {
-        const message = String(error)
-        const isChunkOrSyntaxFailure = /ChunkLoadError|Loading chunk|Invalid or unexpected token|Unexpected token/i.test(message)
-        // One self-heal attempt for stale/corrupt chunk fetches (common right
-        // after deploys while some clients still hold old runtime state).
-        if (isChunkOrSyntaxFailure && !window.sessionStorage.getItem(WORMHOLE_RELOAD_KEY)) {
-          window.sessionStorage.setItem(WORMHOLE_RELOAD_KEY, '1')
-          window.location.reload()
-        }
-      }
-      return { default: BridgeWidgetFallback }
-    }
-  },
-  {
-    ssr: false,
-    loading: () => <div className={styles.loading}>Loading bridge…</div>,
-  },
-)
+// Use the official hosted loader from the package — this injects the pre-built
+// Vite bundle directly from jsDelivr CDN as a native <script type="module">,
+// bypassing webpack entirely. Config passes via window.__CONNECT_CONFIG.
+// This avoids the SyntaxError/ChunkLoadError that occurs when webpack+terser
+// tries to re-bundle the pre-built Vite output in production.
+import { wormholeConnectHosted } from '@wormhole-foundation/wormhole-connect/hosted'
 
 export type BridgeWidgetProps = {
   /** Pre-selected destination chain (from CE score best pool). */
@@ -70,55 +32,25 @@ export type BridgeWidgetProps = {
   destToken?: string
 }
 
-// ── Error boundary ────────────────────────────────────────────────────────────
-
-type EBState = { hasError: boolean }
-
-class BridgeErrorBoundary extends Component<{ children: ReactNode }, EBState> {
-  state: EBState = { hasError: false }
-
-  static getDerivedStateFromError(): EBState {
-    return { hasError: true }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <BridgeWidgetFallback />
-    }
-    return this.props.children
-  }
-}
-
 // ── Widget ────────────────────────────────────────────────────────────────────
 
 /**
- * BridgeWidget — Wormhole Connect embedded with opinionated defaults.
+ * BridgeWidget — Wormhole Connect embedded via the official hosted loader.
  *
- * Token IDs use Wormhole Connect v5 symbol strings (e.g. "USDC", "WETH")
- * rather than legacy per-chain IDs ("USDCeth", "WETHarb"). The v5 widget
- * resolves chain-specific contract addresses internally.
+ * Instead of `dynamic(() => import(...))` (which routes the pre-built Vite
+ * bundle through webpack/terser and produces corrupt chunks in production),
+ * we use `wormholeConnectHosted()` from the package's `/hosted` export.
+ * That function injects a `<script type="module">` pointing to the pre-built
+ * bundle on jsDelivr CDN — webpack never touches the heavy widget code.
+ *
+ * Config is passed via window.__CONNECT_CONFIG / window.__CONNECT_THEME,
+ * which the CDN bundle reads on startup.
  *
  * Token pre-fill strategy (v5 constraint):
- *   The v5 widget validates `defaultInputs.token` against its token store.
  *   Setting the same symbol on both source and destination for non-native
- *   tokens (e.g. source.token=USDC + destination.token=USDC) triggers a
- *   validation error and silently drops both. We therefore always set
- *   source.token (fixes the "Can't call setAmount without a fromChain and
- *   token" warning), and only set destination.token when it differs from
- *   source.token. For the USDC→USDC demo flow this means dest.token is
- *   omitted — the user lands with source pre-filled and confirms dest.
- *
- * Restrictions applied:
- *   - EVM chains where Capital Engine pools live, excluding BNB/BSC (see chain note).
- *   - Full token whitelist: ETH, WETH, USDC, USDT, WBTC, wstETH, DAI.
- *   - Source chain defaults to Ethereum; destination from highest-CE pool.
- *   - Destination token pre-filled from the pool's inferred asset.
- *
- * Why Wormhole:
- *   - Supports CCTP (Circle's native USDC burn-and-mint): zero slippage,
- *     no wrapped tokens, instant finality on most lanes.
- *   - Works across all enabled chains in our set.
- *   - Embeddable React component — no iframe, no redirect.
+ *   tokens triggers a v5 validation error that silently drops both.
+ *   We set source.token always, and only set destination.token when it
+ *   differs from source.token.
  */
 export function BridgeWidget({
   targetChain = 'Arbitrum',
@@ -126,20 +58,14 @@ export function BridgeWidget({
   sourceToken: _sourceToken = 'USDC',
   destToken,
 }: BridgeWidgetProps) {
-  // Only set destination.token when it differs from source token.
-  // Setting the same non-native symbol on both source and destination triggers
-  // a v5 validation error that silently drops both pre-fills. For USDC→USDC
-  // (our primary demo flow) we pre-fill only the source so the widget
-  // initialises with fromChain+token set — this eliminates the
-  // "Can't call setAmount without a fromChain and token" console warning.
-  const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  // BRIDGE_CHAINS already excludes Bsc (CoinGecko free-tier 400 issue).
-  const widgetChains = BRIDGE_CHAINS
+  // Only set destination.token when it differs from source token.
+  const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
 
   const config: WormholeConnectConfig = {
     network: 'Mainnet',
-    chains:  widgetChains,
+    chains:  BRIDGE_CHAINS,
     rpcs:    BRIDGE_RPCS,
     tokens:  [...BRIDGE_TOKENS],
     ui: {
@@ -164,11 +90,17 @@ export function BridgeWidget({
     font:            'var(--font-sans, Inter, sans-serif)',
   }
 
+  useEffect(() => {
+    if (!containerRef.current) return
+    // Clear any previous widget mount (e.g. on hot-reload or prop change)
+    containerRef.current.innerHTML = ''
+    wormholeConnectHosted(containerRef.current, { config, theme })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceChain, targetChain, _sourceToken, destToken])
+
   return (
     <div className={styles.wrapper} data-testid="bridge-widget">
-      <BridgeErrorBoundary>
-        <WormholeConnect config={config} theme={theme} />
-      </BridgeErrorBoundary>
+      <div className={styles.loading} ref={containerRef} />
     </div>
   )
 }

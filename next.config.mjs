@@ -1,15 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // Wormhole Connect ships pre-built, self-contained bundles with internal
-  // bare specifiers (e.g. "accounts" from @solana/accounts) that webpack can't
-  // resolve, and CSS built outside Next.js's pipeline. Marking it as a server
-  // external package prevents Next.js from bundling or statically analyzing it
-  // at build time. The widget is always loaded client-only via:
-  //   dynamic(() => import('@wormhole-foundation/wormhole-connect'), { ssr: false })
-  experimental: {
-    serverComponentsExternalPackages: ['@wormhole-foundation/wormhole-connect'],
-  },
+  // Note: wormhole-connect is no longer bundled by webpack at all.
+  // BridgeWidget uses the package's /hosted export which injects the pre-built
+  // Vite bundle from jsDelivr CDN as a native <script type="module">.
+  // The /hosted shim itself is tiny and webpack-safe.
   images: {
     remotePatterns: [
       { hostname: 'icons.llama.fi' },
@@ -42,8 +37,7 @@ const nextConfig = {
       'pino-pretty':                               false,
       encoding:                                    false,
       // Bare 'accounts' specifier is referenced by @wagmi/core's tempo connector
-      // shim and wormhole-connect's pre-bundled Solana chunk. Neither code path
-      // is exercised at runtime — stub the module so webpack doesn't error.
+      // shim. Not used at runtime — stub so webpack doesn't error.
       accounts:                                    false,
     }
 
