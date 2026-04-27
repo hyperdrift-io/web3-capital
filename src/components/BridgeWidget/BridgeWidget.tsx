@@ -59,9 +59,11 @@ export function BridgeWidget({
   destToken,
 }: BridgeWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const mountedKeyRef = useRef<string | null>(null)
 
   // Only set destination.token when it differs from source token.
   const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
+  const mountKey = `${sourceChain}|${targetChain}|${_sourceToken}|${resolvedDestToken ?? ''}`
 
   const config: WormholeConnectConfig = {
     network: 'Mainnet',
@@ -92,15 +94,27 @@ export function BridgeWidget({
 
   useEffect(() => {
     if (!containerRef.current) return
+    if (mountedKeyRef.current === mountKey && containerRef.current.childElementCount > 0) return
+
     // Clear any previous widget mount (e.g. on hot-reload or prop change)
     containerRef.current.innerHTML = ''
-    wormholeConnectHosted(containerRef.current, { config, theme })
+
+    wormholeConnectHosted(containerRef.current, {
+      config,
+      theme,
+      // Proxy the widget assets through our server so dynamic chunk imports
+      // resolve against our origin instead of CDN — fixes 404 for /assets/*.js.
+      // next.config.mjs rewrites /wh-connect/dist/* → jsDelivr CDN.
+      cdnBaseUrl: '/wh-connect',
+    })
+
+    mountedKeyRef.current = mountKey
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceChain, targetChain, _sourceToken, destToken])
+  }, [mountKey])
 
   return (
     <div className={styles.wrapper} data-testid="bridge-widget">
-      <div className={styles.loading} ref={containerRef} />
+      <div className={styles.mounted} ref={containerRef} />
     </div>
   )
 }

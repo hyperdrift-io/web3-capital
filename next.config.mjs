@@ -1,10 +1,33 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   output: 'standalone',
-  // Note: wormhole-connect is no longer bundled by webpack at all.
-  // BridgeWidget uses the package's /hosted export which injects the pre-built
-  // Vite bundle from jsDelivr CDN as a native <script type="module">.
-  // The /hosted shim itself is tiny and webpack-safe.
+  // Wormhole Connect is loaded via the /hosted CDN loader. The pre-built Vite
+  // bundle resolves dynamic chunk imports relative to the page origin rather
+  // than the CDN URL, causing 404s for /assets/*.js. Fix: proxy the widget
+  // assets through our server so all chunk URLs stay on the same origin.
+  async rewrites() {
+    const WH_VERSION = '5.1.1'
+    const CDN_DIST = `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${WH_VERSION}/dist`
+    return [
+      // ES module imports resolve relative to the script URL (/wh-connect/dist/main.mjs)
+      {
+        source: '/wh-connect/dist/:path*',
+        destination: `${CDN_DIST}/:path*`,
+      },
+      // Vite's preload polyfill computes chunk URLs against window.location.href
+      // (/bridge) rather than the script URL — so these land at our origin.
+      // /assets/* and /main.css → rewrite to CDN so the preloads resolve.
+      {
+        source: '/assets/:path*',
+        destination: `${CDN_DIST}/assets/:path*`,
+      },
+      {
+        source: '/main.css',
+        destination: `${CDN_DIST}/main.css`,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       { hostname: 'icons.llama.fi' },
