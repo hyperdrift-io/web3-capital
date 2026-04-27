@@ -146,6 +146,8 @@
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
+  width: 14px;
+  height: 14px;
 }
 
 .empty {
@@ -162,7 +164,7 @@
 }
 
 .routeCell {
-  opacity: 0;
+  opacity: 0.6;
   transition: opacity 150ms ease;
 }
 

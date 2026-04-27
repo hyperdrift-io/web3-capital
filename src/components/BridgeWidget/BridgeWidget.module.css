@@ -1,12 +1,54 @@
 .wrapper {
   width: 100%;
   border-radius: var(--radius-lg);
-  overflow: hidden;
 }
 
 /* Wormhole Connect renders its own MUI surface — give it room */
 .wrapper :global([class*='WormholeConnect']) {
   max-width: 100% !important;
+}
+
+/*
+ * Token modal — “Choose network” (Wormhole Connect v5):
+ * - CardContent is wider than the inner chain stack (library caps the stack at 456px); stretch
+ *   the stack and rows so chips use horizontal space instead of clustering left.
+ * - Row spacing / selected chip color (primary vs input border) kept below.
+ */
+.wrapper :global(.MuiCardContent-root:has([data-testid^='chain-button-'])) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.wrapper :global(.MuiCardContent-root:has([data-testid^='chain-button-']) > :last-child) {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+.wrapper
+  :global(
+    .MuiCardContent-root:has([data-testid^='chain-button-'])
+      > :last-child
+      div:has(> [data-testid^='chain-button-'])
+  ) {
+  width: 100% !important;
+  justify-content: space-between !important;
+}
+
+.wrapper :global(div:has(> [data-testid^='chain-button-']):not(:last-child)) {
+  margin-bottom: 24px !important;
+}
+
+.wrapper :global([data-testid^='chain-button-'].MuiToggleButton-root.Mui-selected) {
+  border-color: #3ecf8e !important;
+  color: #e8eaf0 !important;
+}
+
+.wrapper
+  :global([data-testid^='chain-button-'].MuiToggleButton-root.Mui-selected .MuiTypography-root) {
+  color: #b8f0d4 !important;
 }
 
 .loading {

@@ -30,13 +30,16 @@ describe('defiLlamaChainToWormhole', () => {
     expect(defiLlamaChainToWormhole('Polygon')).toBe('Polygon')
   })
 
+  it('maps BSC (BNB Chain) → Bsc', () => {
+    expect(defiLlamaChainToWormhole('BSC')).toBe('Bsc')
+  })
+
   it('maps Solana → Solana (EVM ↔ Solana via Wormhole NTT)', () => {
     expect(defiLlamaChainToWormhole('Solana')).toBe('Solana')
   })
 
   it('returns null for unsupported chains', () => {
     expect(defiLlamaChainToWormhole('Avalanche')).toBeNull()
-    expect(defiLlamaChainToWormhole('BSC')).toBeNull()
     expect(defiLlamaChainToWormhole('')).toBeNull()
   })
 })
@@ -91,13 +94,14 @@ describe('tokenForPoolSymbol', () => {
 // ─── BRIDGE_CHAINS ────────────────────────────────────────────────────────────
 
 describe('BRIDGE_CHAINS', () => {
-  it('contains the five EVM chains plus Solana', () => {
-    expect(BRIDGE_CHAINS).toHaveLength(6)
+  it('contains the six EVM chains plus Solana', () => {
+    expect(BRIDGE_CHAINS).toHaveLength(7)
     expect(BRIDGE_CHAINS).toContain('Ethereum')
     expect(BRIDGE_CHAINS).toContain('Arbitrum')
     expect(BRIDGE_CHAINS).toContain('Base')
     expect(BRIDGE_CHAINS).toContain('Optimism')
     expect(BRIDGE_CHAINS).toContain('Polygon')
+    expect(BRIDGE_CHAINS).toContain('Bsc')
     expect(BRIDGE_CHAINS).toContain('Solana')
   })
 

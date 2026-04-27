@@ -1,12 +1,10 @@
 import { createConfig, http, cookieStorage, createStorage } from 'wagmi'
 import { mainnet, arbitrum, base, optimism, polygon, bsc } from 'viem/chains'
 import { injected } from 'wagmi/connectors'
-import { porto } from 'porto/wagmi'
 
-// Stable ids used for localStorage preference persistence
+// Connector ID for the standard EIP-1193 injected provider (MetaMask, Rabby, etc.)
 export const CONNECTOR_ID = {
   injected: 'injected',
-  porto: 'xyz.ithaca.porto',
 } as const
 
 export type ConnectorId = typeof CONNECTOR_ID[keyof typeof CONNECTOR_ID]
@@ -57,7 +55,7 @@ export const wagmiConfig = createConfig({
   chains: [mainnet, arbitrum, base, optimism, bsc, polygon],
   ssr: true,
   storage: createStorage({ storage: cookieStorage }),
-  connectors: [injected(), porto()],
+  connectors: [injected()],
   transports: {
     [mainnet.id]:  http(rpcUrl(mainnet.id,  process.env.NEXT_PUBLIC_RPC_MAINNET)),
     [arbitrum.id]: http(rpcUrl(arbitrum.id, process.env.NEXT_PUBLIC_RPC_ARBITRUM)),

@@ -71,8 +71,10 @@ export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
   USDT: {
     1:     '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     42161: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    8453:  '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
     10:    '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
     137:   '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+    56:    '0x55d398326f99059fF775485246999027B3197955',
   },
   DAI: {
     1:     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -201,6 +203,67 @@ export type RouteIntent = {
   fromSymbol: string
   toSymbol: string
   chainId: number | null
+  /** Human-readable protocol name for the deposit button label (e.g. "Morpho", "Aave") */
+  protocolLabel?: string
+}
+
+// ── Protocol-aware deposit URL helpers ───────────────────────────────────────
+
+/**
+ * Returns the correct deposit/supply app URL for a given DeFi protocol.
+ * Used when the routing intent is a direct deposit (no token swap required).
+ */
+function getProtocolDepositUrl(project: string, chain: string): string {
+  const p = project.toLowerCase()
+  const c = chain.toLowerCase()
+  if (p.includes('morpho')) {
+    const network = c === 'ethereum' ? 'ethereum' : c
+    return `https://app.morpho.org/?network=${network}`
+  }
+  if (p.includes('compound')) return 'https://app.compound.finance'
+  if (p.includes('spark'))    return 'https://app.spark.fi'
+  if (p.includes('fluid'))    return 'https://fluid.instadapp.io'
+  if (p.includes('euler'))    return 'https://app.euler.finance'
+  if (p.includes('yearn'))    return 'https://yearn.fi'
+  // Default: Aave
+  const market = c === 'ethereum' ? '' : `/?marketName=proto_${c}_v3`
+  return `https://app.aave.com${market}`
+}
+
+/** Short display name for a DeFi protocol (used in button labels). */
+function getProtocolLabel(project: string): string {
+  const p = project.toLowerCase()
+  if (p.includes('morpho'))   return 'Morpho'
+  if (p.includes('compound')) return 'Compound'
+  if (p.includes('spark'))    return 'Spark'
+  if (p.includes('fluid'))    return 'Fluid'
+  if (p.includes('euler'))    return 'Euler'
+  if (p.includes('yearn'))    return 'Yearn'
+  return 'Aave'
+}
+
+/**
+ * Returns true when the pool requires a direct deposit rather than a token swap.
+ *
+ * Covers two cases:
+ * 1. resolveToToken found a known address that matches the source (same-token swap).
+ * 2. resolveToToken fell back to the raw pool symbol (vault receipt token unknown
+ *    to our KNOWN_TOKEN map) — this means it's a vault that mints a receipt token
+ *    upon deposit of the underlying, so no DEX swap is needed.
+ */
+function isDirectDeposit(
+  toToken: string,
+  fromAddress: string,
+  sourceSymbol: string,
+  pool: { symbol: string },
+): boolean {
+  if (toToken.toLowerCase() === fromAddress.toLowerCase()) return true
+  if (toToken.toUpperCase() === sourceSymbol.toUpperCase()) return true
+  // toToken wasn't found in KNOWN_TOKEN — resolveToToken returned the raw symbol.
+  // Vault receipt tokens (STEAKUSDC, aUSDC, cUSDC…) that live outside our map
+  // always require a direct deposit, not a DEX swap.
+  if (toToken === pool.symbol) return true
+  return false
 }
 
 /**
@@ -224,13 +287,10 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
   // underlying tradeable base asset (e.g. csyUSDC → USDC, aWETH → WETH).
   const toToken = resolveToToken(pool, chainId)
 
-  // Check if source and target are the same (direct USDC deposit, no swap needed)
-  const isSameToken =
-    toToken.toLowerCase() === fromAddress.toLowerCase() ||
-    toToken.toUpperCase() === 'USDC'
+  const isSameToken = isDirectDeposit(toToken, fromAddress, 'USDC', pool)
 
   const url = isSameToken
-    ? `https://app.aave.com` // direct deposit: Aave for USDC pools
+    ? getProtocolDepositUrl(pool.project, pool.chain)
     : `https://app.1inch.io/swap?src=${chainId}:${fromAddress}&dst=${chainId}:${toToken}`
 
   return {
@@ -239,6 +299,44 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
     fromSymbol: 'USDC',
     toSymbol: pool.symbol,
     chainId,
+    protocolLabel: isSameToken ? getProtocolLabel(pool.project) : undefined,
+  }
+}
+
+/**
+ * Build a 1inch deep-link for a post-bridge routing intent.
+ *
+ * Use this when the user has already bridged a specific token (e.g. USDT)
+ * to the pool's chain and needs to swap from that token into the pool's
+ * underlying asset. Unlike buildRouteIntent (which always uses USDC as source),
+ * this accepts the actual bridged token as the source.
+ *
+ * Falls back to USDC_ADDRESS if the source token isn't in KNOWN_TOKEN for
+ * the target chain — so the result is always usable.
+ */
+export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): RouteIntent | null {
+  const chainId = CHAIN_ID[pool.chain]
+  if (!chainId) return null
+
+  const sourceKey = sourceBridgeToken.toUpperCase()
+  const fromAddress = KNOWN_TOKEN[sourceKey]?.[chainId] ?? USDC_ADDRESS[chainId]
+  if (!fromAddress) return null
+
+  const toToken = resolveToToken(pool, chainId)
+
+  const isSameToken = isDirectDeposit(toToken, fromAddress, sourceKey, pool)
+
+  const url = isSameToken
+    ? getProtocolDepositUrl(pool.project, pool.chain)
+    : `https://app.1inch.io/swap?src=${chainId}:${fromAddress}&dst=${chainId}:${toToken}`
+
+  return {
+    url,
+    isSameToken,
+    fromSymbol: sourceBridgeToken,
+    toSymbol: pool.symbol,
+    chainId,
+    protocolLabel: isSameToken ? getProtocolLabel(pool.project) : undefined,
   }
 }
 

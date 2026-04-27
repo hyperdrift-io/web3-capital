@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import type { Pool } from '@/types/protocol'
 import { defiLlamaChainToWormhole, tokenForPoolSymbol, vaultTokenNote } from '@/lib/bridge'
+import { buildBridgeRouteIntent } from '@/lib/routing'
 import { BridgeWidget } from '@/components/BridgeWidget/BridgeWidget'
+import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { formatApy } from '@/lib/format'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { NETWORK_ICON } from '@/lib/chainIcons'
@@ -51,6 +53,8 @@ export function BridgeThenDeploy({ topPool }: Props) {
   const bridgeToken = tokenForPoolSymbol(topPool.symbol)
   // Explain vault/LP tokens so the user knows not to search for the pool symbol in the bridge
   const tokenNote = vaultTokenNote(topPool.symbol, bridgeToken, topPool.project)
+  // Build the post-bridge route intent (from bridged token → pool's underlying asset)
+  const routeIntent = buildBridgeRouteIntent(topPool, bridgeToken)
 
   return (
     <div className={styles.wrapper} data-testid="bridge-then-deploy">
@@ -106,11 +110,15 @@ export function BridgeThenDeploy({ topPool }: Props) {
           <span className={styles.stepBadge}>{isOnEthereum ? 2 : 3}</span>
           <div className={styles.stepContent}>
             <div className={styles.stepTitle}>
-              Deploy into {topPool.project} via the Allocation Wizard below
+              Deploy into {topPool.project}
             </div>
-            <div className={styles.stepSub}>
-              Pre-filled routing — one click to 1inch or direct deposit
-            </div>
+            {routeIntent ? (
+              <RouteButton intent={routeIntent} amountUsd={0} variant="full" />
+            ) : (
+              <div className={styles.stepSub}>
+                Pre-filled routing — one click to 1inch or direct deposit
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -141,6 +149,7 @@ export function BridgeThenDeploy({ topPool }: Props) {
           </div>
           <BridgeWidget
             targetChain={targetWormholeChain}
+            sourceToken={bridgeToken}
             destToken={bridgeToken}
           />
         </div>

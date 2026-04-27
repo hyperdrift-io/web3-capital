@@ -4,7 +4,7 @@ import { Component, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import type { Chain } from '@wormhole-foundation/wormhole-connect'
 import type { config as WormholeConnectConfigNS, WormholeConnectTheme } from '@wormhole-foundation/wormhole-connect'
-import { BRIDGE_CHAINS, BRIDGE_TOKENS } from '@/lib/bridge'
+import { BRIDGE_CHAINS, BRIDGE_RPCS, BRIDGE_TOKENS } from '@/lib/bridge'
 import styles from './BridgeWidget.module.css'
 
 type WormholeConnectConfig = WormholeConnectConfigNS.WormholeConnectConfig
@@ -80,20 +80,22 @@ class BridgeErrorBoundary extends Component<{ children: ReactNode }, EBState> {
  *   The v5 widget validates `defaultInputs.token` against its token store.
  *   Setting the same symbol on both source and destination for non-native
  *   tokens (e.g. source.token=USDC + destination.token=USDC) triggers a
- *   validation error and silently drops both. We therefore only pre-fill
- *   the destination token; the source is left for the user to confirm so
- *   the widget stays valid across all chain/token combinations.
+ *   validation error and silently drops both. We therefore always set
+ *   source.token (fixes the "Can't call setAmount without a fromChain and
+ *   token" warning), and only set destination.token when it differs from
+ *   source.token. For the USDC→USDC demo flow this means dest.token is
+ *   omitted — the user lands with source pre-filled and confirms dest.
  *
  * Restrictions applied:
- *   - Only the five EVM chains where Capital Engine pools live.
- *   - Token whitelist: ETH, WETH, USDC, USDT, WBTC, wstETH, DAI.
+ *   - EVM chains where Capital Engine pools live, excluding BNB/BSC (see chain note).
+ *   - Full token whitelist: ETH, WETH, USDC, USDT, WBTC, wstETH, DAI.
  *   - Source chain defaults to Ethereum; destination from highest-CE pool.
  *   - Destination token pre-filled from the pool's inferred asset.
  *
  * Why Wormhole:
  *   - Supports CCTP (Circle's native USDC burn-and-mint): zero slippage,
  *     no wrapped tokens, instant finality on most lanes.
- *   - Works on all five chains in our set.
+ *   - Works across all enabled chains in our set.
  *   - Embeddable React component — no iframe, no redirect.
  */
 export function BridgeWidget({
@@ -102,16 +104,30 @@ export function BridgeWidget({
   sourceToken: _sourceToken = 'USDC',
   destToken,
 }: BridgeWidgetProps) {
+  // Only set destination.token when it differs from source token.
+  // Setting the same non-native symbol on both source and destination triggers
+  // a v5 validation error that silently drops both pre-fills. For USDC→USDC
+  // (our primary demo flow) we pre-fill only the source so the widget
+  // initialises with fromChain+token set — this eliminates the
+  // "Can't call setAmount without a fromChain and token" console warning.
+  const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
+
+  // Exclude Bsc/BNB from the bridge widget: Wormhole fetches CoinGecko prices
+  // for every whitelisted token on the selected chain. With BSC selected,
+  // the free-tier API returns 400 for multi-contract requests (limit = 1),
+  // which blocks routing/confirm state. Capital Engine's primary flows are
+  // ETH-ecosystem only; users needing BSC can use portalbridge.com directly.
+  const widgetChains = BRIDGE_CHAINS.filter(c => c !== 'Bsc')
+
   const config: WormholeConnectConfig = {
     network: 'Mainnet',
-    chains:  BRIDGE_CHAINS,
+    chains:  widgetChains,
+    rpcs:    BRIDGE_RPCS,
     tokens:  [...BRIDGE_TOKENS],
     ui: {
       defaultInputs: {
-        source:      { chain: sourceChain },
-        // Only set destination.token — setting both source+destination to the
-        // same non-native symbol triggers a v5 validation error and drops both.
-        destination: { chain: targetChain, token: destToken },
+        source:      { chain: sourceChain, token: _sourceToken },
+        destination: { chain: targetChain, token: resolvedDestToken },
       },
       showFooter: false,
     },
