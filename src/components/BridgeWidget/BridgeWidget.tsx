@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Chain } from '@wormhole-foundation/wormhole-connect'
 import type { config as WormholeConnectConfigNS, WormholeConnectTheme } from '@wormhole-foundation/wormhole-connect'
 import { BRIDGE_CHAINS, BRIDGE_RPCS, BRIDGE_TOKENS } from '@/lib/bridge'
@@ -60,6 +60,7 @@ export function BridgeWidget({
 }: BridgeWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mountedKeyRef = useRef<string | null>(null)
+  const [isReady, setIsReady] = useState(false)
 
   // Only set destination.token when it differs from source token.
   const resolvedDestToken = destToken !== _sourceToken ? destToken : undefined
@@ -94,7 +95,21 @@ export function BridgeWidget({
 
   useEffect(() => {
     if (!containerRef.current) return
-    if (mountedKeyRef.current === mountKey && containerRef.current.childElementCount > 0) return
+
+    if (mountedKeyRef.current === mountKey && containerRef.current.childElementCount > 0) {
+      setIsReady(true)
+      return
+    }
+
+    setIsReady(false)
+
+    const observer = new MutationObserver(() => {
+      if (containerRef.current?.childElementCount) {
+        setIsReady(true)
+      }
+    })
+
+    observer.observe(containerRef.current, { childList: true, subtree: true })
 
     // Clear any previous widget mount (e.g. on hot-reload or prop change)
     containerRef.current.innerHTML = ''
@@ -109,12 +124,24 @@ export function BridgeWidget({
     })
 
     mountedKeyRef.current = mountKey
+
+    if (containerRef.current.childElementCount > 0) {
+      setIsReady(true)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mountKey])
 
   return (
     <div className={styles.wrapper} data-testid="bridge-widget">
-      <div className={styles.mounted} ref={containerRef} />
+      <div
+        ref={containerRef}
+        className={`${styles.mounted} ${!isReady ? styles.loading : ''}`}
+        aria-busy={!isReady}
+      />
     </div>
   )
 }

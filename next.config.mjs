@@ -1,3 +1,12 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const wormholeHostedEntry = require.resolve('@wormhole-foundation/wormhole-connect/hosted')
+const wormholePackageJsonPath = path.join(path.dirname(wormholeHostedEntry), '..', 'package.json')
+const { version: wormholeConnectVersion } = JSON.parse(readFileSync(wormholePackageJsonPath, 'utf8'))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -6,9 +15,20 @@ const nextConfig = {
   // bundle resolves dynamic chunk imports relative to the page origin rather
   // than the CDN URL, causing 404s for /assets/*.js. Fix: proxy the widget
   // assets through our server so all chunk URLs stay on the same origin.
+  //
+  // Important: scope the root-path asset rewrites to bridge-page requests only.
+  // The upstream bundle hard-codes /assets/* and /main.css, so we still need
+  // root matches, but we should not hijack unrelated assets elsewhere.
   async rewrites() {
-    const WH_VERSION = '5.1.1'
-    const CDN_DIST = `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${WH_VERSION}/dist`
+    const CDN_DIST = `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${wormholeConnectVersion}/dist`
+    const wormholeBridgeRequest = [
+      {
+        type: 'header',
+        key: 'referer',
+        value: 'https?://[^/]+/bridge(?:\?.*)?$',
+      },
+    ]
+
     return [
       // ES module imports resolve relative to the script URL (/wh-connect/dist/main.mjs)
       {
@@ -17,13 +37,15 @@ const nextConfig = {
       },
       // Vite's preload polyfill computes chunk URLs against window.location.href
       // (/bridge) rather than the script URL — so these land at our origin.
-      // /assets/* and /main.css → rewrite to CDN so the preloads resolve.
+      // Limit those root-path rewrites to requests originating from /bridge.
       {
         source: '/assets/:path*',
+        has: wormholeBridgeRequest,
         destination: `${CDN_DIST}/assets/:path*`,
       },
       {
         source: '/main.css',
+        has: wormholeBridgeRequest,
         destination: `${CDN_DIST}/main.css`,
       },
     ]

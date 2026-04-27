@@ -56,22 +56,28 @@
   color: #b8f0d4 !important;
 }
 
+.mounted {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  overflow: visible;
+}
+
 .loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--text-muted);
-  font-size: 14px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
 
-.mounted {
-  width: 100%;
-  min-height: 0;
-  overflow: visible;
+.loading::before {
+  content: 'Loading bridge widget...';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* Wormhole picker modals are rendered in a portal; anchor via body:has(.mounted)

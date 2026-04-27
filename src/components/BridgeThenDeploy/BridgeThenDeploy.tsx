@@ -21,17 +21,17 @@ type Props = {
 }
 
 /**
- * BridgeThenDeploy — flat layout: context strip → widget (always visible) → deploy.
+ * BridgeThenDeploy — flat layout: context strip → bridge step → deploy step.
  *
- * No accordion, no expand/collapse state. Showing the widget immediately is
- * the single highest-leverage conversion improvement — removing the extra
- * click required to see the primary action.
+ * The bridge widget is lazy-mounted on first open, then shown/hidden inline.
+ * That keeps the main action obvious without paying the hosted widget cost
+ * until the user asks for it.
  *
  *   ┌────────────────────────────────────────────────────────┐
  *   │  morpho-blue STEAKUSDC  Base  4.10%  ◈ 65            │  context strip
  *   │  Bridge USDC Ethereum → Base via Wormhole · ~1 min    │  sub-caption
  *   ├────────────────────────────────────────────────────────┤
- *   │         [ Wormhole Connect widget (full width) ]       │  primary action
+ *   │      [ Open Wormhole Bridge ] -> inline widget         │  primary action
  *   ├────────────────────────────────────────────────────────┤
  *   │  After bridging — deploy into morpho-blue  [ Route → ]│  next step
  *   └────────────────────────────────────────────────────────┘
@@ -139,20 +139,20 @@ export function BridgeThenDeploy({ topPool }: Props) {
           )}
         </section>
 
-        {routeIntent && (
-          <section className={styles.stepCard} aria-labelledby="bridge-step-3">
-            <div className={styles.stepHead}>
-              <span className={styles.stepBadge}>3</span>
-              <h3 id="bridge-step-3" className={styles.stepTitle}>Deploy into {topPool.project}</h3>
-            </div>
-            <div className={styles.deployRow}>
-              <span className={styles.deployLabel}>
-                {isOnEthereum ? 'Ready to deploy now.' : 'After bridging, continue to the route step.'}
-              </span>
-              <RouteButton intent={routeIntent} amountUsd={0} variant="compact" />
-            </div>
-          </section>
-        )}
+        <section className={styles.stepCard} aria-labelledby="bridge-step-3">
+          <div className={styles.stepHead}>
+            <span className={styles.stepBadge}>3</span>
+            <h3 id="bridge-step-3" className={styles.stepTitle}>Deploy into {topPool.project}</h3>
+          </div>
+          <div className={styles.deployRow}>
+            <span className={styles.deployLabel}>
+              {routeIntent
+                ? (isOnEthereum ? 'Ready to deploy now.' : 'After bridging, continue to the route step.')
+                : 'Routing pre-fill is not available for this pool yet. Bridge first, then deposit in the protocol UI.'}
+            </span>
+            {routeIntent ? <RouteButton intent={routeIntent} amountUsd={0} variant="compact" /> : null}
+          </div>
+        </section>
       </div>
     </div>
   )
