@@ -1,11 +1,16 @@
 .wrapper {
   width: 100%;
+  min-width: 0;
   border-radius: var(--radius-lg);
+  /* overflow-x clips the widget; keep visible so token selector modal escapes */
+  overflow: visible;
 }
 
-/* Wormhole Connect renders its own MUI surface — give it room */
+/* Wormhole Connect renders its own MUI surface — constrain to parent */
 .wrapper :global([class*='WormholeConnect']) {
   max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /*
@@ -51,16 +56,45 @@
   color: #b8f0d4 !important;
 }
 
+.mounted {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  overflow: visible;
+}
+
 .loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--text-muted);
-  font-size: 14px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+}
+
+.loading::before {
+  content: 'Loading bridge widget...';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Wormhole picker modals are rendered in a portal; anchor via body:has(.mounted)
+   so the selector remains valid in CSS Modules while still reaching the portal. */
+:global(body):has(.mounted) :global(#asset-picker.MuiModal-root),
+:global(body):has(.mounted) :global(#network-picker.MuiModal-root),
+:global(body):has(.mounted) :global([id$='-picker'].MuiModal-root) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+:global(body):has(.mounted) :global(#asset-picker .MuiModal-backdrop),
+:global(body):has(.mounted) :global(#network-picker .MuiModal-backdrop),
+:global(body):has(.mounted) :global([id$='-picker'] .MuiModal-backdrop) {
+  backdrop-filter: blur(3px);
 }
 
 .errorFallback {

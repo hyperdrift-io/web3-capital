@@ -1,10 +1,55 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const wormholeHostedEntry = require.resolve('@wormhole-foundation/wormhole-connect/hosted')
+const wormholePackageJsonPath = path.join(path.dirname(wormholeHostedEntry), '..', 'package.json')
+const { version: wormholeConnectVersion } = JSON.parse(readFileSync(wormholePackageJsonPath, 'utf8'))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   output: 'standalone',
-  // Note: wormhole-connect is no longer bundled by webpack at all.
-  // BridgeWidget uses the package's /hosted export which injects the pre-built
-  // Vite bundle from jsDelivr CDN as a native <script type="module">.
-  // The /hosted shim itself is tiny and webpack-safe.
+  // Wormhole Connect is loaded via the /hosted CDN loader. The pre-built Vite
+  // bundle resolves dynamic chunk imports relative to the page origin rather
+  // than the CDN URL, causing 404s for /assets/*.js. Fix: proxy the widget
+  // assets through our server so all chunk URLs stay on the same origin.
+  //
+  // Important: scope the root-path asset rewrites to bridge-page requests only.
+  // The upstream bundle hard-codes /assets/* and /main.css, so we still need
+  // root matches, but we should not hijack unrelated assets elsewhere.
+  async rewrites() {
+    const CDN_DIST = `https://cdn.jsdelivr.net/npm/@wormhole-foundation/wormhole-connect@${wormholeConnectVersion}/dist`
+    const wormholeBridgeRequest = [
+      {
+        type: 'header',
+        key: 'referer',
+        value: 'https?://[^/]+/bridge(?:\?.*)?$',
+      },
+    ]
+
+    return [
+      // ES module imports resolve relative to the script URL (/wh-connect/dist/main.mjs)
+      {
+        source: '/wh-connect/dist/:path*',
+        destination: `${CDN_DIST}/:path*`,
+      },
+      // Vite's preload polyfill computes chunk URLs against window.location.href
+      // (/bridge) rather than the script URL — so these land at our origin.
+      // Limit those root-path rewrites to requests originating from /bridge.
+      {
+        source: '/assets/:path*',
+        has: wormholeBridgeRequest,
+        destination: `${CDN_DIST}/assets/:path*`,
+      },
+      {
+        source: '/main.css',
+        has: wormholeBridgeRequest,
+        destination: `${CDN_DIST}/main.css`,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       { hostname: 'icons.llama.fi' },
