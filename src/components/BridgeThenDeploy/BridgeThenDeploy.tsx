@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Pool } from '@/types/protocol'
 import { defiLlamaChainToWormhole, tokenForPoolSymbol, vaultTokenNote } from '@/lib/bridge'
 import { buildBridgeRouteIntent } from '@/lib/routing'
@@ -38,6 +38,22 @@ type Props = {
  */
 export function BridgeThenDeploy({ topPool }: Props) {
   const [open, setOpen] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const el = dialogRef.current
+    if (!el) return
+    if (open) {
+      el.showModal()
+    } else {
+      el.close()
+    }
+  }, [open])
+
+  // Close on backdrop click (click outside the inner panel)
+  function handleDialogClick(e: React.MouseEvent<HTMLDialogElement>) {
+    if (e.target === dialogRef.current) setOpen(false)
+  }
 
   // Resolve the best destination chain
   const targetWormholeChain = topPool
@@ -132,9 +148,9 @@ export function BridgeThenDeploy({ topPool }: Props) {
           aria-controls="bridge-widget-panel"
           data-testid="bridge-toggle"
         >
-          <span className={styles.bridgeTriggerIcon}>{open ? '▲' : '⇄'}</span>
+          <span className={styles.bridgeTriggerIcon}>⇄</span>
           <span className={styles.bridgeTriggerLabel}>
-            {open ? 'Close bridge' : `Bridge to ${topPool.chain}`}
+            Bridge to {topPool.chain}
           </span>
           <span className={styles.bridgeTriggerSub}>
             Wormhole Connect · {bridgeToken}
@@ -142,10 +158,30 @@ export function BridgeThenDeploy({ topPool }: Props) {
         </button>
       )}
 
-      {open && (
-        <div id="bridge-widget-panel" className={styles.widgetContainer}>
+
+      {/* ── Bridge modal ───────────────────────────────────────────── */}
+      <dialog
+        ref={dialogRef}
+        className={styles.modal}
+        onClose={() => setOpen(false)}
+        onClick={handleDialogClick}
+        aria-label={`Bridge ${bridgeToken} to ${topPool.chain}`}
+      >
+        <div className={styles.modalPanel}>
+          <div className={styles.modalHeader}>
+            <span className={styles.modalTitle}>
+              Bridge {bridgeToken} → {topPool.chain}
+            </span>
+            <button
+              className={styles.modalClose}
+              onClick={() => setOpen(false)}
+              aria-label="Close bridge"
+            >
+              ✕
+            </button>
+          </div>
           <div className={styles.widgetHint}>
-            Select <strong>{bridgeToken}</strong> in the bridge widget below → {topPool.chain}
+            Select <strong>{bridgeToken}</strong> in the widget below → {topPool.chain}
           </div>
           <BridgeWidget
             targetChain={targetWormholeChain}
@@ -153,7 +189,7 @@ export function BridgeThenDeploy({ topPool }: Props) {
             destToken={bridgeToken}
           />
         </div>
-      )}
+      </dialog>
     </div>
   )
 }
