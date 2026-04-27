@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { WalletButton } from '@/components/WalletPanel/WalletButton'
 
 // Minimal connector shape the component uses
-const injectedConnector = { id: 'injected', name: 'MetaMask' }
-const portoConnector    = { id: 'xyz.ithaca.porto', name: 'Porto' }
+const injectedConnector = { id: 'injected', name: 'Browser Wallet' }
 
 const mockConnect    = vi.fn()
 const mockDisconnect = vi.fn()
@@ -25,7 +24,7 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi'
 function setupMocks({
   isConnected = false,
   address,
-  connectors = [injectedConnector, portoConnector],
+  connectors = [injectedConnector],
   isPending = false,
   error = null,
 }: {
@@ -36,20 +35,13 @@ function setupMocks({
   error?: { message: string } | null
 } = {}) {
   vi.mocked(useAccount).mockReturnValue({ isConnected, address } as ReturnType<typeof useAccount>)
-  vi.mocked(useConnect).mockReturnValue({ connect: mockConnect, connectors, isPending, error } as unknown as ReturnType<typeof useConnect>)
+  vi.mocked(useConnect).mockReturnValue({ connect: mockConnect, connectors, isPending, error, reset: vi.fn() } as unknown as ReturnType<typeof useConnect>)
   vi.mocked(useDisconnect).mockReturnValue({ disconnect: mockDisconnect } as unknown as ReturnType<typeof useDisconnect>)
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
   localStorage.clear()
-  // WalletButton treats absence of window.ethereum as "no browser wallet" (Safari / no MetaMask).
-  // Most tests expect the injected-first UX after effects run.
-  Object.defineProperty(window, 'ethereum', {
-    value: {},
-    configurable: true,
-    writable: true,
-  })
 })
 
 afterEach(() => {
@@ -59,14 +51,12 @@ afterEach(() => {
 describe('WalletButton', () => {
   describe('no wallet installed', () => {
     it('shows an install prompt when no connectors are available', () => {
-      Reflect.deleteProperty(window, 'ethereum')
       setupMocks({ connectors: [] })
       const view = render(<WalletButton />)
       expect(view.getByText(/install metamask/i)).toBeInTheDocument()
     })
 
     it('install link points to metamask.io', () => {
-      Reflect.deleteProperty(window, 'ethereum')
       setupMocks({ connectors: [] })
       const view = render(<WalletButton />)
       const link = view.getByRole('link', { name: /install metamask/i })
@@ -75,9 +65,7 @@ describe('WalletButton', () => {
   })
 
   describe('disconnected with connectors available', () => {
-    it('shows "Connect Wallet" as primary when injected preference is active', async () => {
-      // Explicitly seed the pref so the hook's useEffect finds injected
-      localStorage.setItem('wallet_connector_pref', 'injected')
+    it('shows "Connect Wallet" button', async () => {
       setupMocks()
       const view = render(<WalletButton />)
       await waitFor(() => {
@@ -85,9 +73,8 @@ describe('WalletButton', () => {
       })
     })
 
-    it('calls connect() with the injected connector on primary click', async () => {
+    it('calls connect() with the injected connector on click', async () => {
       const user = userEvent.setup()
-      localStorage.setItem('wallet_connector_pref', 'injected')
       setupMocks()
       const view = render(<WalletButton />)
       const connectBtn = await waitFor(() =>
@@ -111,16 +98,10 @@ describe('WalletButton', () => {
       expect(view.getByText(/rejected/i)).toBeInTheDocument()
     })
 
-    it('chevron dropdown reveals the alt connector option', async () => {
-      const user = userEvent.setup()
-      setupMocks()
+    it('shows install link when MetaMask extension not found error occurs', () => {
+      setupMocks({ error: { message: 'MetaMask extension not found' } })
       const view = render(<WalletButton />)
-      await waitFor(() => {
-        expect(view.getByRole('button', { name: /connect wallet/i })).toBeInTheDocument()
-      })
-      const chevron = view.getByLabelText(/more wallet options/i)
-      await user.click(chevron)
-      expect(view.getByText(/smart wallet/i)).toBeInTheDocument()
+      expect(view.getByText(/install metamask/i)).toBeInTheDocument()
     })
   })
 
@@ -130,7 +111,6 @@ describe('WalletButton', () => {
     it('renders the truncated address instead of connect button', () => {
       setupMocks({ isConnected: true, address })
       const view = render(<WalletButton />)
-      // formatAddress('0xd8dA6...96045') → '0xd8dA…6045'
       expect(view.getByText(/0xd8dA.*6045/)).toBeInTheDocument()
     })
 
@@ -152,3 +132,4 @@ describe('WalletButton', () => {
     })
   })
 })
+

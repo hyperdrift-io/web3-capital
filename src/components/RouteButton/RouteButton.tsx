@@ -20,11 +20,12 @@ type Props = {
  *   Iter 5 → 0x Gasless API (meta-tx, relayer pays gas, no popup)
  */
 export function RouteButton({ intent, amountUsd, variant = 'full', estimatedOutput }: Props) {
-  const { url, isSameToken, fromSymbol, toSymbol } = intent
+  const { url, isSameToken, fromSymbol, toSymbol, protocolLabel } = intent
 
-  const label = isSameToken ? 'Deposit on Aave' : `Swap on 1inch`
+  const depositTarget = protocolLabel ?? 'Aave'
+  const label = isSameToken ? `Deposit on ${depositTarget}` : `Swap on 1inch`
   const sublabel = isSameToken
-    ? `${formatUsd(amountUsd)} USDC → ${toSymbol} pool`
+    ? `${formatUsd(amountUsd)} ${fromSymbol} → ${toSymbol} pool`
     : estimatedOutput
       ? `${formatUsd(amountUsd)} ${fromSymbol} → ${estimatedOutput}`
       : `${formatUsd(amountUsd)} ${fromSymbol} → ${toSymbol}`

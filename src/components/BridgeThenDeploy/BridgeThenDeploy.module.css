@@ -96,12 +96,20 @@
   color: var(--text-secondary);
 }
 
+.chainPill svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .chainInline {
   display: inline-block;
   vertical-align: middle;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .poolApy {

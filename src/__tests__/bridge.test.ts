@@ -30,13 +30,16 @@ describe('defiLlamaChainToWormhole', () => {
     expect(defiLlamaChainToWormhole('Polygon')).toBe('Polygon')
   })
 
+  it('returns null for BSC (excluded: CoinGecko free-tier 400 on multi-contract requests)', () => {
+    expect(defiLlamaChainToWormhole('BSC')).toBeNull()
+  })
+
   it('maps Solana → Solana (EVM ↔ Solana via Wormhole NTT)', () => {
     expect(defiLlamaChainToWormhole('Solana')).toBe('Solana')
   })
 
   it('returns null for unsupported chains', () => {
     expect(defiLlamaChainToWormhole('Avalanche')).toBeNull()
-    expect(defiLlamaChainToWormhole('BSC')).toBeNull()
     expect(defiLlamaChainToWormhole('')).toBeNull()
   })
 })
@@ -98,6 +101,7 @@ describe('BRIDGE_CHAINS', () => {
     expect(BRIDGE_CHAINS).toContain('Base')
     expect(BRIDGE_CHAINS).toContain('Optimism')
     expect(BRIDGE_CHAINS).toContain('Polygon')
+    expect(BRIDGE_CHAINS).not.toContain('Bsc') // excluded: CoinGecko free-tier 400
     expect(BRIDGE_CHAINS).toContain('Solana')
   })
 
@@ -139,7 +143,7 @@ describe('BRIDGE_TOKENS', () => {
 // ─── DEFI_LLAMA_TO_WORMHOLE map consistency ───────────────────────────────────
 
 describe('DEFI_LLAMA_TO_WORMHOLE', () => {
-  it('covers the same chains as BRIDGE_CHAINS', () => {
+  it('covers all chains in BRIDGE_CHAINS', () => {
     const mapped = Object.values(DEFI_LLAMA_TO_WORMHOLE)
     for (const chain of BRIDGE_CHAINS) {
       expect(mapped).toContain(chain)

@@ -5,7 +5,7 @@
  * the opinionated config used by the BridgeWidget.
  *
  * Supported flow: ETH, WETH, stablecoins (USDC/USDT), WBTC, wstETH, and DAI
- * across five EVM chains and Solana, covering the assets that Capital Engine's
+ * across six EVM chains (incl. BNB) and Solana, covering the assets that Capital Engine's
  * top-ranked pools actually require. The bridge token is inferred from the
  * pool's symbol so the widget is pre-filled with exactly what the user needs.
  *
@@ -25,7 +25,7 @@ import type { Chain } from '@wormhole-foundation/wormhole-connect'
 
 /**
  * DeFi Llama chain name → Wormhole SDK Chain name.
- * Covers five EVM chains plus Solana (via Wormhole NTT).
+ * Covers six EVM chains (incl. BNB / Binance Smart Chain) plus Solana (via Wormhole NTT).
  */
 export const DEFI_LLAMA_TO_WORMHOLE: Record<string, Chain> = {
   Ethereum: 'Ethereum',
@@ -33,6 +33,10 @@ export const DEFI_LLAMA_TO_WORMHOLE: Record<string, Chain> = {
   Base:     'Base',
   Optimism: 'Optimism',
   Polygon:  'Polygon',
+  // BSC excluded: Wormhole Connect fetches CoinGecko prices for every whitelisted
+  // token on the selected chain; the free-tier API returns 400 for multi-contract
+  // BSC requests, breaking routing/confirm state. Returning null here causes
+  // BridgeThenDeploy to bail out gracefully for BSC pools.
   Solana:   'Solana',
 }
 
@@ -43,8 +47,19 @@ export const BRIDGE_CHAINS: Chain[] = [
   'Base',
   'Optimism',
   'Polygon',
+  // 'Bsc' excluded: CoinGecko free-tier API returns 400 for multi-contract BSC
+  // requests, which blocks the Wormhole widget's routing/confirm state.
+  // Use portalbridge.com for BSC transfers.
   'Solana',
 ]
+
+/**
+ * Wormhole Connect RPC overrides.
+ *
+ * Some wallet/network presets still ship with deprecated BSC endpoints
+ * (e.g. bscrpc.com) that now require API keys. Force a stable public RPC.
+ */
+export const BRIDGE_RPCS: Partial<Record<Chain, string>> = {}
 
 // ── Token identifiers (Wormhole Connect v5 symbol strings) ───────────────────
 
