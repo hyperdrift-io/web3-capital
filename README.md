@@ -64,9 +64,9 @@ Connect a wallet and Capital Engine projects your monthly and annual returns at 
 ## Local dev
 
 ```bash
-npm install
-npm run dev       # http://localhost:3000
-npm run build     # production build
+pnpm install
+pnpm run dev       # http://localhost:3000
+pnpm run build     # production build
 ```
 
 No `.env` required for local development. DeFi Llama API is public with no key.
