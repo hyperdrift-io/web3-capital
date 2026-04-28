@@ -424,19 +424,47 @@ const BAND_META: Record<string, { label: string; description: string }> = {
 /**
  * Given a total deploy amount and the current pool list, return a 3-band
  * allocation with the best pool per band and its 1inch routing intent.
+ *
+ * When `preferredTokens` is provided (e.g. ['USDC', 'USDT'] from the user's
+ * wallet), pools whose underlying token matches are ranked first within each
+ * band — so the recommended pool is actionable without an extra swap step.
+ * Falls back to CE-score ranking if no preferred-token match exists in a band.
  */
 export function buildAllocation(
   totalUsd: number,
   pools: Pool[],
   fractions = DEFAULT_FRACTIONS,
+  preferredTokens: string[] = [],
 ): BandAllocation[] {
   const bands = ['anchor', 'balanced', 'opportunistic'] as const
+  const preferred = new Set(preferredTokens.map(t => t.toUpperCase()))
+
+  function pickBestPool(bandPools: Pool[]): Pool | null {
+    if (bandPools.length === 0) return null
+    if (preferred.size === 0)   return bandPools[0]
+
+    // Prefer pools whose underlying/symbol matches a held token
+    const tokenMatch = bandPools.find(p => {
+      const sym = p.symbol.toUpperCase()
+      if (preferred.has(sym)) return true
+      // Check underlying tokens (e.g. aUSDC → USDC)
+      if (p.underlyingTokens?.some(addr => {
+        // Match by address is not feasible here — match by symbol stripping vault prefixes
+        const base = sym.replace(/^(CSY|ASY|A|C|B|M)/i, '')
+        return preferred.has(base)
+      })) return true
+      return false
+    })
+
+    return tokenMatch ?? bandPools[0]
+  }
 
   return bands.map(band => {
-    const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
-    const amountUsd  = totalUsd * fraction
-    const bestPool   = pools.filter(p => p.band === band)[0] ?? null
-    const intent     = bestPool ? buildRouteIntent(bestPool) : null
+    const fraction  = fractions[band] ?? DEFAULT_FRACTIONS[band]
+    const amountUsd = totalUsd * fraction
+    const bandPools = pools.filter(p => p.band === band)
+    const bestPool  = pickBestPool(bandPools)
+    const intent    = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
       band,

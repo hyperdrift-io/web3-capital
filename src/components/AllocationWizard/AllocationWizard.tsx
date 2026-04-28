@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useAccount } from 'wagmi'
 import type { Pool } from '@/types/protocol'
 import { buildAllocation, type BandAllocation } from '@/lib/routing'
-import { formatApy } from '@/lib/format'
+import { formatApy, formatUsd } from '@/lib/format'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
+import { useEthUsdPrice } from '@/hooks/useEthUsdPrice'
+import { useMultiChainBalances } from '@/hooks/useMultiChainBalances'
 import styles from './AllocationWizard.module.css'
 
 type Props = {
@@ -22,21 +25,43 @@ const MIN_DEPLOY = 100
 const DEFAULT_AMOUNT = 5_000
 
 /**
- * Allocation Wizard — Iteration 3.2
+ * Allocation Wizard — Iteration 3.2+
  *
- * Converts an arbitrary deploy amount into a 3-band portfolio split,
- * picking the best CE-scored pool per band and generating 1inch routing
- * intents for each position.
+ * Wallet-aware: when connected, auto-populates the deploy amount from the
+ * user's real multi-chain portfolio total and prefers pools whose underlying
+ * tokens match what the user actually holds.
  *
  * UX principle: the user thinks in dollars ("I want to deploy $5,000").
  * The wizard handles band selection, pool ranking, and routing prep.
  * They never need to understand what a pool is.
  */
 export function AllocationWizard({ pools }: Props) {
-  const [amount, setAmount]   = useState(DEFAULT_AMOUNT)
-  const [input,  setInput]    = useState(DEFAULT_AMOUNT.toString())
-  const [custom, setCustom]   = useState<Record<string, number>>({})
-  const [open,   setOpen]     = useState(false)
+  const { address, isConnected } = useAccount()
+  const ethUsdPrice = useEthUsdPrice()
+  const { totalUsd, chainsWithBalance, isLoading: balancesLoading } = useMultiChainBalances(address, ethUsdPrice)
+
+  // Derive the set of token symbols the user actually holds (for token-aware pool selection)
+  const heldTokenSymbols = useMemo(
+    () => chainsWithBalance.flatMap(c => c.tokens.map(t => t.meta.symbol.toUpperCase())),
+    [chainsWithBalance],
+  )
+
+  const [amount, setAmount] = useState(DEFAULT_AMOUNT)
+  const [input,  setInput]  = useState(DEFAULT_AMOUNT.toString())
+  const [custom, setCustom] = useState<Record<string, number>>({})
+  // Open by default — user has capital to deploy, no reason to hide this
+  const [open, setOpen] = useState(true)
+  // Track whether the amount has been manually overridden
+  const [amountOverridden, setAmountOverridden] = useState(false)
+
+  // Auto-populate from wallet total when balances load (only if not manually changed)
+  useEffect(() => {
+    if (isConnected && !balancesLoading && totalUsd >= MIN_DEPLOY && !amountOverridden) {
+      const rounded = Math.floor(totalUsd)
+      setAmount(rounded)
+      setInput(rounded.toString())
+    }
+  }, [isConnected, balancesLoading, totalUsd, amountOverridden])
 
   const fractions = useMemo(() => ({
     anchor:        custom.anchor        ?? 0.50,
@@ -45,18 +70,21 @@ export function AllocationWizard({ pools }: Props) {
   }), [custom])
 
   const allocation = useMemo(
-    () => buildAllocation(amount, pools, fractions),
-    [amount, pools, fractions],
+    () => buildAllocation(amount, pools, fractions, heldTokenSymbols),
+    [amount, pools, fractions, heldTokenSymbols],
   )
 
-  const totalPct   = Object.values(fractions).reduce((s, v) => s + v, 0)
-  const isValid    = amount >= MIN_DEPLOY && Math.abs(totalPct - 1) < 0.001
+  const totalPct    = Object.values(fractions).reduce((s, v) => s + v, 0)
+  const isValid     = amount >= MIN_DEPLOY && Math.abs(totalPct - 1) < 0.001
   const weightedApy = allocation.reduce((s, row) =>
     row.pool ? s + row.pool.apy * row.fraction : s
   , 0)
 
+  const showWalletHint = isConnected && !balancesLoading && totalUsd >= MIN_DEPLOY && !amountOverridden
+
   function handleAmountChange(raw: string) {
     setInput(raw)
+    setAmountOverridden(true)
     const n = parseFloat(raw.replace(/[^0-9.]/g, ''))
     if (!isNaN(n)) setAmount(n)
   }
@@ -119,6 +147,26 @@ export function AllocationWizard({ pools }: Props) {
             )}
           </div>
 
+          {/* Wallet hint */}
+          {showWalletHint && (
+            <p className={styles.walletHint}>
+              ◈ Using your wallet balance: {formatUsd(totalUsd)} across all chains
+              {amountOverridden ? null : (
+                <button
+                  className={styles.resetHint}
+                  onClick={() => {
+                    setAmountOverridden(false)
+                    const rounded = Math.floor(totalUsd)
+                    setAmount(rounded)
+                    setInput(rounded.toString())
+                  }}
+                >
+                  Reset to wallet total
+                </button>
+              )}
+            </p>
+          )}
+
           {/* Band allocation sliders */}
           <div className={styles.sliders}>
             {allocation.map(row => (
@@ -138,7 +186,12 @@ export function AllocationWizard({ pools }: Props) {
                   className={styles.sliderInput}
                   style={{ '--thumb-color': BAND_COLORS[row.band] } as React.CSSProperties}
                 />
-                <span className={styles.sliderPct}>{Math.round(row.fraction * 100)}%</span>
+                <span className={styles.sliderPct}>
+                  {Math.round(row.fraction * 100)}%
+                  {amount >= MIN_DEPLOY && (
+                    <span className={styles.sliderAmt}> · {formatUsd(row.amountUsd)}</span>
+                  )}
+                </span>
               </div>
             ))}
             {!isValid && Math.abs(totalPct - 1) > 0.001 && (
