@@ -44,6 +44,16 @@
   50%       { opacity: 0.4; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.projectionGridSkeleton {
+  margin-top: var(--space-3);
+}
+
 .projectionGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

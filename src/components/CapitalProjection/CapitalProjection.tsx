@@ -1,7 +1,6 @@
 'use client'
 
 import { useAccount } from 'wagmi'
-import { mainnet } from 'viem/chains'
 import type { Pool } from '@/types/protocol'
 import { formatUsd, formatApy } from '@/lib/format'
 import { useEthUsdPrice } from '@/hooks/useEthUsdPrice'
@@ -35,7 +34,7 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
     return (
       <div className={styles.projectionCard}>
         <div className={styles.label}>What you could earn</div>
-        <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
+        <div className={`${styles.projectionGrid} ${styles.projectionGridSkeleton}`}>
           {[0, 1, 2, 3].map(i => (
             <div key={i} className={styles.projectionItem}>
               <div className={styles.skeleton} style={{ width: 80, height: 12, marginBottom: 6 }} />

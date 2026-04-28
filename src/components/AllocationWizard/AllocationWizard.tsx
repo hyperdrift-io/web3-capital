@@ -80,7 +80,14 @@ export function AllocationWizard({ pools }: Props) {
     row.pool ? s + row.pool.apy * row.fraction : s
   , 0)
 
-  const showWalletHint = isConnected && !balancesLoading && totalUsd >= MIN_DEPLOY && !amountOverridden
+  const showWalletBar = isConnected && !balancesLoading && totalUsd >= MIN_DEPLOY
+
+  function resetToWalletTotal() {
+    setAmountOverridden(false)
+    const rounded = Math.floor(totalUsd)
+    setAmount(rounded)
+    setInput(rounded.toString())
+  }
 
   function handleAmountChange(raw: string) {
     setInput(raw)
@@ -147,23 +154,21 @@ export function AllocationWizard({ pools }: Props) {
             )}
           </div>
 
-          {/* Wallet hint */}
-          {showWalletHint && (
+          {/* Wallet hint — stays visible after manual edits so Reset stays reachable */}
+          {showWalletBar && (
             <p className={styles.walletHint}>
-              ◈ Using your wallet balance: {formatUsd(totalUsd)} across all chains
-              {amountOverridden ? null : (
-                <button
-                  className={styles.resetHint}
-                  onClick={() => {
-                    setAmountOverridden(false)
-                    const rounded = Math.floor(totalUsd)
-                    setAmount(rounded)
-                    setInput(rounded.toString())
-                  }}
-                >
-                  Reset to wallet total
-                </button>
+              {amountOverridden ? (
+                <>
+                  Custom amount — wallet holds {formatUsd(totalUsd)} across chains.
+                </>
+              ) : (
+                <>
+                  ◈ Using your wallet balance: {formatUsd(totalUsd)} across all chains
+                </>
               )}
+              <button type="button" className={styles.resetHint} onClick={resetToWalletTotal}>
+                Reset to wallet total
+              </button>
             </p>
           )}
 

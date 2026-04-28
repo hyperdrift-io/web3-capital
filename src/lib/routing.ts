@@ -443,17 +443,12 @@ export function buildAllocation(
     if (bandPools.length === 0) return null
     if (preferred.size === 0)   return bandPools[0]
 
-    // Prefer pools whose underlying/symbol matches a held token
+    // Prefer pools whose symbol matches a held token (exact or after stripping vault prefixes).
     const tokenMatch = bandPools.find(p => {
       const sym = p.symbol.toUpperCase()
       if (preferred.has(sym)) return true
-      // Check underlying tokens (e.g. aUSDC → USDC)
-      if (p.underlyingTokens?.some(addr => {
-        // Match by address is not feasible here — match by symbol stripping vault prefixes
-        const base = sym.replace(/^(CSY|ASY|A|C|B|M)/i, '')
-        return preferred.has(base)
-      })) return true
-      return false
+      const base = sym.replace(/^(CSY|ASY|A|C|B|M)/i, '')
+      return preferred.has(base)
     })
 
     return tokenMatch ?? bandPools[0]
