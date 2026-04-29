@@ -23,15 +23,21 @@ export function Header() {
     setMenuOpen(false)
   }, [pathname])
 
-  // Close menu on outside click
+  // Close menu on outside click/touch
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false)
       }
     }
-    if (menuOpen) document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    if (menuOpen) {
+      document.addEventListener('mousedown', handler)
+      document.addEventListener('touchstart', handler)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
   }, [menuOpen])
 
   return (
