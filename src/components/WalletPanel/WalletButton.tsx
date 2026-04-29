@@ -17,6 +17,10 @@ function friendlyError(msg: string): { text: string; showInstall: boolean } {
   if (lower.includes('already pending')) {
     return { text: 'Check your wallet — a request is pending', showInstall: false }
   }
+  // On mobile, any other failure likely means no wallet app / browser extension
+  if (typeof window !== 'undefined' && /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)) {
+    return { text: 'No wallet found. Open in MetaMask Mobile or Brave.', showInstall: false }
+  }
   return { text: 'Connection failed', showInstall: false }
 }
 
@@ -131,7 +135,22 @@ export function WalletButton() {
   const injectedConnector = connectors.find(c => c.id === CONNECTOR_ID.injected)
   const parsedError = error ? friendlyError(error.message) : null
 
+  const isMobile = typeof window !== 'undefined' && /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+
   if (!injectedConnector) {
+    if (isMobile) {
+      return (
+        <a
+          href="https://metamask.app.link/dapp/web3.hyperdrift.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.btn} ${styles.disconnected}`}
+          data-testid="open-in-wallet"
+        >
+          Open in MetaMask
+        </a>
+      )
+    }
     return (
       <a
         href="https://metamask.io"

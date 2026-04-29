@@ -70,3 +70,18 @@
 .compact:hover {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
+
+/* ── Mobile ─────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .button {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
