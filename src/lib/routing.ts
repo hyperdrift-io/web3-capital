@@ -154,7 +154,17 @@ const KNOWN_TOKEN_ADDRESSES = new Set(
 // underlying base asset symbol which we can look up in KNOWN_TOKEN.
 //
 // Order matters: try longest match first.
-const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+export const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+
+function stripVaultPrefix(symbol: string): string {
+  const sym = symbol.toUpperCase()
+  for (const prefix of VAULT_PREFIXES) {
+    if (sym.startsWith(prefix.toUpperCase())) {
+      return sym.slice(prefix.length)
+    }
+  }
+  return sym
+}
 
 /**
  * Resolve the best 1inch `dst` token for a given pool.
@@ -181,13 +191,9 @@ export function resolveToToken(pool: { symbol: string; underlyingTokens: string[
   if (direct) return direct
 
   // 3. strip vault prefix and retry
-  for (const prefix of VAULT_PREFIXES) {
-    if (sym.startsWith(prefix.toUpperCase())) {
-      const base = sym.slice(prefix.length)
-      const fromBase = known[base]?.[chainId]
-      if (fromBase) return fromBase
-    }
-  }
+  const base = stripVaultPrefix(sym)
+  const fromBase = known[base]?.[chainId]
+  if (base !== sym && fromBase) return fromBase
 
   // 4. last resort — let 1inch try to interpret the symbol
   return pool.symbol
@@ -447,7 +453,7 @@ export function buildAllocation(
     const tokenMatch = bandPools.find(p => {
       const sym = p.symbol.toUpperCase()
       if (preferred.has(sym)) return true
-      const base = sym.replace(/^(CSY|ASY|A|C|B|M)/i, '')
+      const base = stripVaultPrefix(sym)
       return preferred.has(base)
     })
 
