@@ -154,7 +154,17 @@ const KNOWN_TOKEN_ADDRESSES = new Set(
 // underlying base asset symbol which we can look up in KNOWN_TOKEN.
 //
 // Order matters: try longest match first.
-const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+export const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+
+function stripVaultPrefix(symbol: string): string {
+  const sym = symbol.toUpperCase()
+  for (const prefix of VAULT_PREFIXES) {
+    if (sym.startsWith(prefix.toUpperCase())) {
+      return sym.slice(prefix.length)
+    }
+  }
+  return sym
+}
 
 /**
  * Resolve the best 1inch `dst` token for a given pool.
@@ -181,13 +191,9 @@ export function resolveToToken(pool: { symbol: string; underlyingTokens: string[
   if (direct) return direct
 
   // 3. strip vault prefix and retry
-  for (const prefix of VAULT_PREFIXES) {
-    if (sym.startsWith(prefix.toUpperCase())) {
-      const base = sym.slice(prefix.length)
-      const fromBase = known[base]?.[chainId]
-      if (fromBase) return fromBase
-    }
-  }
+  const base = stripVaultPrefix(sym)
+  const fromBase = known[base]?.[chainId]
+  if (base !== sym && fromBase) return fromBase
 
   // 4. last resort — let 1inch try to interpret the symbol
   return pool.symbol
@@ -424,19 +430,42 @@ const BAND_META: Record<string, { label: string; description: string }> = {
 /**
  * Given a total deploy amount and the current pool list, return a 3-band
  * allocation with the best pool per band and its 1inch routing intent.
+ *
+ * When `preferredTokens` is provided (e.g. ['USDC', 'USDT'] from the user's
+ * wallet), pools whose underlying token matches are ranked first within each
+ * band — so the recommended pool is actionable without an extra swap step.
+ * Falls back to CE-score ranking if no preferred-token match exists in a band.
  */
 export function buildAllocation(
   totalUsd: number,
   pools: Pool[],
   fractions = DEFAULT_FRACTIONS,
+  preferredTokens: string[] = [],
 ): BandAllocation[] {
   const bands = ['anchor', 'balanced', 'opportunistic'] as const
+  const preferred = new Set(preferredTokens.map(t => t.toUpperCase()))
+
+  function pickBestPool(bandPools: Pool[]): Pool | null {
+    if (bandPools.length === 0) return null
+    if (preferred.size === 0)   return bandPools[0]
+
+    // Prefer pools whose symbol matches a held token (exact or after stripping vault prefixes).
+    const tokenMatch = bandPools.find(p => {
+      const sym = p.symbol.toUpperCase()
+      if (preferred.has(sym)) return true
+      const base = stripVaultPrefix(sym)
+      return preferred.has(base)
+    })
+
+    return tokenMatch ?? bandPools[0]
+  }
 
   return bands.map(band => {
-    const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
-    const amountUsd  = totalUsd * fraction
-    const bestPool   = pools.filter(p => p.band === band)[0] ?? null
-    const intent     = bestPool ? buildRouteIntent(bestPool) : null
+    const fraction  = fractions[band] ?? DEFAULT_FRACTIONS[band]
+    const amountUsd = totalUsd * fraction
+    const bandPools = pools.filter(p => p.band === band)
+    const bestPool  = pickBestPool(bandPools)
+    const intent    = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
       band,
