@@ -1,6 +1,30 @@
 .hero {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-16) 0 var(--space-12);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.hero::before {
+  position: absolute;
+  inset: -30% -10% auto auto;
+  width: 520px;
+  height: 520px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(57, 212, 143, 0.18), transparent 62%);
+  content: '';
+}
+
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.heroCopy {
+  max-width: 700px;
 }
 
 .eyebrow {
@@ -23,11 +47,11 @@
 }
 
 .headline {
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(2.5rem, 7vw, 5rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  max-width: 680px;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  max-width: 760px;
   margin-bottom: var(--space-5);
 }
 
@@ -43,6 +67,152 @@
   display: flex;
   gap: var(--space-3);
   flex-wrap: wrap;
+}
+
+.trustLine {
+  max-width: 560px;
+  margin-top: var(--space-4);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.memoCard {
+  position: relative;
+  padding: var(--space-6);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(57, 212, 143, 0.1), transparent 42%),
+    var(--bg-surface);
+  border: 1px solid var(--accent-border);
+  border-radius: calc(var(--radius-lg) + 8px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.memoCard::after {
+  position: absolute;
+  right: var(--space-6);
+  bottom: var(--space-6);
+  width: 88px;
+  height: 88px;
+  background: var(--accent);
+  content: '';
+  mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
+  opacity: 0.08;
+  -webkit-mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
+}
+
+.memoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.memoKicker,
+.memoStatus {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.memoKicker {
+  color: var(--text-muted);
+}
+
+.memoStatus {
+  padding: 4px var(--space-2);
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+}
+
+.memoScore {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  font-family: var(--font-mono);
+}
+
+.memoScore span {
+  color: var(--text-muted);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.memoScore strong {
+  color: var(--text-primary);
+  font-size: clamp(4rem, 10vw, 6rem);
+  line-height: 0.85;
+  letter-spacing: -0.08em;
+}
+
+.memoSummary {
+  max-width: 340px;
+  margin-bottom: var(--space-6);
+  color: var(--text-support);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.memoRows {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.memoRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--space-3);
+  padding: var(--space-3);
+  background: rgba(13, 15, 20, 0.42);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.memoLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.memoValue {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.memoNote {
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.identity {
+  padding: var(--space-10) 0;
+  background: color-mix(in srgb, var(--bg-surface) 42%, transparent);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.identityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.identityStatement {
+  max-width: 480px;
+  color: var(--text-support);
+  font-size: 17px;
+  line-height: 1.6;
 }
 
 .modules {
@@ -128,7 +298,22 @@
 }
 
 @media (max-width: 640px) {
-  .signals { grid-template-columns: 1fr; }
+  .hero {
+    padding-top: var(--space-12);
+  }
+
+  .heroInner,
+  .identityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .memoCard {
+    padding: var(--space-5);
+  }
+
+  .signals {
+    grid-template-columns: 1fr;
+  }
 }
 
 .signalItem {

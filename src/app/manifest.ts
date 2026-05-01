@@ -2,7 +2,7 @@ export default function manifest() {
   return {
     name: 'Capital Engine',
     short_name: 'Capital Engine',
-    description: 'DeFi yield intelligence. 8,000+ pools ranked by capital efficiency. Passkey-first access — no seed phrase.',
+    description: 'DeFi allocation for people with something to lose. Pools ranked by capital efficiency, safety, and liquidity depth.',
     start_url: '/',
     display: 'standalone',
     background_color: '#070605',

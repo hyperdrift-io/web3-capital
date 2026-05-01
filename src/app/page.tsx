@@ -10,48 +10,113 @@ import {
   WalletDone01Icon,
 } from '@hugeicons/core-free-icons'
 
+const WORMHOLE_ARTICLE_URL = 'https://hyperdrift.io/blog/wormhole-capital-engine-deployment-layer'
+
 const MODULES = [
   {
     href: '/yield',
     icon: ChartAnalysisIcon,
-    name: 'Yield Discovery',
-    description: 'Live APY across 8,000+ DeFi pools, scored by capital efficiency — not raw yield. Grouped into Anchor, Balanced, and Opportunistic bands.',
-    tag: 'Live · 150+ pools ranked',
+    name: 'Find defendable yield',
+    description: 'Start with the short list, not the leaderboard. Every pool is scored by yield, safety, and liquidity depth before it earns attention.',
+    tag: '150+ pools ranked',
   },
   {
     href: '/capital',
     icon: WalletDone01Icon,
-    name: 'Capital View',
-    description: 'Connect with a smart wallet (passkey) or browser wallet. See your real on-chain balance and projected returns at current yields.',
-    tag: 'Smart wallet · Passkey · No seed phrase',
+    name: 'Build your allocation',
+    description: 'Turn available capital into an Anchor, Balanced, and Opportunistic plan with passkey wallet access and no seed phrase ritual.',
+    tag: 'Passkey-ready deployment',
+  },
+  {
+    href: '/bridge',
+    icon: Layers01Icon,
+    name: 'Bridge before you deploy',
+    description: 'Use Wormhole-powered routing to move the right asset toward the opportunity Capital Engine recommends.',
+    tag: 'Wormhole Connect',
   },
 ]
 
 const SIGNALS = [
-  { icon: SecurityCheckIcon, label: 'Protocol safety score', sub: 'Tier-1/2 curation, audit flags, IL risk' },
-  { icon: DashboardSpeed02Icon, label: 'Capital Efficiency Score', sub: 'Yield × safety × TVL depth' },
-  { icon: Layers01Icon, label: 'Allocation bands', sub: 'Anchor · Balanced · Opportunistic' },
+  { icon: SecurityCheckIcon, label: 'Safety before yield', sub: 'Protocol tier, audit signals, IL risk' },
+  { icon: DashboardSpeed02Icon, label: 'One score you can defend', sub: 'Yield x safety x liquidity depth' },
+  { icon: Layers01Icon, label: 'A plan, not a table', sub: 'Anchor, Balanced, Opportunistic' },
+]
+
+const MEMO_ROWS = [
+  { label: 'Capital Efficiency', value: '84', note: 'Strong yield with deep liquidity' },
+  { label: 'Band', value: 'Anchor', note: 'Core allocation candidate' },
+  { label: 'Proof', value: 'Open', note: 'Score breakdown available on demand' },
 ]
 
 export default function HomePage() {
   return (
     <>
       <section className={styles.hero} data-testid="smoke-home">
-        <div className="container">
-          <div className={styles.eyebrow}>
-            <span className={styles.eyebrowDot} />
-            Capital Engine
+        <div className={`container ${styles.heroInner}`}>
+          <div className={styles.heroCopy}>
+            <div className={styles.eyebrow}>
+              <span className={styles.eyebrowDot} />
+              Capital Engine
+            </div>
+            <h1 className={styles.headline}>
+              DeFi allocation for people with something to lose.
+            </h1>
+            <p className={styles.subline}>
+              Yield is easy to find. Good risk-adjusted yield is not. Capital Engine turns
+              8,000+ pools into a short list you can understand, verify, and act on.
+            </p>
+            <div className={styles.actions}>
+              <Link href="/capital#allocation-wizard" className="btn btn--primary">Build my allocation</Link>
+              <Link href="/yield" className="btn btn--ghost">Review the scores</Link>
+            </div>
+            <p className={styles.trustLine}>
+              No seed phrase ceremony. No APY roulette. Every recommendation shows its work.
+            </p>
           </div>
-          <h1 className={styles.headline}>
-            Where should your capital go?
-          </h1>
-          <p className={styles.subline}>
-            8,000+ DeFi yield opportunities. One score that cuts through the noise.
-            Connect your wallet and see your returns — no approvals required.
-          </p>
-          <div className={styles.actions}>
-            <Link href="/yield" className="btn btn--primary">Explore Yields</Link>
-            <Link href="/capital" className="btn btn--ghost">View Capital</Link>
+
+          <aside className={styles.memoCard} aria-label="Example Capital Engine allocation memo">
+            <div className={styles.memoHeader}>
+              <span className={styles.memoKicker}>Allocation memo</span>
+              <span className={styles.memoStatus}>CE verified</span>
+            </div>
+            <div className={styles.memoScore}>
+              <span>CE</span>
+              <strong>84</strong>
+            </div>
+            <p className={styles.memoSummary}>
+              Aave USDC clears the Anchor bar: real liquidity, mature protocol risk, and
+              yield worth considering without pretending the risk is zero.
+            </p>
+            <div className={styles.memoRows}>
+              {MEMO_ROWS.map(row => (
+                <div key={row.label} className={styles.memoRow}>
+                  <span className={styles.memoLabel}>{row.label}</span>
+                  <span className={styles.memoValue}>{row.value}</span>
+                  <span className={styles.memoNote}>{row.note}</span>
+                </div>
+              ))}
+            </div>
+          </aside>
+          </div>
+      </section>
+
+      <section className={styles.identity}>
+        <div className="container">
+          <div className={styles.identityGrid}>
+            <div>
+              <div className={styles.sectionTitle}>The old way</div>
+              <p className={styles.identityStatement}>
+                Chase the highest APY, open five tabs, decode bridge routes, then hope the pool
+                survives the month.
+              </p>
+            </div>
+            <div>
+              <div className={styles.sectionTitle}>The Capital Engine way</div>
+              <p className={styles.identityStatement}>
+                Think like an allocator: safety first, yield second, execution last. The app
+                compresses the memo so you can make a calmer decision.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -93,7 +158,7 @@ export default function HomePage() {
             <span className={styles.footerBrand}>Capital Engine</span>
             <div className={styles.footerLinks}>
               <a href="https://github.com/hyperdrift-io/web3-capital" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a href="https://hyperdrift.io/blog/web3-capital-engine-architecture-roadmap" target="_blank" rel="noopener noreferrer">Article</a>
+              <a href={WORMHOLE_ARTICLE_URL}>Wormhole article</a>
             </div>
           </div>
           <HDCredit />
