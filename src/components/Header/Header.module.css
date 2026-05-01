@@ -21,7 +21,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 10px;
   color: var(--text-primary);
   font-weight: 700;
   font-size: 15px;
@@ -30,12 +30,13 @@
 
 .logo:hover { color: var(--text-primary); }
 
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
+.logoMark {
+  width: 24px;
+  height: 24px;
+  background: var(--green);
+  flex: 0 0 auto;
+  mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
+  -webkit-mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
 }
 
 .nav {

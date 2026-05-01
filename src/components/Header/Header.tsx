@@ -19,8 +19,8 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/" className={styles.logo}>
-          <span className={styles.dot} />
-          Capital Engine
+          <span className={styles.logoMark} aria-hidden="true" />
+          <span>Capital Engine</span>
         </Link>
 
         <nav className={styles.nav}>
