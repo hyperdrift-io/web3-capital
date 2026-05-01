@@ -6,6 +6,7 @@ import { cookieToInitialState } from 'wagmi'
 import { Providers } from '@/components/Providers'
 import { Header } from '@/components/Header/Header'
 import { Analytics } from '@/components/Analytics'
+import { PWARegistration } from '@/components/PWARegistration'
 import { wagmiConfig } from '@/lib/wagmi'
 import './globals.css'
 
@@ -24,9 +25,11 @@ const jetbrainsMono = JetBrains_Mono({
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://web3.hyperdrift.io'
 
 export const metadata: Metadata = {
+  applicationName: 'Capital Engine',
   title: 'Capital Engine - DeFi Allocation for People With Something to Lose',
   description: 'Turn DeFi noise into a capital plan you can understand and defend. CE Score ranks pools by real yield, safety, and liquidity depth before you deploy.',
   metadataBase: new URL(baseUrl),
+  manifest: '/manifest.webmanifest',
   keywords: ['DeFi', 'yield farming', 'capital allocation', 'DeFi portfolio', 'crypto yield', 'CE Score', 'web3 finance'],
   openGraph: {
     title: 'Capital Engine - DeFi Allocation for People With Something to Lose',
@@ -49,7 +52,21 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   icons: {
-    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector.svg',
+    icon: [
+      { url: '/branding/logo-capital-engine-power-03-score-recraft-vector.svg', type: 'image/svg+xml' },
+      { url: '/pwa-icon/192', sizes: '192x192', type: 'image/png' },
+      { url: '/icon', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: [{ url: '/pwa-icon/192', sizes: '192x192', type: 'image/png' }],
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Capital Engine',
+    statusBarStyle: 'black-translucent',
+  },
+  formatDetection: {
+    telephone: false,
   },
   alternates: { canonical: baseUrl },
 }
@@ -66,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main>{children}</main>
         </Providers>
         <Analytics />
+        <PWARegistration />
       </body>
     </html>
   )
