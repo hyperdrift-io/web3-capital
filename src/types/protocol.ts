@@ -19,6 +19,8 @@ export type Pool = {
   safety: number             // 0–100 raw safety score
   capitalEfficiency: number  // 0–100 composite CE score
   band: AllocationBand
+  /** True when APY looks like a feed spike or unreliably extreme yield — excluded from recommendations */
+  apyOutlier: boolean
 }
 
 export type PoolFilters = {
