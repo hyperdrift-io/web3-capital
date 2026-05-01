@@ -1,18 +1,26 @@
 import Link from 'next/link'
 import styles from './page.module.css'
 import { HDCredit } from '@yannvr/analytics/client'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  ChartAnalysisIcon,
+  DashboardSpeed02Icon,
+  Layers01Icon,
+  SecurityCheckIcon,
+  WalletDone01Icon,
+} from '@hugeicons/core-free-icons'
 
 const MODULES = [
   {
     href: '/yield',
-    icon: '◈',
+    icon: ChartAnalysisIcon,
     name: 'Yield Discovery',
     description: 'Live APY across 8,000+ DeFi pools, scored by capital efficiency — not raw yield. Grouped into Anchor, Balanced, and Opportunistic bands.',
     tag: 'Live · 150+ pools ranked',
   },
   {
     href: '/capital',
-    icon: '◉',
+    icon: WalletDone01Icon,
     name: 'Capital View',
     description: 'Connect with a smart wallet (passkey) or browser wallet. See your real on-chain balance and projected returns at current yields.',
     tag: 'Smart wallet · Passkey · No seed phrase',
@@ -20,9 +28,9 @@ const MODULES = [
 ]
 
 const SIGNALS = [
-  { icon: '⬡', label: 'Protocol safety score', sub: 'Tier-1/2 curation, audit flags, IL risk' },
-  { icon: '◎', label: 'Capital Efficiency Score', sub: 'Yield × safety × TVL depth' },
-  { icon: '⬡', label: 'Allocation bands', sub: 'Anchor · Balanced · Opportunistic' },
+  { icon: SecurityCheckIcon, label: 'Protocol safety score', sub: 'Tier-1/2 curation, audit flags, IL risk' },
+  { icon: DashboardSpeed02Icon, label: 'Capital Efficiency Score', sub: 'Yield × safety × TVL depth' },
+  { icon: Layers01Icon, label: 'Allocation bands', sub: 'Anchor · Balanced · Opportunistic' },
 ]
 
 export default function HomePage() {
@@ -53,7 +61,9 @@ export default function HomePage() {
           <div className={styles.moduleGrid}>
             {MODULES.map(m => (
               <Link key={m.href} href={m.href} className={styles.moduleCard}>
-                <div className={styles.moduleIcon}>{m.icon}</div>
+                <div className={styles.moduleIcon} aria-hidden="true">
+                  <HugeiconsIcon icon={m.icon} size={24} color="currentColor" strokeWidth={1.5} />
+                </div>
                 <div className={styles.moduleName}>{m.name}</div>
                 <p className={styles.moduleDesc}>{m.description}</p>
                 <div className={styles.moduleTag}>
@@ -66,7 +76,9 @@ export default function HomePage() {
           <div className={styles.signals}>
             {SIGNALS.map(s => (
               <div key={s.label} className={styles.signalItem}>
-                <span className={styles.signalIcon}>{s.icon}</span>
+                <span className={styles.signalIcon} aria-hidden="true">
+                  <HugeiconsIcon icon={s.icon} size={20} color="currentColor" strokeWidth={1.5} />
+                </span>
                 <span className={styles.signalLabel}>{s.label}</span>
                 <span className={styles.signalSub}>{s.sub}</span>
               </div>

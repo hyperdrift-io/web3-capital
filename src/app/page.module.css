@@ -83,7 +83,15 @@
 }
 
 .moduleIcon {
-  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid rgba(57, 212, 143, 0.18);
+  border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
 }
 
@@ -96,7 +104,7 @@
 
 .moduleDesc {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-support);
   line-height: 1.5;
 }
 
@@ -131,9 +139,10 @@
 }
 
 .signalIcon {
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--accent);
-  opacity: 0.6;
   margin-bottom: var(--space-1);
 }
 
@@ -145,7 +154,7 @@
 
 .signalSub {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   line-height: 1.5;
 }
 
@@ -167,7 +176,7 @@
 .footerBrand {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -180,7 +189,7 @@
 .footerLinks a,
 .footerLinks :global(a) {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   text-decoration: none;
   transition: color var(--transition);
 }
