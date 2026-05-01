@@ -51,7 +51,7 @@ export default function HomePage() {
           </p>
           <div className={styles.actions}>
             <Link href="/yield" className="btn btn--primary">Explore Yields</Link>
-            <Link href="/capital" className="btn btn--ghost">Connect Wallet</Link>
+            <Link href="/capital" className="btn btn--ghost">View Capital</Link>
           </div>
         </div>
       </section>
@@ -94,8 +94,6 @@ export default function HomePage() {
             <div className={styles.footerLinks}>
               <a href="https://github.com/hyperdrift-io/web3-capital" target="_blank" rel="noopener noreferrer">GitHub</a>
               <a href="https://hyperdrift.io/blog/web3-capital-engine-architecture-roadmap" target="_blank" rel="noopener noreferrer">Article</a>
-              <Link href="/yield">Yield</Link>
-              <Link href="/capital">Capital</Link>
             </div>
           </div>
           <HDCredit />

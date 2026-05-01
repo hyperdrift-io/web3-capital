@@ -175,7 +175,17 @@ function isExcludedAddress(address: string, excludedAddress?: string): boolean {
 // underlying base asset symbol which we can look up in KNOWN_TOKEN.
 //
 // Order matters: try longest match first.
-const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+export const VAULT_PREFIXES = ['csy', 'asy', 'a', 'c', 'b', 'm'] as const
+
+function stripVaultPrefix(symbol: string): string {
+  const sym = symbol.toUpperCase()
+  for (const prefix of VAULT_PREFIXES) {
+    if (sym.startsWith(prefix.toUpperCase())) {
+      return sym.slice(prefix.length)
+    }
+  }
+  return sym
+}
 
 /**
  * Resolve the best 1inch `dst` token for a given pool.
@@ -230,7 +240,7 @@ export function resolveToToken(
 // ── Deep-link builder ─────────────────────────────────────────────────────────
 
 export type RouteIntent = {
-  /** 1inch app URL with from/to pre-filled */
+  /** External route URL: either 1inch swap or the protocol's deposit app. */
   url: string
   /** True when the pool's underlying is USDC on the same chain (deposit, not swap) */
   isSameToken: boolean
@@ -269,6 +279,7 @@ function getProtocolDepositUrl(project: string, chain: string): string | null {
 /** Short display name for a DeFi protocol (used in button labels). */
 function getProtocolLabel(project: string): string {
   const p = project.toLowerCase()
+  if (p.includes('aave'))     return 'Aave'
   if (p.includes('morpho'))   return 'Morpho'
   if (p.includes('compound')) return 'Compound'
   if (p.includes('spark'))    return 'Spark'
@@ -288,6 +299,24 @@ function buildOneInchSwapUrl(
   const src = `${chainId}:${fromSymbol.toUpperCase()}`
   const dst = `${chainId}:${toSymbol}`
   return `https://1inch.com/swap?src=${encodeURIComponent(src)}&dst=${encodeURIComponent(dst)}`
+}
+
+function buildProtocolDepositIntent(
+  pool: Pool,
+  fromSymbol: string,
+  chainId: number,
+): RouteIntent | null {
+  const url = getProtocolDepositUrl(pool.project, pool.chain)
+  if (!url) return null
+
+  return {
+    url,
+    isSameToken: true,
+    fromSymbol,
+    toSymbol: pool.symbol,
+    chainId,
+    protocolLabel: getProtocolLabel(pool.project),
+  }
 }
 
 /**
@@ -329,7 +358,7 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
   // Resolve destination: strips vault/receipt token prefixes to find the
   // underlying tradeable base asset (e.g. csyUSDC → USDC, aWETH → WETH).
   const toToken = resolveToToken(pool, chainId, fromAddress)
-  if (!toToken) return null
+  if (!toToken) return buildProtocolDepositIntent(pool, 'USDC', chainId)
 
   const isSameToken = isDirectDeposit(toToken, fromAddress, 'USDC')
   const depositUrl = isSameToken ? getProtocolDepositUrl(pool.project, pool.chain) : null
@@ -341,7 +370,7 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
 
   if (!url) return null
 
-  return {
+  return isSameToken ? buildProtocolDepositIntent(pool, 'USDC', chainId) : {
     url,
     isSameToken,
     fromSymbol: 'USDC',
@@ -374,7 +403,7 @@ export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): R
   if (!fromAddress) return null
 
   const toToken = resolveToToken(pool, chainId, fromAddress)
-  if (!toToken) return null
+  if (!toToken) return buildProtocolDepositIntent(pool, sourceBridgeToken, chainId)
 
   const isSameToken = isDirectDeposit(toToken, fromAddress, sourceKey)
   const depositUrl = isSameToken ? getProtocolDepositUrl(pool.project, pool.chain) : null
@@ -386,7 +415,7 @@ export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): R
 
   if (!url) return null
 
-  return {
+  return isSameToken ? buildProtocolDepositIntent(pool, sourceBridgeToken, chainId) : {
     url,
     isSameToken,
     fromSymbol: sourceBridgeToken,
@@ -559,18 +588,40 @@ export function defaultBridgeDeployPool(pools: Pool[]): Pool | null {
 /**
  * Given a total deploy amount and the current pool list, return a 3-band
  * allocation with the best pool per band and its 1inch routing intent.
+ *
+ * When `preferredTokens` is provided (e.g. ['USDC', 'USDT'] from the user's
+ * wallet), pools whose underlying token matches are ranked first within each
+ * band — so the recommended pool is actionable without an extra swap step.
+ * Falls back to CE-score ranking if no preferred-token match exists in a band.
  */
 export function buildAllocation(
   totalUsd: number,
   pools: Pool[],
   fractions = DEFAULT_FRACTIONS,
+  preferredTokens: string[] = [],
 ): BandAllocation[] {
   const bands = ['anchor', 'balanced', 'opportunistic'] as const
+  const preferred = new Set(preferredTokens.map(t => t.toUpperCase()))
+
+  function pickBestPool(bandPools: Pool[]): Pool | null {
+    if (bandPools.length === 0) return null
+    if (preferred.size === 0)   return bandPools[0]
+
+    // Prefer pools whose symbol matches a held token (exact or after stripping vault prefixes).
+    const tokenMatch = bandPools.find(p => {
+      const sym = p.symbol.toUpperCase()
+      if (preferred.has(sym)) return true
+      const base = stripVaultPrefix(sym)
+      return preferred.has(base)
+    })
+
+    return tokenMatch ?? bandPools[0]
+  }
 
   return bands.map(band => {
     const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
     const amountUsd  = totalUsd * fraction
-    const bestPool   = pickBestPoolForBand(band, pools)
+    const bestPool   = pickBestPool(poolsEligibleForBand(band, pools))
     const intent     = bestPool ? buildRouteIntent(bestPool) : null
 
     return {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import type { Pool } from '@/types/protocol'
 import { defiLlamaChainToWormhole, tokenForPoolSymbol, vaultTokenNote } from '@/lib/bridge'
 import { buildBridgeRouteIntent } from '@/lib/routing'
@@ -22,15 +22,41 @@ type Props = {
 }
 
 /**
- * BridgeThenDeploy — timeline/wizard hybrid for cross-chain deployment.
+ * BridgeThenDeploy — "bridge first, then deploy" narrative.
  *
- * The bridge widget is lazy-mounted on first open, then shown/hidden inline.
- * That keeps the intent visible while only loading Wormhole when the user asks.
+ * Shows the user the single most compelling DeFi opportunity (the top
+ * anchor pool by CE score), the chain it lives on, and embeds the Wormhole
+ * Connect widget pre-configured to move stablecoins there.
+ *
+ * UX principle: the user never has to think about bridging as a separate
+ * step.  The narrative is:
+ *   1. Here is the best yield: [pool] on [chain]
+ *   2. Your USDC is on Ethereum — bridge it to [chain] in one step
+ *   3. Then deposit (routing button pre-fills 1inch / Aave)
+ *
+ * Technical note: Wormhole CCTP lanes mean USDC moves natively — no
+ * wrapped token, no slippage, no liquidity fragmentation risk.
  */
 export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
-  const [bridgeOpen, setBridgeOpen] = useState(false)
-  const [bridgeInitialized, setBridgeInitialized] = useState(false)
+  const [open, setOpen] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
+  useEffect(() => {
+    const el = dialogRef.current
+    if (!el) return
+    if (open && !el.open) {
+      el.showModal()
+    } else if (!open && el.open) {
+      el.close()
+    }
+  }, [open])
+
+  // Close on backdrop click (click outside the inner panel)
+  function handleDialogClick(e: MouseEvent<HTMLDialogElement>) {
+    if (e.target === dialogRef.current) setOpen(false)
+  }
+
+  // Resolve the best destination chain
   const targetWormholeChain = topPool
     ? defiLlamaChainToWormhole(topPool.chain)
     : null
@@ -45,133 +71,125 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
 
   return (
     <div className={styles.wrapper} data-testid="bridge-then-deploy">
-      <div className={styles.flowIntro}>
-        <p className={styles.eyebrow}>Guided route</p>
-        <h2 className={styles.flowTitle}>Move capital in three decisions.</h2>
-        <p className={styles.flowCopy}>
-          Capital Engine chooses the destination first, then shows the bridge only when it is needed.
-        </p>
-      </div>
-
-      <div className={styles.timeline}>
-        <section className={styles.stepCard} aria-labelledby="bridge-step-1">
-          <div className={styles.stepMarker} aria-hidden="true">
-            <span className={styles.stepBadge}>1</span>
-          </div>
-          <div className={styles.stepBody}>
-            <div className={styles.stepHead}>
-              <span className={styles.stepKicker}>Destination</span>
-              <h3 id="bridge-step-1" className={styles.stepTitle}>Recommended deploy target</h3>
-            </div>
-            <div className={styles.contextStrip}>
-              <div className={styles.opportunityRow}>
-                <span className={styles.poolProject}>{topPool.project}</span>
-                <span className={styles.poolSymbol}>{topPool.symbol}</span>
-                <span className={styles.chainPill}>
-                  {ChainIcon && <ChainIcon size={13} variant="branded" />}
-                  {topPool.chain}
-                </span>
-                <span className={styles.poolApy}>{formatApy(topPool.apy)}</span>
-                <CEScoreBreakdown pool={topPool}>
-                  <span className={styles.ceScore}>Score {topPool.capitalEfficiency}</span>
-                </CEScoreBreakdown>
-              </div>
-              <div className={styles.contextSub}>
-                {selectionSubtitle ?? 'Highest CE score destination for this session.'}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.stepCard} aria-labelledby="bridge-step-2">
-          <div className={styles.stepMarker} aria-hidden="true">
-            <span className={styles.stepBadge}>2</span>
-          </div>
-          <div className={styles.stepBody}>
-            <div className={styles.stepHead}>
-              <span className={styles.stepKicker}>Bridge</span>
-              <h3 id="bridge-step-2" className={styles.stepTitle}>
-                {isOnEthereum ? 'Already on the right chain' : `Bridge ${bridgeToken} to ${topPool.chain}`}
-              </h3>
-            </div>
-
-            <div className={styles.bridgeRoute}>
-              <span className={styles.routeNode}>
-                <NetworkEthereum size={15} variant="branded" className={styles.chainInline} />
-                Ethereum
-              </span>
-              <span className={styles.routeLine} aria-hidden="true" />
-              <span className={styles.routeNode}>
-                {ChainIcon && <ChainIcon size={15} variant="branded" className={styles.chainInline} />}
+      {/* ── Narrative header ───────────────────────────────────────── */}
+      <div className={styles.narrative}>
+        <div className={styles.narrativeStep}>
+          <span className={styles.stepBadge}>1</span>
+          <div className={styles.stepContent}>
+            <div className={styles.stepTitle}>Best opportunity right now</div>
+            <div className={styles.opportunityRow}>
+              <span className={styles.poolProject}>{topPool.project}</span>
+              <span className={styles.poolSymbol}>{topPool.symbol}</span>
+              <span className={styles.chainPill}>
+                {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" /> : null })()}
                 {topPool.chain}
               </span>
+              <span className={styles.poolApy}>{formatApy(topPool.apy)}</span>
+              <CEScoreBreakdown pool={topPool}>
+                <span className={styles.ceScore}>◈ {topPool.capitalEfficiency}</span>
+              </CEScoreBreakdown>
             </div>
-
             <div className={styles.contextSub}>
-              {isOnEthereum
-                ? `${bridgeToken} is already on Ethereum. Continue to deploy.`
-                : `${bridgeToken} moves via Wormhole. No wrapped tokens. About 1 minute.`}
+              {selectionSubtitle ?? 'Highest CE score destination for this session.'}
             </div>
+          </div>
+        </div>
 
-            {tokenNote && <div className={styles.tokenNote}>Info: {tokenNote}</div>}
+        <div className={styles.narrativeArrow}>↓</div>
 
+        <div className={styles.narrativeStep}>
+          <span className={styles.stepBadge}>2</span>
+          <div className={styles.stepContent}>
+            <div className={styles.stepTitle}>
+              {isOnEthereum ? (
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Your {bridgeToken} is already on Ethereum — ready to deploy</>
+              ) : (
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge {bridgeToken} from Ethereum → {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" className={styles.chainInline} /> : null })()} {topPool.chain}</>
+              )}
+            </div>
             {!isOnEthereum && (
-              <>
-                <button
-                  type="button"
-                  className={styles.bridgeToggle}
-                  onClick={() => {
-                    setBridgeOpen((prev) => {
-                      const next = !prev
-                      if (next) setBridgeInitialized(true)
-                      return next
-                    })
-                  }}
-                  aria-expanded={bridgeOpen}
-                  aria-controls="wormhole-bridge-panel"
-                  data-testid="bridge-toggle"
-                >
-                  {bridgeOpen ? 'Hide Wormhole Bridge' : 'Open Wormhole Bridge'}
-                </button>
-
-                {bridgeInitialized && (
-                  <div
-                    id="wormhole-bridge-panel"
-                    className={`${styles.widgetArea} ${!bridgeOpen ? styles.widgetAreaHidden : ''}`}
-                    aria-hidden={!bridgeOpen}
-                  >
-                    <BridgeWidget
-                      targetChain={targetWormholeChain}
-                      sourceToken={bridgeToken}
-                      destToken={bridgeToken}
-                    />
-                  </div>
-                )}
-              </>
+              <div className={styles.stepSub}>
+                Wormhole: native bridge · no wrapped tokens · ~1 min
+              </div>
+            )}
+            {tokenNote && (
+              <div className={styles.tokenNote}>
+                ℹ {tokenNote}
+              </div>
             )}
           </div>
-        </section>
+        </div>
 
-        <section className={styles.stepCard} aria-labelledby="bridge-step-3">
-          <div className={styles.stepMarker} aria-hidden="true">
-            <span className={styles.stepBadge}>3</span>
-          </div>
-          <div className={styles.stepBody}>
-            <div className={styles.stepHead}>
-              <span className={styles.stepKicker}>Deploy</span>
-              <h3 id="bridge-step-3" className={styles.stepTitle}>Deploy into {topPool.project}</h3>
+        {!isOnEthereum && <div className={styles.narrativeArrow}>↓</div>}
+
+        <div className={styles.narrativeStep}>
+          <span className={styles.stepBadge}>{isOnEthereum ? 2 : 3}</span>
+          <div className={styles.stepContent}>
+            <div className={styles.stepTitle}>
+              Deploy into {topPool.project}
             </div>
-            <div className={styles.deployRow}>
-              <span className={styles.deployLabel}>
-                {routeIntent
-                  ? (isOnEthereum ? 'Ready to deploy now.' : 'After bridging, continue to the route step.')
-                  : 'Routing pre-fill is not available for this pool yet. Bridge first, then deposit in the protocol UI.'}
-              </span>
-              {routeIntent ? <RouteButton intent={routeIntent} amountUsd={0} variant="compact" /> : null}
-            </div>
+            {routeIntent ? (
+              <RouteButton intent={routeIntent} amountUsd={0} variant="compact" />
+            ) : (
+              <div className={styles.stepSub}>
+                Pre-filled routing — one click to 1inch or direct deposit
+              </div>
+            )}
           </div>
-        </section>
+        </div>
       </div>
+
+      {/* ── Bridge toggle ──────────────────────────────────────────── */}
+      {!isOnEthereum && (
+        <button
+          className={styles.bridgeTrigger}
+          onClick={() => setOpen(o => !o)}
+          aria-expanded={open}
+          aria-controls="bridge-widget-panel"
+          data-testid="bridge-toggle"
+        >
+          <span className={styles.bridgeTriggerIcon}>⇄</span>
+          <span className={styles.bridgeTriggerLabel}>
+            Bridge to {topPool.chain}
+          </span>
+          <span className={styles.bridgeTriggerSub}>
+            Wormhole Connect · {bridgeToken}
+          </span>
+        </button>
+      )}
+
+
+      {/* ── Bridge modal ───────────────────────────────────────────── */}
+      <dialog
+        ref={dialogRef}
+        className={styles.modal}
+        onClose={() => setOpen(false)}
+        onClick={handleDialogClick}
+        aria-label={`Bridge ${bridgeToken} to ${topPool.chain}`}
+      >
+        <div className={styles.modalPanel}>
+          <div className={styles.modalHeader}>
+            <span className={styles.modalTitle}>
+              Bridge {bridgeToken} → {topPool.chain}
+            </span>
+            <button
+              className={styles.modalClose}
+              onClick={() => setOpen(false)}
+              aria-label="Close bridge"
+            >
+              ✕
+            </button>
+          </div>
+          <div className={styles.widgetHint}>
+            Select <strong>{bridgeToken}</strong> in the widget below → {topPool.chain}
+          </div>
+          <BridgeWidget
+            targetChain={targetWormholeChain}
+            sourceToken={bridgeToken}
+            destToken={bridgeToken}
+          />
+        </div>
+      </dialog>
     </div>
   )
 }

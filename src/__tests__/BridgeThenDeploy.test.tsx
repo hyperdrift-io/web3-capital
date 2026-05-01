@@ -73,24 +73,27 @@ describe('BridgeThenDeploy', () => {
 
     const view = render(<BridgeThenDeploy topPool={makePool()} />)
 
-    expect(view.getByRole('heading', { name: /deploy into morpho-blue/i })).toBeInTheDocument()
+    expect(view.getByText(/deploy into morpho-blue/i)).toBeInTheDocument()
     expect(
-      view.getByText(/routing pre-fill is not available for this pool yet/i),
+      view.getByText(/pre-filled routing/i),
     ).toBeInTheDocument()
     expect(view.queryByRole('link', { name: /route/i })).not.toBeInTheDocument()
   })
 
   it('shows the route action when a route intent is available', () => {
     mockBuildBridgeRouteIntent.mockReturnValue({
-      url: 'https://app.1inch.io',
+      url: 'https://1inch.com/swap?src=8453%3AUSDC&dst=8453%3AWETH',
       isSameToken: false,
       fromSymbol: 'USDC',
-      toSymbol: 'USDC',
+      toSymbol: 'WETH',
       chainId: 8453,
     })
 
     const view = render(<BridgeThenDeploy topPool={makePool()} />)
 
-    expect(view.getByRole('link', { name: /route/i })).toHaveAttribute('href', 'https://app.1inch.io')
+    expect(view.getByRole('link', { name: /route/i })).toHaveAttribute(
+      'href',
+      'https://1inch.com/swap?src=8453%3AUSDC&dst=8453%3AWETH',
+    )
   })
 })

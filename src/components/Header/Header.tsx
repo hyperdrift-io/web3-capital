@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './Header.module.css'
@@ -32,8 +32,33 @@ const DEPLOY_NAV = [
 export function Header() {
   const pathname = usePathname()
   const [deployMenuOpen, setDeployMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const deployActive = pathname === '/capital' || pathname === '/bridge'
+
+  useEffect(() => {
+    setMenuOpen(false)
+    setDeployMenuOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    const handler = (event: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handler)
+      document.addEventListener('touchstart', handler)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [menuOpen])
 
   return (
     <header className={styles.header}>
@@ -98,6 +123,44 @@ export function Header() {
 
         <div className={styles.right}>
           <WalletButton />
+          <div ref={menuRef} className={styles.mobileMenuWrapper}>
+            <button
+              className={styles.hamburger}
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={menuOpen}
+              data-testid="mobile-menu-btn"
+            >
+              <span className={`${styles.hamburgerBar} ${menuOpen ? styles.barOpen1 : ''}`} />
+              <span className={`${styles.hamburgerBar} ${menuOpen ? styles.barOpen2 : ''}`} />
+              <span className={`${styles.hamburgerBar} ${menuOpen ? styles.barOpen3 : ''}`} />
+            </button>
+
+            {menuOpen && (
+              <nav className={styles.mobileMenu} aria-label="Mobile navigation">
+                {NAV.map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${styles.mobileNavLink} ${pathname === href ? styles.active : ''}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                ))}
+                {DEPLOY_NAV.map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${styles.mobileNavLink} ${pathname === href.split('#')[0] ? styles.active : ''}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </div>
         </div>
       </div>
     </header>

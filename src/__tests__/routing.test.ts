@@ -5,6 +5,7 @@ import {
   buildRouteIntent,
   defaultBridgeDeployPool,
   pickBestPoolForBand,
+  VAULT_PREFIXES,
 } from '@/lib/routing'
 import type { Pool } from '@/types/protocol'
 
@@ -75,10 +76,31 @@ describe('buildAllocation', () => {
     const rows = buildAllocation(1_000, [spike, sane])
     expect(rows.find(r => r.band === 'anchor')?.pool?.pool).toBe('sane')
   })
+
+  it('uses VAULT_PREFIXES when matching preferred tokens against vault symbols', () => {
+    for (const prefix of VAULT_PREFIXES) {
+      const fallbackPool = makePool({
+        pool: `fallback-${prefix}`,
+        band: 'anchor',
+        symbol: 'WETH',
+        capitalEfficiency: 95,
+      })
+      const preferredVaultPool = makePool({
+        pool: `preferred-${prefix}`,
+        band: 'anchor',
+        symbol: `${prefix}USDC`,
+        capitalEfficiency: 75,
+      })
+
+      const [allocation] = buildAllocation(1_000, [fallbackPool, preferredVaultPool], undefined, ['USDC'])
+
+      expect(allocation.pool).toBe(preferredVaultPool)
+    }
+  })
 })
 
 describe('route intents', () => {
-  it('does not build symbol-only DEX routes for unknown vault receipts', () => {
+  it('uses protocol deposit routes for unknown vault receipts on known protocols', () => {
     const vaultReceipt = makePool({
       pool: 'steak',
       band: 'anchor',
@@ -88,8 +110,8 @@ describe('route intents', () => {
       underlyingTokens: ['0x1111111111111111111111111111111111111111'],
     })
 
-    expect(buildRouteIntent(vaultReceipt)).toBeNull()
-    expect(buildBridgeRouteIntent(vaultReceipt, 'USDC')).toBeNull()
+    expect(buildRouteIntent(vaultReceipt)?.url).toBe('https://app.morpho.org/?network=base')
+    expect(buildBridgeRouteIntent(vaultReceipt, 'USDC')?.url).toBe('https://app.morpho.org/?network=base')
   })
 
   it('builds routes only when the target token has a known chain address', () => {
@@ -166,7 +188,7 @@ describe('defaultBridgeDeployPool', () => {
       pool: 'steak',
       band: 'anchor',
       symbol: 'STEAKUSDC',
-      project: 'morpho-blue',
+      project: 'unknown-vault',
       chain: 'Base',
       capitalEfficiency: 95,
       safety: 95,
