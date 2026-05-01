@@ -18,7 +18,8 @@
  * See: https://hyperdrift.io/blog/1inch-vs-0x-dex-aggregators-defi-routing
  */
 
-import type { Pool } from '@/types/protocol'
+import type { AllocationBand, Pool } from '@/types/protocol'
+import { defiLlamaChainToWormhole } from '@/lib/bridge'
 import { DEPLOYABLE_TOKENS } from './tokens'
 
 // ── Chain resolution ──────────────────────────────────────────────────────────
@@ -421,6 +422,81 @@ const BAND_META: Record<string, { label: string; description: string }> = {
   opportunistic: { label: 'Opportunistic', description: 'High yield, capped exposure — don\'t put rent money here' },
 }
 
+const BAND_SAFETY_WEIGHT: Record<AllocationBand, number> = {
+  anchor:        0.35,
+  balanced:      0.28,
+  opportunistic: 0.18,
+}
+
+/**
+ * Candidates for a band: prefer pools that pass APY realism checks; if none,
+ * fall back to any pool in the band so the UI never goes empty on thin data.
+ */
+export function poolsEligibleForBand(band: AllocationBand, pools: Pool[]): Pool[] {
+  const inBand = pools.filter(p => p.band === band)
+  const sane = inBand.filter(p => !p.apyOutlier)
+  return sane.length ? sane : inBand
+}
+
+/**
+ * Deterministic score for ranking pools within a band (routing + bridge awareness).
+ */
+export function poolMatchScore(pool: Pool, band: AllocationBand): number {
+  const w = BAND_SAFETY_WEIGHT[band]
+  const apyFit = Math.min(pool.apy / 30, 1) * 100
+  const tvlDepth = Math.min(pool.tvlUsd / 500_000_000, 1) * 100
+  const routeBonus = buildRouteIntent(pool) ? 5 : 0
+  const bridgeBonus = defiLlamaChainToWormhole(pool.chain) ? 3 : 0
+
+  return (
+    pool.capitalEfficiency * 0.45 +
+    pool.safety * w +
+    apyFit * 0.20 +
+    tvlDepth * 0.10 +
+    routeBonus +
+    bridgeBonus
+  )
+}
+
+export function pickBestPoolForBand(band: AllocationBand, pools: Pool[]): Pool | null {
+  const candidates = poolsEligibleForBand(band, pools)
+  if (!candidates.length) return null
+  let best = candidates[0]!
+  let bestScore = poolMatchScore(best, band)
+  for (let i = 1; i < candidates.length; i++) {
+    const p = candidates[i]!
+    const s = poolMatchScore(p, band)
+    if (s > bestScore) {
+      best = p
+      bestScore = s
+    }
+  }
+  return best
+}
+
+/**
+ * Default bridge deploy target: best match across the three-band plan,
+ * weighting higher allocation fractions more heavily.
+ */
+export function defaultBridgeDeployPool(pools: Pool[]): Pool | null {
+  const bands = ['anchor', 'balanced', 'opportunistic'] as const
+  let chosen: Pool | null = null
+  let bestWeighted = -Infinity
+
+  for (const band of bands) {
+    const pool = pickBestPoolForBand(band, pools)
+    if (!pool) continue
+    const frac = DEFAULT_FRACTIONS[band]
+    const weighted = poolMatchScore(pool, band) * (0.5 + frac)
+    if (weighted > bestWeighted) {
+      bestWeighted = weighted
+      chosen = pool
+    }
+  }
+
+  return chosen
+}
+
 /**
  * Given a total deploy amount and the current pool list, return a 3-band
  * allocation with the best pool per band and its 1inch routing intent.
@@ -435,7 +511,7 @@ export function buildAllocation(
   return bands.map(band => {
     const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
     const amountUsd  = totalUsd * fraction
-    const bestPool   = pools.filter(p => p.band === band)[0] ?? null
+    const bestPool   = pickBestPoolForBand(band, pools)
     const intent     = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
