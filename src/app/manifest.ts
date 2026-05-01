@@ -9,6 +9,12 @@ export default function manifest() {
     theme_color: '#39d48f',
     icons: [
       {
+        src: '/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+        purpose: 'any',
+      },
+      {
         src: '/icon',
         sizes: '512x512',
         type: 'image/png',

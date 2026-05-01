@@ -1,74 +1,84 @@
 .wrapper {
-  background: var(--bg-surface);
+  background:
+    radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34%),
+    var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-8);
 }
 
-/* ── Timeline layout ──────────────────────────────────────────────────── */
+/* ── Narrative steps ─────────────────────────────────────────────────── */
 
-.timeline {
-  display: grid;
+.narrative {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
 }
 
-.stepCard {
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: linear-gradient(180deg, rgba(30, 36, 55, 0.45), rgba(20, 24, 36, 0.45));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+.narrativeStep {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
 }
 
-.stepHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+.narrativeArrow {
+  color: var(--text-muted);
+  padding-left: calc(28px + var(--space-3));
+  font-size: 18px;
+  line-height: 1;
 }
 
 .stepBadge {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-dim);
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: 4px;
 }
 
 .stepTitle {
-  font-size: 18px;
-  line-height: 1.2;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
-/* ── Context strip (opportunity + bridge caption) ────────────────────── */
-
-.contextStrip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.contextSub,
+.stepSub {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
+
+/* ── Opportunity row ─────────────────────────────────────────────────── */
 
 .opportunityRow {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   flex-wrap: wrap;
+  margin-top: var(--space-1);
 }
 
 .poolProject {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -120,80 +130,150 @@
   cursor: pointer;
 }
 
-.contextSub {
-  font-size: 12px;
-  color: var(--text-secondary);
-  display: flex;
+/* ── Bridge toggle ───────────────────────────────────────────────────── */
+
+.bridgeTrigger {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: var(--space-2);
   flex-wrap: wrap;
+  width: fit-content;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border));
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent),
+    var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--accent) 12%, transparent);
+  transition:
+    border-color var(--transition),
+    background var(--transition),
+    transform var(--transition);
+}
+
+.bridgeTrigger:hover,
+.bridgeTrigger:focus-visible {
+  border-color: var(--accent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, transparent), transparent),
+    var(--bg-elevated);
+  transform: translateY(-1px);
+}
+
+.bridgeTriggerIcon {
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bridgeTriggerLabel {
+  color: var(--text-primary);
+}
+
+.bridgeTriggerSub {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* ── Vault / LP token note ────────────────────────────────────────────── */
 
 .tokenNote {
+  margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
-.bridgeToggle {
-  appearance: none;
+/* ── Bridge modal ───────────────────────────────────────────────────── */
+
+.modal {
+  /* Reset browser <dialog> defaults */
+  padding: 0;
   border: none;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  width: fit-content;
-  transition: background 120ms ease, opacity 120ms ease;
-}
-
-.bridgeToggle:hover {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-}
-
-.bridgeToggle[aria-expanded='true'] {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-}
-
-/* ── Bridge widget area ───────────────────────────────────────────────── */
-
-.widgetArea {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  /* Full width with centered widget; overflow visible for token selector modal */
+  background: transparent;
+  max-width: none;
+  max-height: none;
   width: 100%;
-  overflow: visible;
+  height: 100%;
+  /* Full-viewport overlay */
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
 }
 
-.widgetAreaHidden {
+.modal:not([open]) {
   display: none;
 }
 
-/* ── Deploy row ───────────────────────────────────────────────────────── */
+/* Native <dialog> backdrop */
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
 
-.deployRow {
+.modalPanel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(600px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  /* Keep panel on top of backdrop click detection */
+  position: relative;
+}
+
+.modalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  flex-wrap: wrap;
 }
 
-.deployLabel {
-  font-size: 13px;
+.modalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+  line-height: 1;
+}
+
+.modalClose:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.widgetHint {
+  padding: var(--space-2) var(--space-3);
+  background: var(--accent-dim, rgba(79, 142, 247, 0.1));
+  border: 1px solid var(--accent, #4f8ef7);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -201,18 +281,3 @@
   color: var(--text-primary);
   font-weight: 600;
 }
-
-@media (max-width: 900px) {
-  .wrapper {
-    padding: var(--space-4);
-  }
-
-  .stepCard {
-    padding: var(--space-3);
-  }
-
-  .stepTitle {
-    font-size: 16px;
-  }
-}
-

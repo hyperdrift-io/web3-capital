@@ -1,6 +1,5 @@
 import { test, expect, MOCK_ADDRESS } from './fixtures'
 
-const truncated = `${MOCK_ADDRESS.slice(0, 6)}…${MOCK_ADDRESS.slice(-4)}`
 const PRIMARY_CONNECT_LABEL = /connect wallet|smart wallet/i
 
 test.describe('Wallet button — no injected wallet', () => {
@@ -100,7 +99,6 @@ test.describe('Capital page — wallet-gated content', () => {
     await expect(connectButton).toBeVisible()
     await connectButton.click({ force: true })
 
-    const truncated = `${MOCK_ADDRESS.slice(0, 6)}…${MOCK_ADDRESS.slice(-4)}`
     await expect(page.getByRole('button', { name: new RegExp(`${MOCK_ADDRESS.slice(0, 6)}.*${MOCK_ADDRESS.slice(-4)}`) }).first()).toBeVisible({ timeout: 5_000 })
 
     // Capital view should now show available capital panel
@@ -131,5 +129,6 @@ test.describe('Capital page — wallet-gated content', () => {
     await expect(page.getByRole('button', { name: new RegExp(`${MOCK_ADDRESS.slice(0, 6)}.*${MOCK_ADDRESS.slice(-4)}`) }).first()).toBeVisible({ timeout: 5_000 })
     // 2 ETH should appear somewhere in the balance display
     await expect(page.getByText(/2\.0000/)).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(/on \$[1-9][0-9,]*\.\d{2} principal/).first()).toBeVisible({ timeout: 5_000 })
   })
 })

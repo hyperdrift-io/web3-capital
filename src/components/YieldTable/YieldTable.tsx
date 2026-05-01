@@ -145,6 +145,11 @@ export function YieldTable({ pools, updatedIds }: Props) {
                     <span className={styles.project}>{pool.project}</span>
                   </div>
                   <span className={styles.symbol}>{pool.symbol}</span>
+                  {pool.apyOutlier && (
+                    <span className={styles.outlierBadge}>
+                      Outlier APY · excluded from auto-routing
+                    </span>
+                  )}
                 </div>
               </td>
               <td className={`${styles.cell} ${updatedIds?.has(pool.pool) ? styles.apyUpdated : ''}`}>

@@ -23,6 +23,7 @@ function makePool(id: string, apy: number, tvl: number, ce: number): Pool {
     safety: 75,
     capitalEfficiency: ce,
     band: 'anchor',
+    apyOutlier: false,
   }
 }
 

@@ -109,6 +109,23 @@ export function allocationBand(safety: number, apy: number): AllocationBand {
   return 'opportunistic'
 }
 
+/**
+ * Flags pools whose headline APY is unsuitable for automated recommendations:
+ * DeFi Llama outliers, extreme incentive emissions, or suspicious APY/TVL pairs.
+ * Display may still show them with an outlier badge; wizard/bridge/rebalancing skip them.
+ */
+export function isApyOutlier(raw: RawPool): boolean {
+  if (raw.apy > 100) return true
+  const reward = raw.apyReward ?? 0
+  if (reward > 50) return true
+  const base = raw.apyBase ?? 0
+  if (base === 0 && reward > 25) return true
+  if (raw.tvlUsd < 5_000_000 && raw.apy > 40) return true
+  const pct = raw.apyPct7d
+  if (pct != null && Math.abs(pct) > 100) return true
+  return false
+}
+
 export type SafetyFactor = {
   label: string
   pts: number
@@ -171,6 +188,7 @@ function enrichPool(raw: RawPool): Pool {
   const safety = safetyScore(raw)
   const ce = capitalEfficiency(raw, safety)
   const band = allocationBand(safety, raw.apy)
+  const apyOutlier = isApyOutlier(raw)
 
   return {
     ...raw,
@@ -181,14 +199,20 @@ function enrichPool(raw: RawPool): Pool {
     safety,
     capitalEfficiency: ce,
     band,
+    apyOutlier,
   }
+}
+
+/** Sort by CE descending; realistic pools first so top-N lists are not dominated by outliers. */
+function sortPoolsForDisplay(pools: Pool[]): Pool[] {
+  const ok = pools.filter(p => !p.apyOutlier).sort((a, b) => b.capitalEfficiency - a.capitalEfficiency)
+  const bad = pools.filter(p => p.apyOutlier).sort((a, b) => b.capitalEfficiency - a.capitalEfficiency)
+  return [...ok, ...bad]
 }
 
 export async function fetchPools(): Promise<Pool[]> {
   if (USE_E2E_MOCK_YIELDS) {
-    return getE2EMockRawPools()
-      .map(enrichPool)
-      .sort((a, b) => b.capitalEfficiency - a.capitalEfficiency)
+    return sortPoolsForDisplay(getE2EMockRawPools().map(enrichPool))
   }
 
   const res = await fetch(YIELDS_API, {
@@ -200,10 +224,10 @@ export async function fetchPools(): Promise<Pool[]> {
   const json = await res.json()
   const raw: RawPool[] = json.data ?? []
 
-  return raw
+  const enriched = raw
     .filter(p => p.apy > 0 && p.tvlUsd >= 1_000_000)
     .map(enrichPool)
-    .sort((a, b) => b.capitalEfficiency - a.capitalEfficiency)
+  return sortPoolsForDisplay(enriched)
 }
 
 export async function fetchTopPools(limit = 100): Promise<Pool[]> {

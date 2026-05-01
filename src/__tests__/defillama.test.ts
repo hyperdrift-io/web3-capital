@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { safetyScore, capitalEfficiency, allocationBand, type RawPool } from '@/lib/defillama'
+import { safetyScore, capitalEfficiency, allocationBand, isApyOutlier, type RawPool } from '@/lib/defillama'
 
 function pool(overrides: Partial<RawPool> = {}): RawPool {
   return {
@@ -104,6 +104,34 @@ describe('safetyScore', () => {
     // 50 - 10 - 10 - 10 = 20 (doesn't hit floor here)
     // But the floor guard shouldn't allow < 0 in any contrived case
     expect(safetyScore(worstPool)).toBeGreaterThanOrEqual(0)
+  })
+})
+
+// ─── isApyOutlier ─────────────────────────────────────────────────────────────
+
+describe('isApyOutlier', () => {
+  it('flags headline APY above 100%', () => {
+    expect(isApyOutlier(pool({ apy: 297_994 }))).toBe(true)
+  })
+
+  it('flags very high reward component', () => {
+    expect(isApyOutlier(pool({ apy: 120, apyBase: 5, apyReward: 115 }))).toBe(true)
+  })
+
+  it('flags reward-only APY above 25%', () => {
+    expect(isApyOutlier(pool({ apy: 60_000, apyBase: 0, apyReward: 60_000 }))).toBe(true)
+  })
+
+  it('flags low TVL with high APY', () => {
+    expect(isApyOutlier(pool({ apy: 80, tvlUsd: 2_000_000 }))).toBe(true)
+  })
+
+  it('flags extreme 7d APY swing', () => {
+    expect(isApyOutlier(pool({ apy: 10, apyPct7d: 150 }))).toBe(true)
+  })
+
+  it('allows typical blue-chip stable yields', () => {
+    expect(isApyOutlier(pool({ apy: 4.2, apyBase: 4.2, tvlUsd: 2_000_000_000 }))).toBe(false)
   })
 })
 

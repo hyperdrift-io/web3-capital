@@ -6,7 +6,7 @@
  * and amount pre-filled. They see a professional aggregator UI for free.
  *
  * Why 1inch and not 0x at this stage:
- * - 1inch has a deep-link URL scheme (`app.1inch.io/#/{chain}/simple/swap/...`)
+ * - 1inch has a deep-link URL scheme (`1inch.com/swap?src=...&dst=...`)
  *   that pre-fills source token, target token, and amount. 0x has no equivalent.
  * - Without execution, there is nothing unique 0x adds here.
  *
@@ -18,8 +18,9 @@
  * See: https://hyperdrift.io/blog/1inch-vs-0x-dex-aggregators-defi-routing
  */
 
-import type { Pool } from '@/types/protocol'
-import { DEPLOYABLE_TOKENS } from './tokens'
+import type { AllocationBand, Pool } from '@/types/protocol'
+import { defiLlamaChainToWormhole, tokenForPoolSymbol } from '@/lib/bridge'
+import { DEPLOYABLE_TOKENS, ROUTING_TOKEN_ADDRESSES } from './tokens'
 
 // ── Chain resolution ──────────────────────────────────────────────────────────
 
@@ -142,11 +143,28 @@ export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
   SDAI: {
     1:     '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
   },
+  ...ROUTING_TOKEN_ADDRESSES,
 }
 
 const KNOWN_TOKEN_ADDRESSES = new Set(
   Object.values(KNOWN_TOKEN).flatMap(chains => Object.values(chains)).map(a => a!.toLowerCase()),
 )
+
+function knownTokenSymbolForAddress(address: string, chainId: number): string | null {
+  const normalized = address.toLowerCase()
+  for (const [symbol, addresses] of Object.entries(KNOWN_TOKEN)) {
+    if (addresses[chainId]?.toLowerCase() === normalized) return symbol
+  }
+  return null
+}
+
+function knownAddressForSymbol(symbol: string, chainId: number): `0x${string}` | null {
+  return KNOWN_TOKEN[symbol.toUpperCase()]?.[chainId] ?? null
+}
+
+function isExcludedAddress(address: string, excludedAddress?: string): boolean {
+  return excludedAddress ? address.toLowerCase() === excludedAddress.toLowerCase() : false
+}
 
 // ── Non-tradeable vault token prefix patterns ─────────────────────────────────
 //
@@ -170,39 +188,56 @@ function stripVaultPrefix(symbol: string): string {
  * Resolve the best 1inch `dst` token for a given pool.
  *
  * Strategy (in order):
- * 1. If underlyingTokens[0] is a known tradeable address → use it.
- * 2. If the pool symbol is a known tradeable symbol → use its address.
- * 3. Strip vault prefixes from the symbol and retry step 2.
- * 4. Fall back to the raw symbol string (1inch may still resolve it).
+ * 1. For LP symbols, pick a known pair leg that is not the source token.
+ * 2. If underlyingTokens include known tradeable addresses → use the first non-source token.
+ * 3. If the pool symbol is a known tradeable symbol → use its address.
+ * 4. Strip vault prefixes from the symbol and retry step 3.
+ * 5. Return null when the pool only exposes an unknown receipt/LP symbol.
  */
-export function resolveToToken(pool: { symbol: string; underlyingTokens: string[] | null }, chainId: number): string {
-  const known = KNOWN_TOKEN
-
-  // 1. underlying token address that is DEX-tradeable
-  const underlying = pool.underlyingTokens?.[0]
-  if (underlying && KNOWN_TOKEN_ADDRESSES.has(underlying.toLowerCase())) {
-    return underlying
-  }
-
+export function resolveToToken(
+  pool: { symbol: string; underlyingTokens: string[] | null },
+  chainId: number,
+  excludedAddress?: string,
+): string | null {
   const sym = pool.symbol.toUpperCase()
 
-  // 2. exact symbol match
-  const direct = known[sym]?.[chainId]
+  // 1. LP symbols such as WETH-USDC should route into the non-source leg,
+  // not back into USDC or a generic lending market.
+  if (sym.includes('-')) {
+    for (const part of sym.split('-')) {
+      const address = knownAddressForSymbol(part, chainId)
+      if (address && !isExcludedAddress(address, excludedAddress)) return address
+    }
+  }
+
+  // 2. known underlying token address that is DEX-tradeable
+  const underlying = pool.underlyingTokens?.find(token =>
+    KNOWN_TOKEN_ADDRESSES.has(token.toLowerCase()) && !isExcludedAddress(token, excludedAddress),
+  )
+  if (underlying) return underlying
+
+  // 3. exact symbol match
+  const direct = knownAddressForSymbol(sym, chainId)
   if (direct) return direct
 
-  // 3. strip vault prefix and retry
-  const base = stripVaultPrefix(sym)
-  const fromBase = known[base]?.[chainId]
-  if (base !== sym && fromBase) return fromBase
+  // 4. strip vault prefix and retry
+  for (const prefix of VAULT_PREFIXES) {
+    if (sym.startsWith(prefix.toUpperCase())) {
+      const base = sym.slice(prefix.length)
+      const fromBase = knownAddressForSymbol(base, chainId)
+      if (fromBase) return fromBase
+    }
+  }
 
-  // 4. last resort — let 1inch try to interpret the symbol
-  return pool.symbol
+  // Unknown vault/LP receipt tokens should not produce symbol-only DEX URLs:
+  // 1inch cannot reliably resolve them, and they usually require a protocol deposit.
+  return null
 }
 
 // ── Deep-link builder ─────────────────────────────────────────────────────────
 
 export type RouteIntent = {
-  /** 1inch app URL with from/to pre-filled */
+  /** External route URL: either 1inch swap or the protocol's deposit app. */
   url: string
   /** True when the pool's underlying is USDC on the same chain (deposit, not swap) */
   isSameToken: boolean
@@ -219,9 +254,13 @@ export type RouteIntent = {
  * Returns the correct deposit/supply app URL for a given DeFi protocol.
  * Used when the routing intent is a direct deposit (no token swap required).
  */
-function getProtocolDepositUrl(project: string, chain: string): string {
+function getProtocolDepositUrl(project: string, chain: string): string | null {
   const p = project.toLowerCase()
   const c = chain.toLowerCase()
+  if (p.includes('aave')) {
+    const market = c === 'ethereum' ? '' : `/?marketName=proto_${c}_v3`
+    return `https://app.aave.com${market}`
+  }
   if (p.includes('morpho')) {
     const network = c === 'ethereum' ? 'ethereum' : c
     return `https://app.morpho.org/?network=${network}`
@@ -231,21 +270,50 @@ function getProtocolDepositUrl(project: string, chain: string): string {
   if (p.includes('fluid'))    return 'https://fluid.instadapp.io'
   if (p.includes('euler'))    return 'https://app.euler.finance'
   if (p.includes('yearn'))    return 'https://yearn.fi'
-  // Default: Aave
-  const market = c === 'ethereum' ? '' : `/?marketName=proto_${c}_v3`
-  return `https://app.aave.com${market}`
+  return null
 }
 
 /** Short display name for a DeFi protocol (used in button labels). */
 function getProtocolLabel(project: string): string {
   const p = project.toLowerCase()
+  if (p.includes('aave'))     return 'Aave'
   if (p.includes('morpho'))   return 'Morpho'
   if (p.includes('compound')) return 'Compound'
   if (p.includes('spark'))    return 'Spark'
   if (p.includes('fluid'))    return 'Fluid'
   if (p.includes('euler'))    return 'Euler'
   if (p.includes('yearn'))    return 'Yearn'
-  return 'Aave'
+  return 'Protocol'
+}
+
+function buildOneInchSwapUrl(
+  chainId: number,
+  fromSymbol: string,
+  toAddress: string,
+): string | null {
+  const toSymbol = knownTokenSymbolForAddress(toAddress, chainId)
+  if (!toSymbol) return null
+  const src = `${chainId}:${fromSymbol.toUpperCase()}`
+  const dst = `${chainId}:${toSymbol}`
+  return `https://1inch.com/swap?src=${encodeURIComponent(src)}&dst=${encodeURIComponent(dst)}`
+}
+
+function buildProtocolDepositIntent(
+  pool: Pool,
+  fromSymbol: string,
+  chainId: number,
+): RouteIntent | null {
+  const url = getProtocolDepositUrl(pool.project, pool.chain)
+  if (!url) return null
+
+  return {
+    url,
+    isSameToken: true,
+    fromSymbol,
+    toSymbol: pool.symbol,
+    chainId,
+    protocolLabel: getProtocolLabel(pool.project),
+  }
 }
 
 /**
@@ -253,9 +321,6 @@ function getProtocolLabel(project: string): string {
  *
  * Covers two cases:
  * 1. resolveToToken found a known address that matches the source (same-token swap).
- * 2. resolveToToken fell back to the raw pool symbol (vault receipt token unknown
- *    to our KNOWN_TOKEN map) — this means it's a vault that mints a receipt token
- *    upon deposit of the underlying, so no DEX swap is needed.
  */
 function isDirectDeposit(
   toToken: string,
@@ -277,9 +342,8 @@ function isDirectDeposit(
  * Returns null if the pool's chain is not supported by 1inch or we can't
  * determine the target token.
  *
- * URL format: https://app.1inch.io/swap?src={chain}:{from}&dst={chain}:{to}
- * where {to} is the pool's first underlying token address when available,
- * otherwise the pool symbol (1inch accepts well-known symbols).
+ * URL format: https://1inch.com/swap?src={chain}:{from}&dst={chain}:{to}
+ * where {to} must resolve to a known symbol on that chain.
  */
 export function buildRouteIntent(pool: Pool): RouteIntent | null {
   const chainId = CHAIN_ID[pool.chain]
@@ -290,15 +354,20 @@ export function buildRouteIntent(pool: Pool): RouteIntent | null {
 
   // Resolve destination: strips vault/receipt token prefixes to find the
   // underlying tradeable base asset (e.g. csyUSDC → USDC, aWETH → WETH).
-  const toToken = resolveToToken(pool, chainId)
+  const toToken = resolveToToken(pool, chainId, fromAddress)
+  if (!toToken) return buildProtocolDepositIntent(pool, 'USDC', chainId)
 
   const isSameToken = isDirectDeposit(toToken, fromAddress, 'USDC')
+  const depositUrl = isSameToken ? getProtocolDepositUrl(pool.project, pool.chain) : null
+  const swapUrl = isSameToken ? null : buildOneInchSwapUrl(chainId, 'USDC', toToken)
 
   const url = isSameToken
-    ? getProtocolDepositUrl(pool.project, pool.chain)
-    : `https://app.1inch.io/swap?src=${chainId}:${fromAddress}&dst=${chainId}:${toToken}`
+    ? depositUrl
+    : swapUrl
 
-  return {
+  if (!url) return null
+
+  return isSameToken ? buildProtocolDepositIntent(pool, 'USDC', chainId) : {
     url,
     isSameToken,
     fromSymbol: 'USDC',
@@ -330,15 +399,20 @@ export function buildBridgeRouteIntent(pool: Pool, sourceBridgeToken: string): R
   const fromAddress = KNOWN_TOKEN[sourceKey]?.[chainId]
   if (!fromAddress) return null
 
-  const toToken = resolveToToken(pool, chainId)
+  const toToken = resolveToToken(pool, chainId, fromAddress)
+  if (!toToken) return buildProtocolDepositIntent(pool, sourceBridgeToken, chainId)
 
   const isSameToken = isDirectDeposit(toToken, fromAddress, sourceKey)
+  const depositUrl = isSameToken ? getProtocolDepositUrl(pool.project, pool.chain) : null
+  const swapUrl = isSameToken ? null : buildOneInchSwapUrl(chainId, sourceKey, toToken)
 
   const url = isSameToken
-    ? getProtocolDepositUrl(pool.project, pool.chain)
-    : `https://app.1inch.io/swap?src=${chainId}:${fromAddress}&dst=${chainId}:${toToken}`
+    ? depositUrl
+    : swapUrl
 
-  return {
+  if (!url) return null
+
+  return isSameToken ? buildProtocolDepositIntent(pool, sourceBridgeToken, chainId) : {
     url,
     isSameToken,
     fromSymbol: sourceBridgeToken,
@@ -427,6 +501,87 @@ const BAND_META: Record<string, { label: string; description: string }> = {
   opportunistic: { label: 'Opportunistic', description: 'High yield, capped exposure — don\'t put rent money here' },
 }
 
+const BAND_SAFETY_WEIGHT: Record<AllocationBand, number> = {
+  anchor:        0.35,
+  balanced:      0.28,
+  opportunistic: 0.18,
+}
+
+/**
+ * Candidates for a band: prefer pools that pass APY realism checks; if none,
+ * fall back to any pool in the band so the UI never goes empty on thin data.
+ */
+export function poolsEligibleForBand(band: AllocationBand, pools: Pool[]): Pool[] {
+  const inBand = pools.filter(p => p.band === band)
+  const sane = inBand.filter(p => !p.apyOutlier)
+  return sane.length ? sane : inBand
+}
+
+/**
+ * Deterministic score for ranking pools within a band (routing + bridge awareness).
+ */
+export function poolMatchScore(pool: Pool, band: AllocationBand): number {
+  const w = BAND_SAFETY_WEIGHT[band]
+  const apyFit = Math.min(pool.apy / 30, 1) * 100
+  const tvlDepth = Math.min(pool.tvlUsd / 500_000_000, 1) * 100
+  const routeBonus = buildRouteIntent(pool) ? 5 : 0
+  const bridgeBonus = defiLlamaChainToWormhole(pool.chain) ? 3 : 0
+
+  return (
+    pool.capitalEfficiency * 0.45 +
+    pool.safety * w +
+    apyFit * 0.20 +
+    tvlDepth * 0.10 +
+    routeBonus +
+    bridgeBonus
+  )
+}
+
+export function pickBestPoolForBand(band: AllocationBand, pools: Pool[]): Pool | null {
+  const candidates = poolsEligibleForBand(band, pools)
+  if (!candidates.length) return null
+  let best = candidates[0]!
+  let bestScore = poolMatchScore(best, band)
+  for (let i = 1; i < candidates.length; i++) {
+    const p = candidates[i]!
+    const s = poolMatchScore(p, band)
+    if (s > bestScore) {
+      best = p
+      bestScore = s
+    }
+  }
+  return best
+}
+
+/**
+ * Default bridge deploy target: best match across the three-band plan,
+ * weighting higher allocation fractions more heavily.
+ */
+export function defaultBridgeDeployPool(pools: Pool[]): Pool | null {
+  const bands = ['anchor', 'balanced', 'opportunistic'] as const
+  const routeablePools = pools.filter(pool =>
+    buildBridgeRouteIntent(pool, tokenForPoolSymbol(pool.symbol)) !== null,
+  )
+
+  if (!routeablePools.length) return null
+
+  let chosen: Pool | null = null
+  let bestWeighted = -Infinity
+
+  for (const band of bands) {
+    const pool = pickBestPoolForBand(band, routeablePools)
+    if (!pool) continue
+    const frac = DEFAULT_FRACTIONS[band]
+    const weighted = poolMatchScore(pool, band) * (0.5 + frac)
+    if (weighted > bestWeighted) {
+      bestWeighted = weighted
+      chosen = pool
+    }
+  }
+
+  return chosen
+}
+
 /**
  * Given a total deploy amount and the current pool list, return a 3-band
  * allocation with the best pool per band and its 1inch routing intent.
@@ -461,11 +616,10 @@ export function buildAllocation(
   }
 
   return bands.map(band => {
-    const fraction  = fractions[band] ?? DEFAULT_FRACTIONS[band]
-    const amountUsd = totalUsd * fraction
-    const bandPools = pools.filter(p => p.band === band)
-    const bestPool  = pickBestPool(bandPools)
-    const intent    = bestPool ? buildRouteIntent(bestPool) : null
+    const fraction   = fractions[band] ?? DEFAULT_FRACTIONS[band]
+    const amountUsd  = totalUsd * fraction
+    const bestPool   = pickBestPool(poolsEligibleForBand(band, pools))
+    const intent     = bestPool ? buildRouteIntent(bestPool) : null
 
     return {
       band,

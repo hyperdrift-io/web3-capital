@@ -48,6 +48,9 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+  icons: {
+    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg',
+  },
   alternates: { canonical: baseUrl },
 }
 

@@ -1,103 +1,24 @@
-# Page snapshot
+# Instructions
 
-```yaml
-- generic [active] [ref=e1]:
-  - banner [ref=e2]:
-    - generic [ref=e3]:
-      - link "Capital Engine" [ref=e4] [cursor=pointer]:
-        - /url: /
-        - text: Capital Engine
-      - navigation [ref=e6]:
-        - link "Overview" [ref=e7] [cursor=pointer]:
-          - /url: /
-        - link "Yield" [ref=e8] [cursor=pointer]:
-          - /url: /yield
-        - link "Capital" [ref=e9] [cursor=pointer]:
-          - /url: /capital
-        - link "Bridge" [ref=e10] [cursor=pointer]:
-          - /url: /bridge
-      - button "0xd8dA…6045" [ref=e13] [cursor=pointer]:
-        - text: 0xd8dA…6045
-        - img [ref=e15]
-  - main [ref=e17]:
-    - generic [ref=e19]:
-      - generic [ref=e20]:
-        - heading "Capital View" [level=1] [ref=e21]
-        - paragraph [ref=e22]: Your full on-chain portfolio — across chains, active positions, and what you're leaving on the table.
-      - generic [ref=e24]:
-        - generic [ref=e25]:
-          - generic [ref=e27]: Total Portfolio Value
-          - generic [ref=e30]: Scanning chains…
-        - generic [ref=e32]: Capital by chain
-        - generic [ref=e44]: You're Earning
-      - generic [ref=e55]:
-        - generic [ref=e56]: Single-chain projection
-        - generic [ref=e57]:
-          - generic [ref=e58]:
-            - generic [ref=e59]: Available Capital
-            - generic [ref=e60]:
-              - generic [ref=e61]: —
-              - generic [ref=e62]: ETH
-            - generic [ref=e63]:
-              - generic [ref=e64]:
-                - generic [ref=e65]: Address
-                - generic [ref=e66]: 0xd8dA…6045
-              - generic [ref=e67]:
-                - generic [ref=e68]: Network
-                - generic [ref=e69]: Ethereum
-              - generic [ref=e70]:
-                - generic [ref=e71]: Block
-                - generic [ref=e72]: —
-              - generic [ref=e73]:
-                - generic [ref=e74]: ETH/USD
-                - generic [ref=e75]: $3,200 (est.)
-          - generic [ref=e80]:
-            - generic [ref=e81]: Top Yield Opportunities
-            - generic [ref=e82]:
-              - generic [ref=e83]:
-                - generic [ref=e84]: Anchor pick
-                - generic [ref=e85]:
-                  - generic [ref=e86]: spark
-                  - generic [ref=e87]: 6.40%
-                - generic [ref=e88]: DAI · Ethereum · CE 69 · Safety 100
-              - generic [ref=e89]:
-                - generic [ref=e90]: Balanced pick
-                - generic [ref=e91]:
-                  - generic [ref=e92]: pendle
-                  - generic [ref=e93]: 18.40%
-                - generic [ref=e94]: USDe · Ethereum · CE 80 · Safety 95
-          - generic [ref=e95]:
-            - generic [ref=e96]: Capital Projection
-            - generic [ref=e97]:
-              - generic [ref=e98]:
-                - generic [ref=e99]: Anchor — Monthly
-                - generic [ref=e100]: $0.00
-                - generic [ref=e101]: 6.40% APY via spark
-              - generic [ref=e102]:
-                - generic [ref=e103]: Anchor — Annual
-                - generic [ref=e104]: $0.00
-                - generic [ref=e105]: on $0.00 principal
-              - generic [ref=e106]:
-                - generic [ref=e107]: Balanced — Monthly
-                - generic [ref=e108]: $0.00
-                - generic [ref=e109]: 18.40% APY via pendle
-              - generic [ref=e110]:
-                - generic [ref=e111]: Balanced — Annual
-                - generic [ref=e112]: $0.00
-                - generic [ref=e113]: on $0.00 principal
-            - paragraph [ref=e114]: Projections are illustrative. APY is variable and subject to protocol conditions. This does not constitute financial advice. ETH price estimated at $3,200.
-      - link "⇄ Capital on a different chain? Bridge USDC cross-chain with Wormhole CCTP, then deploy in one flow →" [ref=e116] [cursor=pointer]:
-        - /url: /bridge
-        - generic [ref=e117]:
-          - generic [ref=e118]: ⇄
-          - generic [ref=e119]:
-            - generic [ref=e120]: Capital on a different chain?
-            - generic [ref=e121]: Bridge USDC cross-chain with Wormhole CCTP, then deploy in one flow →
-      - generic [ref=e122]:
-        - generic [ref=e123]: Deploy Capital
-        - button "▼ Deploy Capital Wizard Enter an amount → get an optimised split → route to 1inch" [ref=e125] [cursor=pointer]:
-          - generic [ref=e126]: ▼
-          - generic [ref=e127]: Deploy Capital Wizard
-          - generic [ref=e128]: Enter an amount → get an optimised split → route to 1inch
-  - alert [ref=e129]
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: wallet.spec.ts >> Capital page — wallet-gated content >> capital projection shows ETH balance from chain
+- Location: e2e/wallet.spec.ts:110:7
+
+# Error details
+
+```
+Error: browserType.launch: Executable doesn't exist at /Users/yannvr/Library/Caches/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-mac-x64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     pnpm exec playwright install                           ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
 ```

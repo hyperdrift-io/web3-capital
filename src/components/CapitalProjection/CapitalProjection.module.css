@@ -15,6 +15,24 @@
   padding: var(--space-6);
 }
 
+.connectCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12);
+  text-align: center;
+}
+
+.connectText {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.connectSubtext {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .label {
   font-size: 11px;
   font-weight: 600;
@@ -119,6 +137,83 @@
 .balanceSub {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+.usdEstimate {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: var(--space-2);
+}
+
+.infoRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.infoRow {
+  display: flex;
+  font-size: 13px;
+  justify-content: space-between;
+}
+
+.infoLabel {
+  color: var(--text-muted);
+}
+
+.infoValue,
+.infoValueMono {
+  color: var(--text-secondary);
+}
+
+.infoValueMono {
+  font-family: var(--font-mono);
+}
+
+.poolList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.poolSnapshot {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.poolLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.poolHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.poolProject {
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.poolApy {
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.poolMeta {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 2px;
 }
 
 .protocolName {
