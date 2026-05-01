@@ -12,6 +12,14 @@ export function formatUsd(value: number, compact = false): string {
   }).format(value)
 }
 
+export function formatWholeUsd(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
 export function formatApy(apy: number): string {
   return `${apy.toFixed(2)}%`
 }

@@ -48,7 +48,7 @@ A DeFi capital allocation interface for sophisticated users who want to deploy c
 - **Capital Efficiency Score (CE Score):** Composite metric — APY (40%) + Protocol Safety (45%) + TVL depth (15%). Penalises mercenary rewards, IL exposure, and unaudited protocols.
 - **Allocation bands:** `anchor` (battle-tested, ≤12% APY, safety ≥75), `balanced` (established, ≤25% APY, safety ≥55), `opportunistic` (everything else).
 - **Safety score:** Internal 0–100 metric. Tier 1/2 protocol tiers, TVL thresholds, IL risk, stablecoin bonus, single-asset exposure bonus, reward-only APY penalty.
-- **Wallet state:** Connector-agnostic portfolio reads that keep wallet mechanics out of the primary decision surface.
+- **Wallet state:** UX is connector-agnostic, while Porto (EIP-7702) remains the default connector. Portfolio reads keep wallet mechanics out of the primary decision surface.
 
 ---
 

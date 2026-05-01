@@ -10,8 +10,6 @@ import {
   WalletDone01Icon,
 } from '@hugeicons/core-free-icons'
 
-const WORMHOLE_ARTICLE_URL = 'https://hyperdrift.io/blog/wormhole-capital-engine-deployment-layer'
-
 const MODULES = [
   {
     href: '/yield',
@@ -80,8 +78,8 @@ export default function HomePage() {
               and act on.
             </p>
             <div className={styles.actions}>
-              <Link href="/capital#allocation-wizard" className="btn btn--primary">Build my allocation</Link>
-              <Link href="/yield" className="btn btn--ghost">Review the scores</Link>
+              <Link href="/capital#allocation-wizard" className="btn btn--primary" data-testid="cta-build-allocation">Build my allocation</Link>
+              <Link href="/yield" className="btn btn--ghost" data-testid="cta-review-scores">Review the scores</Link>
             </div>
             <p className={styles.trustLine}>
               Built for the careful optimist: curious about DeFi, allergic to APY roulette.
@@ -191,7 +189,7 @@ export default function HomePage() {
             <span className={styles.footerBrand}>Capital Engine</span>
             <div className={styles.footerLinks}>
               <a href="https://github.com/hyperdrift-io/web3-capital" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a href={WORMHOLE_ARTICLE_URL}>Wormhole article</a>
+              <Link href="/bridge">Bridge console</Link>
             </div>
           </div>
           <HDCredit />

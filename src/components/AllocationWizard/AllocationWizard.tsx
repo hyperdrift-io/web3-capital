@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import type { Pool } from '@/types/protocol'
 import { buildAllocation, type BandAllocation } from '@/lib/routing'
-import { formatApy, formatUsd } from '@/lib/format'
+import { formatApy, formatUsd, formatWholeUsd } from '@/lib/format'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { useEthUsdPrice } from '@/hooks/useEthUsdPrice'
@@ -23,13 +23,6 @@ const BAND_COLORS: Record<string, string> = {
 
 const MIN_DEPLOY = 100
 const DEFAULT_AMOUNT = 5_000
-
-const formatWholeUsd = (value: number) =>
-  value.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  })
 
 /**
  * Allocation Wizard — Iteration 3.2+
@@ -255,7 +248,7 @@ function AllocationRow({ row }: { row: BandAllocation }) {
           </div>
         </div>
         <div className={styles.allocAmount}>
-          ${amountUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+          {formatWholeUsd(amountUsd)}
         </div>
       </div>
 

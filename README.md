@@ -58,7 +58,7 @@ Review a scored allocation plan, then bridge the right asset toward the recommen
 
 ## Related
 
-- [Wormhole turns Capital Engine into a deployment layer](https://hyperdrift.io/blog/wormhole-capital-engine-deployment-layer) - canonical article for the bridge-aware deployment work.
+- [Capital Engine deployment layer notes](docs/CAPITAL-ENGINE-ARTICLE.md) - working notes for the bridge-aware deployment work.
 - [The bridge should be invisible](https://hyperdrift.io/blog/the-bridge-should-be-invisible) - Hyperdrift thesis on cross-chain UX.
 
 ---
@@ -67,7 +67,7 @@ Review a scored allocation plan, then bridge the right asset toward the recommen
 
 ```bash
 pnpm install
-pnpm run dev       # http://localhost:3006
+pnpm run dev       # http://localhost:3000
 pnpm run build     # production build
 ```
 
