@@ -117,6 +117,24 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
                 ℹ {tokenNote}
               </div>
             )}
+
+            {!isOnEthereum && (
+              <button
+                className={styles.bridgeTrigger}
+                onClick={() => setOpen(o => !o)}
+                aria-expanded={open}
+                aria-controls="bridge-widget-panel"
+                data-testid="bridge-toggle"
+              >
+                <span className={styles.bridgeTriggerIcon}>⇄</span>
+                <span className={styles.bridgeTriggerLabel}>
+                  Bridge to {topPool.chain}
+                </span>
+                <span className={styles.bridgeTriggerSub}>
+                  Wormhole Connect · {bridgeToken}
+                </span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -138,27 +156,6 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
           </div>
         </div>
       </div>
-
-      {/* ── Bridge toggle ──────────────────────────────────────────── */}
-      {!isOnEthereum && (
-        <button
-          className={styles.bridgeTrigger}
-          onClick={() => setOpen(o => !o)}
-          aria-expanded={open}
-          aria-controls="bridge-widget-panel"
-          data-testid="bridge-toggle"
-        >
-          <span className={styles.bridgeTriggerIcon}>⇄</span>
-          <span className={styles.bridgeTriggerLabel}>
-            Bridge to {topPool.chain}
-          </span>
-          <span className={styles.bridgeTriggerSub}>
-            Wormhole Connect · {bridgeToken}
-          </span>
-        </button>
-      )}
-
-
       {/* ── Bridge modal ───────────────────────────────────────────── */}
       <dialog
         ref={dialogRef}

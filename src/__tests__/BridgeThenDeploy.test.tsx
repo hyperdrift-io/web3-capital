@@ -96,4 +96,12 @@ describe('BridgeThenDeploy', () => {
       'https://1inch.com/swap?src=8453%3AUSDC&dst=8453%3AWETH',
     )
   })
+
+  it('shows the bridge trigger for non-Ethereum targets', () => {
+    mockBuildBridgeRouteIntent.mockReturnValue(null)
+
+    const view = render(<BridgeThenDeploy topPool={makePool()} />)
+
+    expect(view.getByTestId('bridge-toggle')).toHaveTextContent(/bridge to base/i)
+  })
 })
