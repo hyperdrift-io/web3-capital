@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   keywords: ['DeFi', 'yield farming', 'capital allocation', 'DeFi portfolio', 'crypto yield', 'CE Score', 'web3 finance'],
   openGraph: {
     title: 'Capital Engine - DeFi Allocation for People With Something to Lose',
-    description: 'A calmer way to allocate in DeFi. CE Score, allocation bands, Proof Mode, and passkey wallet access.',
+    description: 'A calmer way to allocate in DeFi. CE Score, allocation bands, Proof Mode, and bridge-aware deployment.',
     url: baseUrl,
     siteName: 'Capital Engine',
     type: 'website',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Capital Engine - DeFi Allocation',
-    description: 'DeFi allocation for people with something to lose. CE Score, allocation bands, and passkey wallet access.',
+    description: 'DeFi allocation for people with something to lose. CE Score, allocation bands, and bridge-aware deployment.',
     images: [`${baseUrl}/opengraph-image`],
   },
   robots: {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   icons: {
-    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg',
+    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector.svg',
   },
   alternates: { canonical: baseUrl },
 }

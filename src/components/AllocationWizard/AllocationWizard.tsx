@@ -24,6 +24,13 @@ const BAND_COLORS: Record<string, string> = {
 const MIN_DEPLOY = 100
 const DEFAULT_AMOUNT = 5_000
 
+const formatWholeUsd = (value: number) =>
+  value.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  })
+
 /**
  * Allocation Wizard — Iteration 3.2+
  *
@@ -194,7 +201,7 @@ export function AllocationWizard({ pools }: Props) {
                 <span className={styles.sliderPct}>
                   {Math.round(row.fraction * 100)}%
                   {amount >= MIN_DEPLOY && (
-                    <span className={styles.sliderAmt}> · {formatUsd(row.amountUsd)}</span>
+                    <span className={styles.sliderAmt}> · {formatWholeUsd(row.amountUsd)}</span>
                   )}
                 </span>
               </div>

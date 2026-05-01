@@ -19,14 +19,14 @@ Protocols are ranked by a **Capital Efficiency Score** combining yield, protocol
 | Balanced | Established protocols - satellite allocation | Up to 25% |
 | Opportunistic | Higher-yield, capped exposure | 25%+ |
 
-Connect with a passkey-backed Porto wallet, review a scored allocation plan, then bridge the right asset toward the recommended destination with Wormhole Connect.
+Review a scored allocation plan, then bridge the right asset toward the recommended destination with Wormhole Connect.
 
 ---
 
 ## Modules
 
 - **`/yield`** - Live APY data across DeFi Llama pools, filtered and ranked by Capital Efficiency Score.
-- **`/capital`** - Passkey wallet access, allocation wizard, balance context, and projected returns by band.
+- **`/capital`** - Allocation wizard, balance context, and projected returns by band.
 - **`/bridge`** - Wormhole-powered Bridge & Deploy flow that infers the right destination asset from the selected opportunity.
 
 ---
@@ -35,7 +35,6 @@ Connect with a passkey-backed Porto wallet, review a scored allocation plan, the
 
 - **Next.js 14** (App Router, ISR - yield data refreshes every 5 min)
 - **wagmi v3 + viem** - wallet state and on-chain reads
-- **Porto** - passkey-backed smart wallet connector
 - **Wormhole Connect** - embedded cross-chain asset movement
 - **DeFi Llama Yields API** - live APY + TVL, no API key required
 - **CSS Modules** - no Tailwind, full design system control
@@ -47,7 +46,6 @@ Connect with a passkey-backed Porto wallet, review a scored allocation plan, the
 
 **Live**
 - DeFi Llama `/yields/pools` - APY, TVL, pool metadata for 8000+ pools
-- Porto passkey connector - seedless wallet access
 - Wormhole Connect - bridge-aware asset movement before deployment
 - viem `useBalance`, `useBlockNumber` - on-chain reads
 

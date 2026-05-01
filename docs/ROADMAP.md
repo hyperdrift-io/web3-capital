@@ -10,14 +10,12 @@
 
 **Capital Engine is the template that proves web3 can feel like the best fintech apps — and go beyond them.**
 
-This is not a yield dashboard. It's a statement: that web3 UX can be as simple as signing into any modern app, and that users don't need to understand wallets, gas, or chains to benefit from DeFi.
-
-Porto passkey is the opening argument. The rest of the product proves the thesis.
+This is not a yield dashboard. It's a statement: that web3 UX can make capital deployment legible, and that users don't need to understand gas or chains to benefit from DeFi.
 
 ### The North Star Filter
 
 Every feature must answer yes to at least one:
-- **Remove friction** — passkey, session keys, intent-based UX, chain abstraction
+- **Remove friction** — session keys, intent-based UX, chain abstraction
 - **Empower with information** — live prices, multi-asset view, real-time yield
 - **Show the work** — CE Score breakdown, protocol health, scoring transparency
 - **Enable action** — 1inch routing, allocation wizard, one-tap deployment
@@ -57,7 +55,7 @@ The foundation is solid and genuinely differentiated:
 - Live yield data from DeFi Llama — 8,000+ pools filtered to 150 high-quality opportunities
 - Capital Efficiency Score — weighted composite (yield 40%, safety 45%, TVL 15%) that penalises mercenary rewards, IL exposure, and unaudited protocols
 - Allocation bands — Anchor / Balanced / Opportunistic (TradFi capital allocation logic applied to DeFi)
-- Porto smart wallet (EIP-7702 + passkey) as **default** connector — no seed phrase, hardware-backed signing
+- Wallet-connected portfolio context — balances, network, block number, and projected returns
 - On-chain reads: ETH balance, network, block number, projected returns
 - Deployed, tested, green
 
@@ -170,7 +168,7 @@ The combination that no competitor has working yet.
 - Full transaction history with session context
 
 **0x Gasless API (replacing 1inch for execution):**
-- Meta-transaction swaps: user signs an EIP-712 message (hardware-backed via Porto passkey), 0x relayer pays gas
+- Meta-transaction swaps: user signs an EIP-712 message, 0x relayer pays gas
 - Gas deducted from swap output — user never sees a gas UI
 - 0x Permit2 integration eliminates the `approve()` transaction (one fewer popup)
 - **Why 0x here instead of 1inch:** 0x Gasless is purpose-built for the "no gas confusion" UX goal. 1inch has no equivalent. This is the switch point.
@@ -195,12 +193,12 @@ Capital Engine surfaces the allocation → alpha-drift executes.
 
 Most DeFi apps are technically competent and product-illiterate. These are the UX bets worth making:
 
-### Passkey-First Onboarding
-For users with no wallet: a first-class "Start with Face ID" flow.
-- Porto creates a smart wallet backed by the device's Secure Enclave
-- No MetaMask popup, no extension install, no seed phrase
+### Wallet-Neutral Onboarding
+For users with capital: a first-class flow that keeps wallet choice secondary to the allocation decision.
+- Clear connect state and balance context before asking users to act
+- No connector education in the primary path
 - Works on mobile Day 1
-- **Why it matters:** 90% of potential DeFi users drop off at the wallet setup step. This is the unlock.
+- **Why it matters:** users came to decide where capital should go, not to study wallet mechanics.
 
 ### "Proof Mode" Toggle
 A toggle that reveals the reasoning behind each Capital Efficiency Score.
@@ -233,7 +231,7 @@ The job asks for:
 | Account abstraction (nice-to-have) | Porto EIP-7702 already shipped, default connector |
 | WebSockets | Live yield streaming (Iteration 2) — add before applying |
 | Full-stack (Node.js, TypeScript) | Next.js App Router server components, API routes |
-| "Interfaces people love" | Passkey-first onboarding, allocation wizard, CE Score proof mode |
+| "Interfaces people love" | Wallet-neutral onboarding, allocation wizard, CE Score proof mode |
 | Live products | https://web3.hyperdrift.io (deployed, working, public) |
 
 **The single most valuable thing to do before applying to Nika:**
@@ -259,7 +257,7 @@ Ship the 1inch routing integration (Iteration 3.1). Nika Finance is a wealth man
 The product is the application. When applying to roles like Nika:
 
 1. **Link to the live app first** — https://web3.hyperdrift.io — before anything else
-2. **Screenshot or Loom the passkey wallet flow** — most reviewers have never seen a passkey smart wallet work
+2. **Screenshot or Loom the allocation flow** — show how quickly a user gets from capital context to a scored plan
 3. **Reference specific integrations:** DeFi Llama API (8,000+ pools), Porto/EIP-7702, wagmi/viem, multi-chain reads
 4. **Link the article** — https://hyperdrift.io/blog/web3-capital-engine-architecture-roadmap — shows product thinking and communication
 5. **Be specific about what's next:** "1inch aggregator integration is the next iteration" signals you understand what the role actually builds

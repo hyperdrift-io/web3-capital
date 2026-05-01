@@ -1,9 +1,17 @@
 .page {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-10) 0 var(--space-16);
 }
 
 .header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: var(--space-8);
+  align-items: start;
   margin-bottom: var(--space-8);
+  z-index: 1;
 }
 
 .title {
@@ -17,6 +25,57 @@
   font-size: 15px;
   color: var(--text-secondary);
   max-width: 520px;
+}
+
+.memo {
+  padding: var(--space-4);
+  background:
+    linear-gradient(135deg, rgba(72, 213, 151, 0.08), transparent 48%),
+    var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.memoTop,
+.memoBand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.memoTop {
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.memoTop strong {
+  color: var(--accent);
+}
+
+.memoBand {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+
+.memoBand span {
+  color: var(--text-secondary);
+}
+
+.memoBand strong {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 720px) {
+  .header {
+    grid-template-columns: 1fr;
+  }
 }
 
 .section {

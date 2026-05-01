@@ -56,7 +56,7 @@ Use **SAY** / **DO** as before. Keep Part 1 moving — **30–45 seconds per pag
 
 **DO:** Click **Capital**.
 
-**SAY:** “**Capital View** is where you connect and see **your** capital: balances across chains, where you’re already earning if we detect **Aave / Compound-style** positions, rebalancing hints, a quick **projection**, and an **allocation wizard** to split dollars across bands. Passkey-first wallets like **Porto** are supported — no seed phrase theater.”
+**SAY:** “**Capital View** is where you connect and see **your** capital: balances across chains, where you’re already earning if we detect **Aave / Compound-style** positions, rebalancing hints, a quick **projection**, and an **allocation wizard** to split dollars across bands.”
 
 **DO:** Scroll through **portfolio**, **rebalancing** (if present), **single-chain projection**, the **Bridge** teaser strip, and **Deploy Capital** — even disconnected, the sections read clearly.
 

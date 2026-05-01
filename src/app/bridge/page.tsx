@@ -23,11 +23,27 @@ export default async function BridgePage({ searchParams }: { searchParams: { poo
     <div className={styles.page} data-testid="smoke-bridge">
       <div className="container">
         <div className={styles.header}>
-          <h1 className={styles.title}>Bridge &amp; Deploy</h1>
-          <p className={styles.subtitle}>
-            Move ETH, USDC, WBTC, wstETH and more cross-chain — EVM or Solana — via Wormhole.
-            No wrapped tokens. Then deploy straight into the highest CE-scored opportunity.
-          </p>
+          <div>
+            <h1 className={styles.title}>Bridge &amp; Deploy</h1>
+            <p className={styles.subtitle}>
+              Move ETH, USDC, WBTC, wstETH and more cross-chain — EVM or Solana — via Wormhole.
+              No wrapped tokens. Then deploy straight into the highest CE-scored opportunity.
+            </p>
+          </div>
+          <aside className={styles.ticket} aria-label="Bridge route ticket">
+            <div className={styles.ticketTop}>
+              <span>Route ticket</span>
+              <strong>Prepared</strong>
+            </div>
+            <div className={styles.ticketRoute}>
+              <span>Source</span>
+              <i />
+              <span>Bridge</span>
+              <i />
+              <span>Deploy</span>
+            </div>
+            <p className={styles.ticketNote}>Verify asset, chain, and CE score before signing.</p>
+          </aside>
         </div>
 
         <div className={styles.content}>

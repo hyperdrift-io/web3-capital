@@ -1,30 +1,30 @@
 /* ─── Design Tokens ────────────────────────────────────────────────────── */
 :root {
   /* Color palette */
-  --bg-base:       #0d0f14;
-  --bg-surface:    #141720;
-  --bg-elevated:   #1c2030;
-  --bg-hover:      #212640;
+  --bg-base:       #080705;
+  --bg-surface:    #12100b;
+  --bg-elevated:   #1d1710;
+  --bg-hover:      #271f14;
 
-  --border:        #252a3a;
-  --border-subtle: #1a1f2e;
+  --border:        #33291c;
+  --border-subtle: #20190f;
 
-  --text-primary:  #e8eaf0;
-  --text-secondary:#8b91a8;
-  --text-tertiary: #858da3;
-  --text-support:  #a5acbf;
-  --text-muted:    #565c72;
+  --text-primary:  #f2ead8;
+  --text-secondary:#b8aa91;
+  --text-tertiary: #958873;
+  --text-support:  #d1c2a6;
+  --text-muted:    #746852;
 
-  --accent:        #39d48f;
+  --accent:        #48d597;
   --accent-dim:    rgba(57, 212, 143, 0.12);
   --accent-border: rgba(57, 212, 143, 0.18);
-  --accent-hover:  #5ee9a8;
+  --accent-hover:  #79e8b4;
 
-  --green:         #3ecf8e;
+  --green:         #48d597;
   --green-dim:     rgba(62, 207, 142, 0.12);
-  --yellow:        #f5a623;
+  --yellow:        #d9a441;
   --yellow-dim:    rgba(245, 166, 35, 0.12);
-  --red:           #e05c5c;
+  --red:           #e06d5f;
   --red-dim:       rgba(224, 92, 92, 0.12);
 
   /* Typography */
@@ -67,7 +67,9 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-base);
+  background:
+    linear-gradient(180deg, #0b0905 0%, var(--bg-base) 38%),
+    var(--bg-base);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -156,18 +158,19 @@ h1, h2, h3, h4 {
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-md);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   transition: all var(--transition);
   white-space: nowrap;
 }
 
 .btn--primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--bg-base);
+  box-shadow: 0 0 0 1px rgba(242, 234, 216, 0.08), 0 10px 28px rgba(72, 213, 151, 0.2);
 }
 .btn--primary:hover {
   background: var(--accent-hover);
-  color: #fff;
+  color: var(--bg-base);
 }
 
 .btn--ghost {

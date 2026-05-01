@@ -1,9 +1,17 @@
 .page {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-10) 0 var(--space-16);
 }
 
 .header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: var(--space-8);
+  align-items: start;
   margin-bottom: var(--space-8);
+  z-index: 1;
 }
 
 .title {
@@ -16,4 +24,68 @@
 .subtitle {
   font-size: 15px;
   color: var(--text-secondary);
+}
+
+.memo {
+  position: relative;
+  padding: var(--space-4);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(242, 234, 216, 0.04), transparent 42%),
+    var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.memo::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(rgba(242, 234, 216, 0.035) 1px, transparent 1px);
+  background-size: 100% 34px;
+  content: '';
+}
+
+.memoTop,
+.memoLine {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.memoTop {
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.memoTop strong {
+  color: var(--accent);
+}
+
+.memoLine {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px;
+}
+
+.memoLine span {
+  color: var(--text-muted);
+}
+
+.memoLine strong {
+  color: var(--text-support);
+  font-weight: 650;
+}
+
+@media (max-width: 720px) {
+  .header {
+    grid-template-columns: 1fr;
+  }
 }

@@ -27,10 +27,30 @@ export default async function CapitalPage() {
 
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className={styles.header}>
-          <h1 className={styles.title}>Capital View</h1>
-          <p className={styles.subtitle}>
-            Your full on-chain portfolio — across chains, active positions, and what you&apos;re leaving on the table.
-          </p>
+          <div>
+            <h1 className={styles.title}>Capital View</h1>
+            <p className={styles.subtitle}>
+              Your full on-chain portfolio — across chains, active positions, and what you&apos;re leaving on the table.
+            </p>
+          </div>
+          <aside className={styles.memo} aria-label="Capital allocation slip">
+            <div className={styles.memoTop}>
+              <span>Allocation slip</span>
+              <strong>Draft</strong>
+            </div>
+            <div className={styles.memoBand}>
+              <span>Anchor</span>
+              <strong>60%</strong>
+            </div>
+            <div className={styles.memoBand}>
+              <span>Balanced</span>
+              <strong>30%</strong>
+            </div>
+            <div className={styles.memoBand}>
+              <span>Opportunistic</span>
+              <strong>10%</strong>
+            </div>
+          </aside>
         </div>
 
         {/* ── 4.1 + 4.2: Multi-chain portfolio + yield positions ─── */}

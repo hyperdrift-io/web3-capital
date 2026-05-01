@@ -24,8 +24,8 @@ const MODULES = [
     href: '/capital',
     icon: WalletDone01Icon,
     name: 'Build your allocation',
-    description: 'Turn available capital into an Anchor, Balanced, and Opportunistic plan with passkey wallet access and no seed phrase ritual.',
-    tag: 'Passkey-ready deployment',
+    description: 'Turn available capital into an Anchor, Balanced, and Opportunistic plan with balance context and deployment steps.',
+    tag: 'Allocation planner',
   },
   {
     href: '/bridge',
@@ -48,33 +48,50 @@ const MEMO_ROWS = [
   { label: 'Proof', value: 'Open', note: 'Score breakdown available on demand' },
 ]
 
+const RULES = [
+  'Never chase yield you cannot explain.',
+  'Treat bridges as execution, not adventure.',
+  'If the score is high, the proof should be boring.',
+]
+
 export default function HomePage() {
   return (
     <>
       <section className={styles.hero} data-testid="smoke-home">
         <div className={`container ${styles.heroInner}`}>
           <div className={styles.heroCopy}>
-            <div className={styles.eyebrow}>
-              <span className={styles.eyebrowDot} />
-              Capital Engine
+            <div className={styles.brandLockup}>
+              <img
+                src="/branding/logo-capital-engine-power-03-score-recraft-vector.svg?v=white-green"
+                alt=""
+                className={styles.brandLogo}
+              />
+              <div>
+                <div className={styles.eyebrow}>Capital Engine</div>
+                <p className={styles.brandLine}>The calm allocation desk for on-chain capital.</p>
+              </div>
             </div>
             <h1 className={styles.headline}>
               DeFi allocation for people with something to lose.
             </h1>
             <p className={styles.subline}>
-              Yield is easy to find. Good risk-adjusted yield is not. Capital Engine turns
-              8,000+ pools into a short list you can understand, verify, and act on.
+              You want the upside without spending Sunday night decoding pool risk. Capital
+              Engine turns 8,000+ opportunities into a short list you can understand, verify,
+              and act on.
             </p>
             <div className={styles.actions}>
               <Link href="/capital#allocation-wizard" className="btn btn--primary">Build my allocation</Link>
               <Link href="/yield" className="btn btn--ghost">Review the scores</Link>
             </div>
             <p className={styles.trustLine}>
-              No seed phrase ceremony. No APY roulette. Every recommendation shows its work.
+              Built for the careful optimist: curious about DeFi, allergic to APY roulette.
             </p>
           </div>
 
           <aside className={styles.memoCard} aria-label="Example Capital Engine allocation memo">
+            <div className={styles.memoStamp} aria-hidden="true">
+              <img src="/branding/logo-capital-engine-power-03-score-recraft-vector.svg?v=white-green" alt="" />
+            </div>
             <div className={styles.memoHeader}>
               <span className={styles.memoKicker}>Allocation memo</span>
               <span className={styles.memoStatus}>CE verified</span>
@@ -97,7 +114,7 @@ export default function HomePage() {
               ))}
             </div>
           </aside>
-          </div>
+        </div>
       </section>
 
       <section className={styles.identity}>
@@ -106,16 +123,32 @@ export default function HomePage() {
             <div>
               <div className={styles.sectionTitle}>The old way</div>
               <p className={styles.identityStatement}>
-                Chase the highest APY, open five tabs, decode bridge routes, then hope the pool
-                survives the month.
+                Chase the highest APY, open five tabs, decode bridge routes, then hope you did
+                not just optimise your way into a bad night of sleep.
               </p>
             </div>
             <div>
               <div className={styles.sectionTitle}>The Capital Engine way</div>
               <p className={styles.identityStatement}>
-                Think like an allocator: safety first, yield second, execution last. The app
-                compresses the memo so you can make a calmer decision.
+                Think like an allocator: safety first, yield second, execution last. The app gives
+                you the memo, the score, and the route without making you cosplay as a protocol analyst.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.rules}>
+        <div className="container">
+          <div className={styles.rulesCard}>
+            <div className={styles.sectionTitle}>House rules</div>
+            <div className={styles.rulesList}>
+              {RULES.map((rule, index) => (
+                <p key={rule} className={styles.ruleItem}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  {rule}
+                </p>
+              ))}
             </div>
           </div>
         </div>
