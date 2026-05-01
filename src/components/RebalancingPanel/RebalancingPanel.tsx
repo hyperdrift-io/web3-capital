@@ -7,7 +7,7 @@ import { useYieldPositions }      from '@/hooks/useYieldPositions'
 import { useDevAddress }          from '@/hooks/useDevAddress'
 import { useEthUsdPrice }         from '@/hooks/useEthUsdPrice'
 import { buildAllocation }        from '@/lib/routing'
-import { formatApy }              from '@/lib/format'
+import { formatApy, formatUsd, formatWholeUsd } from '@/lib/format'
 import { RouteButton }            from '@/components/RouteButton/RouteButton'
 import type { Pool }              from '@/types/protocol'
 import styles from './RebalancingPanel.module.css'
@@ -81,7 +81,7 @@ export function RebalancingPanel({ pools }: Props) {
             </strong>
           </div>
           <div className={styles.opportunitySub}>
-            ~${Math.round(delta.annualDelta).toLocaleString()} extra per year
+            ~{formatWholeUsd(delta.annualDelta)} extra per year
             · same risk profile · better pools available now
           </div>
         </div>
@@ -120,7 +120,7 @@ export function RebalancingPanel({ pools }: Props) {
             </div>
             <div className={styles.breakdownRight}>
               <span className={styles.breakdownAmount}>
-                ${Math.round(row.amountUsd).toLocaleString()}
+                {formatWholeUsd(row.amountUsd)}
               </span>
               <span className={styles.breakdownApy}>
                 {formatApy(row.pool.apy)}
@@ -171,7 +171,7 @@ function ComparisonCard({ label, apy, annualReturn, variant, positionCount }: {
       <div className={styles.compLabel}>{label}</div>
       <div className={styles.compApy}>{apy.toFixed(2)}%</div>
       <div className={styles.compReturn}>
-        ~${Math.round(annualReturn).toLocaleString()}/yr
+        ~{formatWholeUsd(annualReturn)}/yr
       </div>
       {positionCount !== undefined && (
         <div className={styles.compMeta}>{positionCount} active position{positionCount !== 1 ? 's' : ''}</div>
@@ -187,7 +187,7 @@ function NoPositionsTip({ availableUsd }: { availableUsd: number }) {
       <span className={styles.tipIcon}>💡</span>
       <span>
         You have{' '}
-        <strong>${Math.round(availableUsd).toLocaleString()}</strong>{' '}
+        <strong>{formatWholeUsd(availableUsd)}</strong>{' '}
         in undeployed capital across your wallets.
         Use the <strong>Deploy Capital Wizard</strong> below to put it to work.
       </span>
@@ -208,8 +208,3 @@ function AlreadyOptimalState({ summary }: { summary: { weightedApy: number; tota
   )
 }
 
-function formatUsd(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
-  if (n >= 1_000)     return `$${(n / 1_000).toFixed(1)}k`
-  return `$${n.toFixed(0)}`
-}

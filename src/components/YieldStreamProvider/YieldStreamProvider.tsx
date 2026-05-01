@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic'
 import type { Pool } from '@/types/protocol'
 import { useYieldStream, type StreamStatus } from '@/hooks/useYieldStream'
+import { formatUsd } from '@/lib/format'
 import { AllocationBands } from '@/components/AllocationBands/AllocationBands'
 import { YieldTable } from '@/components/YieldTable/YieldTable'
 
@@ -103,7 +104,5 @@ function StatusIndicator({ status }: { status: StreamStatus }) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatTvl(n: number): string {
-  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`
-  if (n >= 1e9)  return `$${(n / 1e9).toFixed(1)}B`
-  return `$${(n / 1e6).toFixed(0)}M`
+  return formatUsd(n, true)
 }

@@ -149,7 +149,7 @@ export function AllocationWizard({ pools }: Props) {
               <span className={styles.apyProjection}>
                 Blended APY: <strong>{weightedApy.toFixed(1)}%</strong>
                 {' '}·{' '}
-                ~${(amount * weightedApy / 100).toFixed(0)}/yr
+                ~{formatWholeUsd(amount * weightedApy / 100)}/yr
               </span>
             )}
           </div>
@@ -216,7 +216,7 @@ export function AllocationWizard({ pools }: Props) {
           )}
 
           {amount < MIN_DEPLOY && (
-            <p className={styles.minNote}>Minimum deploy amount is ${MIN_DEPLOY}</p>
+            <p className={styles.minNote}>Minimum deploy amount is {formatWholeUsd(MIN_DEPLOY)}</p>
           )}
 
           <p className={styles.disclaimer}>

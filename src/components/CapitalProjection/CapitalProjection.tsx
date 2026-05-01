@@ -3,7 +3,7 @@
 import { useAccount, useBalance, useBlockNumber, useReadContract } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import type { Pool } from '@/types/protocol'
-import { formatUsd, formatApy, formatAddress, formatEther } from '@/lib/format'
+import { formatUsd, formatWholeUsd, formatApy, formatAddress, formatEther } from '@/lib/format'
 import { AGGREGATOR_V3_ABI, ETH_USD_FEED, FALLBACK_ETH_USD, parseChainlinkAnswer } from '@/lib/chainlink'
 import { TokenBalances } from '@/components/TokenBalances/TokenBalances'
 import styles from './CapitalProjection.module.css'
@@ -87,7 +87,7 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
           <InfoRow label="Block"   value={blockNumber ? `#${blockNumber.toLocaleString()}` : '—'} mono />
           <InfoRow
             label="ETH/USD"
-            value={roundData ? `$${ethUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })} ◈` : `$${FALLBACK_ETH_USD.toLocaleString()} (est.)`}
+            value={roundData ? `${formatWholeUsd(ethUsdPrice)} ◈` : `${formatWholeUsd(FALLBACK_ETH_USD)} (est.)`}
             mono
           />
         </div>
@@ -137,8 +137,8 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
           Projections are illustrative. APY is variable and subject to protocol conditions.
           This does not constitute financial advice.
           {roundData
-            ? ` ETH price live from Chainlink: $${ethUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}.`
-            : ` ETH price estimated at $${FALLBACK_ETH_USD.toLocaleString()}.`
+            ? ` ETH price live from Chainlink: ${formatWholeUsd(ethUsdPrice)}.`
+            : ` ETH price estimated at ${formatWholeUsd(FALLBACK_ETH_USD)}.`
           }
         </p>
       </div>

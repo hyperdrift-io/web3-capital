@@ -471,7 +471,7 @@ export async function estimateSwapOutput(
 
   const outputAmount = amountUsd / toPrice
   const formatted = outputAmount >= 1_000
-    ? outputAmount.toLocaleString('en-US', { maximumFractionDigits: 2 })
+    ? outputAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })
     : outputAmount.toFixed(4)
 
   return `~${formatted} ${pool.symbol}`

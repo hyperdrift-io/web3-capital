@@ -1,4 +1,5 @@
 import type { RouteIntent } from '@/lib/routing'
+import { formatUsd } from '@/lib/format'
 import styles from './RouteButton.module.css'
 
 type Props = {
@@ -65,8 +66,3 @@ export function RouteButton({ intent, amountUsd, variant = 'full', estimatedOutp
   )
 }
 
-function formatUsd(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000)     return `$${(n / 1_000).toFixed(1)}k`
-  return `$${n.toFixed(0)}`
-}

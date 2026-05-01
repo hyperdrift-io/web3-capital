@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Pool } from '@/types/protocol'
 import { safetyBreakdown } from '@/lib/defillama'
+import { formatUsd } from '@/lib/format'
 import styles from './CEScoreBreakdown.module.css'
 
 type Props = {
@@ -124,7 +125,5 @@ function ComponentRow({
 }
 
 function formatTvl(n: number): string {
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B TVL`
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(0)}M TVL`
-  return `$${(n / 1e3).toFixed(0)}K TVL`
+  return `${formatUsd(n, true)} TVL`
 }
