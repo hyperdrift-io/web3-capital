@@ -59,6 +59,7 @@ function makePool(): Pool {
     safety: 80,
     capitalEfficiency: 65,
     band: 'anchor',
+    apyOutlier: false,
   }
 }
 
