@@ -46,11 +46,16 @@
 }
 
 .navLink {
+  border: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
+  background: transparent;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.2;
   color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
   transition: all var(--transition);
 }
 
@@ -62,6 +67,88 @@
 .navLink.active {
   color: var(--text-primary);
   background: var(--bg-elevated);
+}
+
+.navMenu {
+  position: relative;
+}
+
+.navMenu::after {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: var(--space-2);
+  content: '';
+}
+
+.navMenuTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navChevron {
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform var(--transition);
+}
+
+.navMenuOpen .navChevron {
+  transform: translateY(1px) rotate(180deg);
+}
+
+.navDropdown {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  z-index: 1;
+  min-width: 250px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg-elevated) 94%, black);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -4px);
+  transition:
+    opacity var(--transition),
+    transform var(--transition);
+}
+
+.navDropdownOpen {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.dropdownLink {
+  display: grid;
+  gap: 3px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.dropdownLink:hover,
+.dropdownLink:focus-visible {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.dropdownLabel {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.dropdownDescription {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .right {

@@ -18,9 +18,10 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
   const chainId   = chain?.id ?? mainnet.id
   const feedAddr  = ETH_USD_FEED[chainId] ?? ETH_USD_FEED[1]
 
-  const { data: balance } = useBalance({
+  const { data: balance, isLoading: isBalanceLoading } = useBalance({
     address,
     chainId,
+    query: { enabled: !!address },
   })
   const { data: blockNumber } = useBlockNumber({
     chainId,
@@ -41,27 +42,30 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
 
   if (!isConnected || !address) {
     return (
-      <div className={styles.card} style={{ textAlign: 'center', padding: 'var(--space-12)' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-2)' }}>
+      <div className={styles.connectCard}>
+        <p className={styles.connectText}>
           Connect your wallet to view available capital
         </p>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+        <p className={styles.connectSubtext}>
           Reads are on-chain only — no approvals required
         </p>
       </div>
     )
   }
 
-  const nativeBalance    = balance ? parseFloat(formatEther(balance.value, 6)) : 0
-  const principalUsd     = nativeBalance * ethUsdPrice
+  const hasBalance       = balance !== undefined
+  const nativeBalance    = hasBalance ? parseFloat(formatEther(balance.value, 6)) : null
+  const principalUsd     = nativeBalance === null ? null : nativeBalance * ethUsdPrice
+  const hasPrincipal     = principalUsd !== null
 
   const anchorApy   = topAnchorPool?.apy  ?? 0
   const balancedApy = topBalancedPool?.apy ?? 0
 
-  const anchorMonthly    = (principalUsd * anchorApy)   / 100 / 12
-  const balancedMonthly  = (principalUsd * balancedApy)  / 100 / 12
-  const anchorAnnual     = (principalUsd * anchorApy)   / 100
-  const balancedAnnual   = (principalUsd * balancedApy)  / 100
+  const anchorMonthly    = hasPrincipal ? (principalUsd * anchorApy)   / 100 / 12 : null
+  const balancedMonthly  = hasPrincipal ? (principalUsd * balancedApy)  / 100 / 12 : null
+  const anchorAnnual     = hasPrincipal ? (principalUsd * anchorApy)   / 100 : null
+  const balancedAnnual   = hasPrincipal ? (principalUsd * balancedApy)  / 100 : null
+  const projectionStatus = isBalanceLoading ? 'Reading wallet balance...' : 'Balance unavailable'
 
   return (
     <div className={styles.wrapper}>
@@ -75,13 +79,13 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
           <span className={styles.balanceSub}>{balance?.symbol ?? 'ETH'}</span>
         </div>
 
-        {principalUsd > 0 && (
-          <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: 'var(--space-2)' }}>
+        {principalUsd !== null && principalUsd > 0 && (
+          <div className={styles.usdEstimate}>
             ≈ {formatUsd(principalUsd)}
           </div>
         )}
 
-        <div style={{ marginTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+        <div className={styles.infoRows}>
           <InfoRow label="Address" value={formatAddress(address)} mono />
           <InfoRow label="Network" value={chain?.name ?? 'Ethereum'} />
           <InfoRow label="Block"   value={blockNumber ? `#${blockNumber.toLocaleString()}` : '—'} mono />
@@ -98,7 +102,7 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
       {/* Protocol snapshot */}
       <div className={styles.card}>
         <div className={styles.label}>Top Yield Opportunities</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
+        <div className={styles.poolList}>
           {topAnchorPool && (
             <PoolSnapshot label="Anchor pick" pool={topAnchorPool} />
           )}
@@ -114,23 +118,23 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
         <div className={styles.projectionGrid}>
           <div className={styles.projectionItem}>
             <span className={styles.projectionLabel}>Anchor — Monthly</span>
-            <span className={styles.projectionValue}>{formatUsd(anchorMonthly)}</span>
+            <span className={styles.projectionValue}>{formatProjectionValue(anchorMonthly)}</span>
             <span className={styles.projectionSub}>{formatApy(anchorApy)} APY via {topAnchorPool?.project ?? '—'}</span>
           </div>
           <div className={styles.projectionItem}>
             <span className={styles.projectionLabel}>Anchor — Annual</span>
-            <span className={styles.projectionValue}>{formatUsd(anchorAnnual)}</span>
-            <span className={styles.projectionSub}>on {formatUsd(principalUsd)} principal</span>
+            <span className={styles.projectionValue}>{formatProjectionValue(anchorAnnual)}</span>
+            <span className={styles.projectionSub}>{formatPrincipal(principalUsd, projectionStatus)}</span>
           </div>
           <div className={styles.projectionItem}>
             <span className={styles.projectionLabel}>Balanced — Monthly</span>
-            <span className={styles.projectionValue}>{formatUsd(balancedMonthly)}</span>
+            <span className={styles.projectionValue}>{formatProjectionValue(balancedMonthly)}</span>
             <span className={styles.projectionSub}>{formatApy(balancedApy)} APY via {topBalancedPool?.project ?? '—'}</span>
           </div>
           <div className={styles.projectionItem}>
             <span className={styles.projectionLabel}>Balanced — Annual</span>
-            <span className={styles.projectionValue}>{formatUsd(balancedAnnual)}</span>
-            <span className={styles.projectionSub}>on {formatUsd(principalUsd)} principal</span>
+            <span className={styles.projectionValue}>{formatProjectionValue(balancedAnnual)}</span>
+            <span className={styles.projectionSub}>{formatPrincipal(principalUsd, projectionStatus)}</span>
           </div>
         </div>
         <p className={styles.disclaimer}>
@@ -146,14 +150,19 @@ export function CapitalProjection({ topAnchorPool, topBalancedPool }: Props) {
   )
 }
 
+function formatProjectionValue(value: number | null): string {
+  return value === null ? '—' : formatUsd(value)
+}
+
+function formatPrincipal(value: number | null, fallback: string): string {
+  return value === null ? fallback : `on ${formatUsd(value)} principal`
+}
+
 function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-      <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-      <span style={{
-        color: 'var(--text-secondary)',
-        fontFamily: mono ? 'var(--font-mono)' : undefined,
-      }}>
+    <div className={styles.infoRow}>
+      <span className={styles.infoLabel}>{label}</span>
+      <span className={mono ? styles.infoValueMono : styles.infoValue}>
         {value}
       </span>
     </div>
@@ -162,21 +171,17 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
 
 function PoolSnapshot({ label, pool }: { label: string; pool: Pool }) {
   return (
-    <div style={{
-      padding: 'var(--space-3)',
-      background: 'var(--bg-elevated)',
-      borderRadius: 'var(--radius-md)',
-    }}>
-      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+    <div className={styles.poolSnapshot}>
+      <div className={styles.poolLabel}>
         {label}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '14px', textTransform: 'capitalize' }}>{pool.project}</span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--green)', fontSize: '14px' }}>
+      <div className={styles.poolHeader}>
+        <span className={styles.poolProject}>{pool.project}</span>
+        <span className={styles.poolApy}>
           {formatApy(pool.apy)}
         </span>
       </div>
-      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
+      <div className={styles.poolMeta}>
         {pool.symbol} · {pool.chain} · CE {pool.capitalEfficiency} · Safety {pool.safety}
       </div>
     </div>

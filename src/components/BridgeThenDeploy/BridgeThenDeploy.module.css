@@ -1,51 +1,119 @@
 .wrapper {
-  background: var(--bg-surface);
+  background:
+    radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34%),
+    var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-8);
+}
+
+.flowIntro {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 620px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.flowTitle {
+  color: var(--text-primary);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.flowCopy {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* ── Timeline layout ──────────────────────────────────────────────────── */
 
 .timeline {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5);
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 28px;
+  bottom: 28px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent), var(--border) 72%);
+  opacity: 0.65;
 }
 
 .stepCard {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: linear-gradient(180deg, rgba(30, 36, 55, 0.45), rgba(20, 24, 36, 0.45));
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--space-5);
+  position: relative;
+}
+
+.stepBody {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: linear-gradient(180deg, rgba(30, 36, 55, 0.76), rgba(20, 24, 36, 0.72));
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+}
+
+.stepMarker {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-6);
 }
 
 .stepHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  display: grid;
+  gap: var(--space-1);
 }
 
 .stepBadge {
-  width: 24px;
-  height: 24px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent);
-  background: var(--accent-dim);
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg-base));
+  border: 1px solid color-mix(in srgb, var(--accent) 44%, var(--border));
+  box-shadow: 0 0 0 6px var(--bg-surface);
   flex-shrink: 0;
 }
 
+.stepKicker {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .stepTitle {
-  font-size: 18px;
+  font-size: 21px;
   line-height: 1.2;
   color: var(--text-primary);
   margin: 0;
@@ -56,18 +124,22 @@
 .contextStrip {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .opportunityRow {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   flex-wrap: wrap;
+  padding: var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 
 .poolProject {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -121,7 +193,7 @@
 }
 
 .contextSub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -132,31 +204,61 @@
 /* ── Vault / LP token note ────────────────────────────────────────────── */
 
 .tokenNote {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
+.bridgeRoute {
+  display: grid;
+  grid-template-columns: max-content minmax(48px, 1fr) max-content;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 480px;
+}
+
+.routeNode {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.routeLine {
+  height: 1px;
+  min-width: 48px;
+  background: linear-gradient(90deg, var(--border), var(--accent), var(--border));
+}
+
 .bridgeToggle {
   appearance: none;
-  border: none;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--border));
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-elevated));
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-md);
   cursor: pointer;
   width: fit-content;
-  transition: background 120ms ease, opacity 120ms ease;
+  min-height: 44px;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 }
 
 .bridgeToggle:hover {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 56%, var(--border));
+  transform: translateY(-1px);
 }
 
 .bridgeToggle[aria-expanded='true'] {
@@ -171,6 +273,7 @@
   align-items: flex-start;
   /* Full width with centered widget; overflow visible for token selector modal */
   width: 100%;
+  padding-top: var(--space-4);
   overflow: visible;
 }
 
@@ -184,8 +287,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  gap: var(--space-4);
+  padding: var(--space-4);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -193,7 +296,7 @@
 }
 
 .deployLabel {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
@@ -204,15 +307,55 @@
 
 @media (max-width: 900px) {
   .wrapper {
-    padding: var(--space-4);
+    padding: var(--space-5);
+    gap: var(--space-6);
+  }
+
+  .timeline {
+    gap: var(--space-4);
+  }
+
+  .timeline::before {
+    display: none;
   }
 
   .stepCard {
-    padding: var(--space-3);
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .stepMarker {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+
+  .stepBadge {
+    box-shadow: none;
+  }
+
+  .stepBody {
+    padding: var(--space-4);
   }
 
   .stepTitle {
-    font-size: 16px;
+    font-size: 18px;
+  }
+
+  .bridgeRoute {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .routeLine {
+    width: 1px;
+    height: 28px;
+    min-width: 0;
+    justify-self: center;
+    background: linear-gradient(180deg, var(--border), var(--accent), var(--border));
+  }
+
+  .routeNode {
+    justify-content: center;
   }
 }
 
