@@ -1,4 +1,5 @@
 import { fetchTopPools } from '@/lib/defillama'
+import { defaultBridgeDeployPool } from '@/lib/routing'
 import { BridgeThenDeploy } from '@/components/BridgeThenDeploy/BridgeThenDeploy'
 import styles from './page.module.css'
 
@@ -12,9 +13,11 @@ export const metadata = {
 export default async function BridgePage({ searchParams }: { searchParams: { pool?: string } }) {
   const { pool: poolId } = searchParams
   const pools = await fetchTopPools(150)
-  const topAnchorPool = poolId
-    ? (pools.find(p => p.pool === poolId) ?? pools.find(p => p.band === 'anchor') ?? null)
-    : (pools.find(p => p.band === 'anchor') ?? null)
+  const explicitMatch = poolId ? pools.find(p => p.pool === poolId) : undefined
+  const topPool = explicitMatch ?? defaultBridgeDeployPool(pools)
+  const selectionSubtitle = explicitMatch
+    ? 'Opened from your link — always verify APY and protocol details.'
+    : 'Matched across Anchor, Balanced, and Opportunistic bands using realistic yields (extreme APY outliers excluded).'
 
   return (
     <div className={styles.page} data-testid="smoke-bridge">
@@ -28,7 +31,7 @@ export default async function BridgePage({ searchParams }: { searchParams: { poo
         </div>
 
         <div className={styles.content}>
-          <BridgeThenDeploy topPool={topAnchorPool} />
+          <BridgeThenDeploy topPool={topPool} selectionSubtitle={selectionSubtitle} />
         </div>
       </div>
     </div>

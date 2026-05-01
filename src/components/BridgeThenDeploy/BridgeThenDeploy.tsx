@@ -14,10 +14,11 @@ import styles from './BridgeThenDeploy.module.css'
 
 type Props = {
   /**
-   * The top anchor pool — used to determine the best target chain and show
-   * the deployment opportunity that justifies the bridge.
+   * Recommended deploy target — chosen from allocation-band logic or an explicit `?pool=` link.
    */
   topPool: Pool | null
+  /** How this pool was selected (plain language). */
+  selectionSubtitle?: string
 }
 
 /**
@@ -36,7 +37,7 @@ type Props = {
  *   │  After bridging — deploy into morpho-blue  [ Route → ]│  next step
  *   └────────────────────────────────────────────────────────┘
  */
-export function BridgeThenDeploy({ topPool }: Props) {
+export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
   const [bridgeOpen, setBridgeOpen] = useState(false)
   const [bridgeInitialized, setBridgeInitialized] = useState(false)
 
@@ -58,7 +59,7 @@ export function BridgeThenDeploy({ topPool }: Props) {
         <section className={styles.stepCard} aria-labelledby="bridge-step-1">
           <div className={styles.stepHead}>
             <span className={styles.stepBadge}>1</span>
-            <h3 id="bridge-step-1" className={styles.stepTitle}>Best opportunity right now</h3>
+            <h3 id="bridge-step-1" className={styles.stepTitle}>Recommended deploy target</h3>
           </div>
           <div className={styles.contextStrip}>
             <div className={styles.opportunityRow}>
@@ -73,7 +74,9 @@ export function BridgeThenDeploy({ topPool }: Props) {
                 <span className={styles.ceScore}>Score {topPool.capitalEfficiency}</span>
               </CEScoreBreakdown>
             </div>
-            <div className={styles.contextSub}>Highest CE score destination for this session.</div>
+            <div className={styles.contextSub}>
+              {selectionSubtitle ?? 'Highest CE score destination for this session.'}
+            </div>
           </div>
         </section>
 
