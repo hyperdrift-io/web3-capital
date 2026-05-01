@@ -2,10 +2,12 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(13, 15, 20, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-subtle);
+  background:
+    linear-gradient(90deg, rgba(72, 213, 151, 0.08), transparent 28%),
+    rgba(8, 7, 5, 0.86);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 80%, var(--accent));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .inner {
@@ -23,20 +25,37 @@
   align-items: center;
   gap: 10px;
   color: var(--text-primary);
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: -0.01em;
 }
 
 .logo:hover { color: var(--text-primary); }
 
 .logoMark {
-  width: 24px;
-  height: 24px;
-  background: var(--green);
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
-  mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
-  -webkit-mask: url('/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0 18px rgba(72, 213, 151, 0.25));
+  object-fit: contain;
+}
+
+.logoText {
+  display: grid;
+  gap: 1px;
+  line-height: 1;
+}
+
+.logoName {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.logoLine {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .nav {

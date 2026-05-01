@@ -1,8 +1,9 @@
-# Capital Engine
+# Capital Engine: DeFi Allocation Interface
 
-A DeFi capital allocation interface — yield discovery, wallet integration, and risk-adjusted projections in a single system.
+Capital Engine is a DeFi allocation interface for users who want to deploy capital intelligently instead of chasing raw APY. It ranks yield opportunities by Capital Efficiency Score, builds allocation plans, and routes cross-chain movement through Wormhole before deployment.
 
 Live: [web3.hyperdrift.io](https://web3.hyperdrift.io)
+Article: [Wormhole turns Capital Engine into a deployment layer](https://hyperdrift.io/blog/wormhole-capital-engine-deployment-layer)
 
 ---
 
@@ -10,54 +11,55 @@ Live: [web3.hyperdrift.io](https://web3.hyperdrift.io)
 
 Capital Engine answers a different question than most DeFi yield tools. Instead of "what has the highest APY?", it asks: **where should I allocate, given my capital and risk tolerance?**
 
-Protocols are ranked by a **Capital Efficiency Score** combining yield, protocol safety, and TVL depth — the variables a capital allocator weighs, not just the rate at the top of a sorted list. They are grouped into allocation bands:
+Protocols are ranked by a **Capital Efficiency Score** combining yield, protocol safety, TVL depth, and deployability signals. The app groups them into allocation bands:
 
 | Band | Description | APY range |
 |------|-------------|-----------|
-| Anchor | Battle-tested, deep liquidity — core allocation | 2–12% |
-| Balanced | Established protocols — satellite allocation | 6–25% |
-| Opportunistic | High-yield, capped exposure | 25%+ |
+| Anchor | Battle-tested, deep liquidity - core allocation | Up to 12% |
+| Balanced | Established protocols - satellite allocation | Up to 25% |
+| Opportunistic | Higher-yield, capped exposure | 25%+ |
 
-Connect a wallet and Capital Engine projects your monthly and annual returns at current yields, using your actual on-chain balance as the principal.
+Review a scored allocation plan, then bridge the right asset toward the recommended destination with Wormhole Connect.
 
 ---
 
 ## Modules
 
-- **`/yield`** — Live APY data across 150+ pools, filtered and ranked by Capital Efficiency Score. Allocation bands surface the right protocols for each risk tier.
-- **`/capital`** — Wallet connect (injected), native balance, network context, block number, and projected returns at anchor + balanced yields.
+- **`/yield`** - Live APY data across DeFi Llama pools, filtered and ranked by Capital Efficiency Score.
+- **`/capital`** - Allocation wizard, balance context, and projected returns by band.
+- **`/bridge`** - Wormhole-powered Bridge & Deploy flow that infers the right destination asset from the selected opportunity.
 
 ---
 
 ## Stack
 
-- **Next.js 14** (App Router, ISR — yield data refreshes every 5 min)
-- **wagmi v2 + viem** — wallet connect, on-chain reads
-- **DeFi Llama Yields API** — live APY + TVL, no API key required
-- **CSS Modules** — no Tailwind, full design system control
-- **PM2 + Nginx** — deployed at web3.hyperdrift.io
+- **Next.js 14** (App Router, ISR - yield data refreshes every 5 min)
+- **wagmi v3 + viem** - wallet state and on-chain reads
+- **Wormhole Connect** - embedded cross-chain asset movement
+- **DeFi Llama Yields API** - live APY + TVL, no API key required
+- **CSS Modules** - no Tailwind, full design system control
+- **PM2 + Nginx** - deployed at web3.hyperdrift.io
 
 ---
 
 ## Integrations
 
 **Live**
-- DeFi Llama `/yields/pools` — APY, TVL, pool metadata for 8000+ pools
-- wagmi injected connector — MetaMask, Rabby, Coinbase Wallet
-- viem `useBalance`, `useBlockNumber` — on-chain reads
+- DeFi Llama `/yields/pools` - APY, TVL, pool metadata for 8000+ pools
+- Wormhole Connect - bridge-aware asset movement before deployment
+- viem `useBalance`, `useBlockNumber` - on-chain reads
 
-**Planned**
-- DEX aggregator (1inch / 0x) — swap routing from yield discovery
-- Price oracle (Pyth / Chainlink) — accurate USD projection without hardcoded ETH price
-- WalletConnect v2 — mobile wallet support
-- Risk band model — per-protocol historical drawdown + audit status
-- Capital routing — one-click allocation to top anchor pool
+**Next**
+- DEX aggregation - route from bridge completion into the destination protocol.
+- Protocol health deltas - show how TVL and safety move over time.
+- Session-scoped approvals - make Porto deployment feel like a modern fintech action.
 
 ---
 
 ## Related
 
-- [alpha-drift](https://github.com/hyperdrift-io/alpha-drift) — ML-driven DeFi execution agent (momentum, carry, arb strategies)
+- [Capital Engine deployment layer notes](docs/CAPITAL-ENGINE-ARTICLE.md) - working notes for the bridge-aware deployment work.
+- [The bridge should be invisible](https://hyperdrift.io/blog/the-bridge-should-be-invisible) - Hyperdrift thesis on cross-chain UX.
 
 ---
 

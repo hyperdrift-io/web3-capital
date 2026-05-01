@@ -73,17 +73,13 @@ Capital Engine is the interface layer that the previous experiments were pointin
 
 It's not a trading tool — it doesn't execute. It's not a research database — it doesn't do editorial curation. It's the product that sits between a user with capital and a DeFi ecosystem of 8,000+ yield opportunities, and makes the answer to "where should I put this?" legible and actionable.
 
-### Passkeys: Rethinking Wallet Security
+### Wallet Security: Keep the Connector Secondary
 
-One of the architectural choices worth explaining is the integration of [Porto](https://github.com/ithacaxyz/porto) as a second wallet connector.
+One of the architectural choices worth explaining is keeping wallet mechanics out of the primary product story.
 
 The dominant model — BIP-39 seed phrases — is a static secret that, if compromised, gives an attacker permanent, irrevocable access to everything. No revocation. No 2FA. One phishing link and it's gone.
 
-**Passkeys (WebAuthn / FIDO2)** take a different approach. The device generates a public/private key pair where the private key never leaves secure hardware — the Secure Enclave on iOS/macOS, TPM on Android/Windows. The signing key lives in hardware. Authentication (Face ID, Touch ID) is a local proof, never transmitted. The passkey is scoped to an origin domain — a fake domain cannot trigger it.
-
-Porto implements this as an EIP-7702 smart wallet: the user authenticates with biometrics, Porto signs with hardware-backed keys, and no seed phrase is ever generated or stored. It's a meaningful security upgrade, especially for users who haven't yet internalised seed phrase hygiene.
-
-Capital Engine exposes this alongside the injected connector (MetaMask, Rabby, Coinbase Wallet) as a split-button — the user chooses their trust model, not the app.
+Capital Engine should let the user choose their trust model without making connector education the headline. The product earns attention through allocation quality, transparent scoring, and clear routing before it asks users to think about execution.
 
 ### The Architecture Decisions
 
@@ -113,7 +109,7 @@ Synpress becomes necessary in the next iteration — when off-chain reads are co
 
 - ✅ Yield discovery: 150+ pools ranked by Capital Efficiency Score
 - ✅ Allocation bands: Anchor / Balanced / Opportunistic
-- ✅ Wallet connect: injected + Porto (passkey)
+- ✅ Wallet connect: injected + Porto
 - ✅ On-chain reads: ETH balance, network, block number
 - ✅ Capital projections at anchor and balanced APY
 - ✅ Unit, component, and E2E test coverage
@@ -136,7 +132,7 @@ Synpress becomes necessary in the next iteration — when off-chain reads are co
 ### Iteration 4 — On-Chain Execution
 
 - Protocol adapters: standardised deposit/withdraw over Aave v3, Compound v3, Lido, Curve
-- Session keys (Porto / EIP-7702): passkey-authorised sessions for approved operations without per-transaction signing prompts
+- Session keys (Porto / EIP-7702): scoped sessions for approved operations without per-transaction signing prompts
 - Alpha-drift execution service integration — Capital Engine surfaces the allocation, alpha-drift executes
 - Gas sponsorship via EIP-7702 paymaster
 - Transaction tracking, position state, P&L display
@@ -179,7 +175,7 @@ This is also the demonstration value. Not: "I built a yield dashboard." But: "I 
 
 **Read-only first, writes second.** Capital Engine's current architecture is deliberately stateless. This constraint forced clarity: the product must earn trust through its analysis before it asks for execution authority. A tool that reads well earns the right to act.
 
-**Security primitives matter more than security hygiene.** Porto's passkey integration is not a UX gimmick. Hardware-backed signing that can't be phished is architecturally superior to teaching users to protect a 24-word string. Adoption of better primitives is how the space raises its security floor.
+**Security primitives matter more than security hygiene.** Capital Engine should adopt stronger wallet primitives where they improve the user path, but the core promise is still clearer capital allocation, not connector novelty.
 
 **Score, don't sort.** Raw APY is a trap. The Capital Efficiency Score — yield + safety + TVL depth — is the insight that makes Capital Engine not just another yield table. Every future product built in this space should start with the question: *what is the actual decision being made here, and what data does that decision require?*
 

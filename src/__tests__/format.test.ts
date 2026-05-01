@@ -1,37 +1,74 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { formatUsd, formatApy, formatAddress, formatEther, chainColor } from '@/lib/format'
 
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
 describe('formatUsd (compact)', () => {
+  const compactCurrency = (value: number) =>
+    new Intl.NumberFormat(navigator.languages, {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'compact',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    }).format(value)
+
   it('formats billions with one decimal', () => {
-    expect(formatUsd(1_500_000_000, true)).toBe('$1.5B')
-    expect(formatUsd(1_000_000_000, true)).toBe('$1.0B')
+    expect(formatUsd(1_500_000_000, true)).toBe(compactCurrency(1_500_000_000))
+    expect(formatUsd(1_000_000_000, true)).toBe(compactCurrency(1_000_000_000))
   })
 
   it('formats millions with one decimal', () => {
-    expect(formatUsd(500_000_000, true)).toBe('$500.0M')
-    expect(formatUsd(1_000_000, true)).toBe('$1.0M')
+    expect(formatUsd(500_000_000, true)).toBe(compactCurrency(500_000_000))
+    expect(formatUsd(1_000_000, true)).toBe(compactCurrency(1_000_000))
   })
 
-  it('formats thousands without decimal', () => {
-    expect(formatUsd(999_999, true)).toBe('$1000K') // rounds up — no thousands separator in K suffix
-    expect(formatUsd(1_500, true)).toBe('$2K')      // rounds
-    expect(formatUsd(1_000, true)).toBe('$1K')
+  it('formats thousands with compact currency notation', () => {
+    expect(formatUsd(999_999, true)).toBe(compactCurrency(999_999))
+    expect(formatUsd(1_500, true)).toBe(compactCurrency(1_500))
+    expect(formatUsd(1_000, true)).toBe(compactCurrency(1_000))
   })
 
-  it('formats sub-thousand with full currency format', () => {
-    expect(formatUsd(999, true)).toBe('$999.00')
+  it('formats sub-thousand with compact currency notation', () => {
+    expect(formatUsd(999, true)).toBe(compactCurrency(999))
   })
 })
 
 describe('formatUsd (non-compact)', () => {
-  it('uses full Intl currency format', () => {
-    expect(formatUsd(1234.56)).toBe('$1,234.56')
-    expect(formatUsd(0)).toBe('$0.00')
+  const fullCurrency = (value: number) =>
+    new Intl.NumberFormat(navigator.languages, {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'standard',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+
+  it('uses the browser locale for full Intl currency format', () => {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['de-DE'])
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('de-DE')
+
+    expect(formatUsd(1234.56)).toBe(new Intl.NumberFormat(['de-DE'], {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'standard',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(1234.56))
+    expect(formatUsd(0)).toBe(new Intl.NumberFormat(['de-DE'], {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'standard',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(0))
   })
 
   it('always shows two decimal places', () => {
-    expect(formatUsd(100)).toBe('$100.00')
-    expect(formatUsd(0.1)).toBe('$0.10')
+    expect(formatUsd(100)).toBe(fullCurrency(100))
+    expect(formatUsd(0.1)).toBe(fullCurrency(0.1))
   })
 })
 

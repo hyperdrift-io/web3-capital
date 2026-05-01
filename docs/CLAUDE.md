@@ -13,7 +13,7 @@
 
 Most DeFi apps are technically competent and product-illiterate. They expose infrastructure to users instead of simplifying it. Capital Engine is built to challenge that assumption at every layer:
 
-- **Porto passkey** → no seed phrase, no extension, no gas confusion. Just Face ID.
+- **Wallet abstraction** → the connector stays infrastructure, not the product.
 - **Capital Efficiency Score** → a single number that combines yield, safety, and liquidity. Not five columns to compare.
 - **Allocation bands** → TradFi portfolio logic applied to DeFi. Users don't need to understand 8,000 pools; they need to understand Anchor, Balanced, and Opportunistic.
 - **Proof Mode** → scoring is transparent. Users see why a pool scores 84. Trust through clarity.
@@ -28,7 +28,7 @@ This app is the **template** for how the next generation of web3 products should
 
 **Every feature must answer yes to at least one of:**
 
-1. **Does it remove friction?** (passkey, session keys, intent-based UX, chain abstraction)
+1. **Does it remove friction?** (session keys, intent-based UX, chain abstraction)
 2. **Does it empower with information?** (live prices, multi-asset view, real-time yield)
 3. **Does it show the work?** (CE Score breakdown, protocol health, scoring transparency)
 4. **Does it enable action?** (1inch routing, allocation wizard, one-tap deployment)
@@ -48,14 +48,14 @@ A DeFi capital allocation interface for sophisticated users who want to deploy c
 - **Capital Efficiency Score (CE Score):** Composite metric — APY (40%) + Protocol Safety (45%) + TVL depth (15%). Penalises mercenary rewards, IL exposure, and unaudited protocols.
 - **Allocation bands:** `anchor` (battle-tested, ≤12% APY, safety ≥75), `balanced` (established, ≤25% APY, safety ≥55), `opportunistic` (everything else).
 - **Safety score:** Internal 0–100 metric. Tier 1/2 protocol tiers, TVL thresholds, IL risk, stablecoin bonus, single-asset exposure bonus, reward-only APY penalty.
-- **Porto:** EIP-7702 smart wallet connector using device passkey (Secure Enclave). No seed phrase. Already the **default connector**. This is the killer differentiator.
+- **Wallet state:** UX is connector-agnostic, while Porto (EIP-7702) remains the default connector. Portfolio reads keep wallet mechanics out of the primary decision surface.
 
 ---
 
 ## UX Principles
 
 ### 1. Wallets are infrastructure. Hide them.
-Users care about their capital, not their connector. The Porto passkey should feel like signing into any modern app. No ecosystem education required.
+Users care about their capital, not their connector. The wallet flow should support the allocation decision without becoming the product narrative.
 
 ### 2. One number is better than five columns.
 CE Score, not a comparison table. The allocation band, not a risk matrix. Make the decision surface as small as possible without losing depth.
@@ -117,7 +117,7 @@ src/
 |---------|---------|
 | `wagmi` | Wallet hooks (`useAccount`, `useBalance`, `useReadContract`) |
 | `viem` | Chain reads, ABI encoding, type-safe contract calls |
-| `porto` | EIP-7702 smart wallet connector (passkey-backed) |
+| `porto` | EIP-7702 smart wallet connector |
 | `@tanstack/react-query` | Query caching for wagmi |
 | `next` | App Router, ISR, server components |
 
@@ -136,7 +136,7 @@ src/
 ## What "Bleeding Edge" Means Here
 
 ### Already shipped (do not regress):
-- **Porto EIP-7702 passkey** — default connector, no seed phrase
+- **Wallet-connected portfolio reads** — balances, network, and projection context
 - **CE Score algorithm** — weighted composite with band classification
 - **Safety scoring** — Tier 1/2 protocol recognition, TVL thresholds, IL/stablecoin signals
 - **Full test suite** — vitest unit + component + Playwright E2E with wallet mock
@@ -157,7 +157,7 @@ src/
 - Custom smart contracts — unnecessary risk, not the differentiator
 - Staking as a standalone feature — belongs in protocol adapters (Iteration 5)
 - Social/copy-trading — out of scope, dilutes the capital allocation narrative
-- WalletConnect v2 as primary — Porto passkey is the preferred path; WalletConnect is the old paradigm
+- Wallet choice as the primary product story — allocation quality is the differentiator
 
 ---
 
@@ -182,7 +182,7 @@ Study these before designing new features:
 ### Ask:
 1. Does this pass the north star filter? (friction, information, show-work, action)
 2. Is there a simpler way? (delete before add, simplify before fix)
-3. Does it fight the Porto/passkey philosophy or reinforce it?
+3. Does it keep wallet mechanics subordinate to the allocation decision?
 4. What does the mobile experience look like?
 5. Does it add a new pattern or use an existing one?
 
@@ -202,7 +202,7 @@ Study these before designing new features:
 A feature is done when:
 
 1. **It makes the app simpler to understand**, not just more capable
-2. **It runs on mobile** — Porto passkey was designed for mobile-first
+2. **It runs on mobile** — capital decisions should not depend on desktop-only flows
 3. **It's transparent** — no black boxes; users can verify the reasoning
 4. **It loads fast** — server components for data, client only when necessary
 5. **It doesn't require the user to know they're using DeFi** — if the word "gas" appears unprompted, reconsider
@@ -230,7 +230,7 @@ A feature is done when:
 ### Growth strategy
 **Primary channel:** Crypto Twitter/X, Farcaster (DeFi-native audience), DeFi subreddits  
 **Growth hook:** The CE Score algorithm is the content — "why this pool scores 84 and this one scores 42"  
-**Conversion path:** Discover → explore yield table → connect Porto wallet → allocate capital  
+**Conversion path:** Discover → explore yield table → connect wallet → allocate capital  
 **hyper-post cadence:** On each protocol data update, new feature release, or DeFi market event
 
 ---

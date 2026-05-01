@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'Capital Engine — DeFi Yield Intelligence'
+export const alt = 'Capital Engine - DeFi Allocation'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -52,8 +52,9 @@ export default function OgImage() {
               letterSpacing: '-0.02em',
             }}
           >
-            <span>DeFi Yield</span>
-            <span>Intelligence</span>
+            <span>DeFi allocation</span>
+            <span>for people with</span>
+            <span>something to lose.</span>
           </div>
           <div
             style={{
@@ -64,7 +65,7 @@ export default function OgImage() {
               lineHeight: 1.4,
             }}
           >
-            CE Score. Allocation bands. Passkey wallet. No seed phrase.
+            Turn pool noise into a capital plan you can understand, verify, and defend.
           </div>
         </div>
 

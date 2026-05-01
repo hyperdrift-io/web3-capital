@@ -37,9 +37,9 @@
   gap: 4px;
   padding: 6px 14px;
   background: var(--accent);
-  color: #fff;
+  color: var(--bg-base);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 750;
   border-radius: var(--radius-md);
   text-decoration: none;
   white-space: nowrap;

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import type { Pool } from '@/types/protocol'
 import { buildAllocation, type BandAllocation } from '@/lib/routing'
-import { formatApy, formatUsd } from '@/lib/format'
+import { formatApy, formatUsd, formatWholeUsd } from '@/lib/format'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { useEthUsdPrice } from '@/hooks/useEthUsdPrice'
@@ -149,7 +149,7 @@ export function AllocationWizard({ pools }: Props) {
               <span className={styles.apyProjection}>
                 Blended APY: <strong>{weightedApy.toFixed(1)}%</strong>
                 {' '}·{' '}
-                ~${(amount * weightedApy / 100).toFixed(0)}/yr
+                ~{formatWholeUsd(amount * weightedApy / 100)}/yr
               </span>
             )}
           </div>
@@ -194,7 +194,7 @@ export function AllocationWizard({ pools }: Props) {
                 <span className={styles.sliderPct}>
                   {Math.round(row.fraction * 100)}%
                   {amount >= MIN_DEPLOY && (
-                    <span className={styles.sliderAmt}> · {formatUsd(row.amountUsd)}</span>
+                    <span className={styles.sliderAmt}> · {formatWholeUsd(row.amountUsd)}</span>
                   )}
                 </span>
               </div>
@@ -216,7 +216,7 @@ export function AllocationWizard({ pools }: Props) {
           )}
 
           {amount < MIN_DEPLOY && (
-            <p className={styles.minNote}>Minimum deploy amount is ${MIN_DEPLOY}</p>
+            <p className={styles.minNote}>Minimum deploy amount is {formatWholeUsd(MIN_DEPLOY)}</p>
           )}
 
           <p className={styles.disclaimer}>
@@ -248,7 +248,7 @@ function AllocationRow({ row }: { row: BandAllocation }) {
           </div>
         </div>
         <div className={styles.allocAmount}>
-          ${amountUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+          {formatWholeUsd(amountUsd)}
         </div>
       </div>
 

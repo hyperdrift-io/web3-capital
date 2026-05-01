@@ -24,23 +24,23 @@ const jetbrainsMono = JetBrains_Mono({
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://web3.hyperdrift.io'
 
 export const metadata: Metadata = {
-  title: 'Capital Engine — DeFi Yield Intelligence & Capital Allocation',
-  description: 'Allocate capital across DeFi protocols with yield visibility, risk awareness, and execution clarity. CE Score ranks every pool by real yield, safety, and liquidity depth.',
+  title: 'Capital Engine - DeFi Allocation for People With Something to Lose',
+  description: 'Turn DeFi noise into a capital plan you can understand and defend. CE Score ranks pools by real yield, safety, and liquidity depth before you deploy.',
   metadataBase: new URL(baseUrl),
   keywords: ['DeFi', 'yield farming', 'capital allocation', 'DeFi portfolio', 'crypto yield', 'CE Score', 'web3 finance'],
   openGraph: {
-    title: 'Capital Engine — DeFi Yield Intelligence',
-    description: 'Intelligent DeFi capital allocation. CE Score, allocation bands, and passkey wallet — no seed phrase.',
+    title: 'Capital Engine - DeFi Allocation for People With Something to Lose',
+    description: 'A calmer way to allocate in DeFi. CE Score, allocation bands, Proof Mode, and bridge-aware deployment.',
     url: baseUrl,
     siteName: 'Capital Engine',
     type: 'website',
     locale: 'en_US',
-    images: [{ url: `${baseUrl}/opengraph-image`, width: 1200, height: 630, alt: 'Capital Engine — DeFi Yield Intelligence' }],
+    images: [{ url: `${baseUrl}/opengraph-image`, width: 1200, height: 630, alt: 'Capital Engine - DeFi Allocation' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Capital Engine — DeFi Yield Intelligence',
-    description: 'Intelligent DeFi capital allocation. CE Score, allocation bands, and passkey wallet.',
+    title: 'Capital Engine - DeFi Allocation',
+    description: 'DeFi allocation for people with something to lose. CE Score, allocation bands, and bridge-aware deployment.',
     images: [`${baseUrl}/opengraph-image`],
   },
   robots: {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   icons: {
-    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector-mono.svg',
+    icon: '/branding/logo-capital-engine-power-03-score-recraft-vector.svg',
   },
   alternates: { canonical: baseUrl },
 }

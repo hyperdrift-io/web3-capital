@@ -21,7 +21,7 @@ import { useDevAddress }         from '@/hooks/useDevAddress'
 import { useEthUsdPrice }        from '@/hooks/useEthUsdPrice'
 import { FALLBACK_ETH_USD } from '@/lib/chainlink'
 import { CHAIN_NAMES } from '@/lib/yieldPositions'
-import { formatUsd } from '@/lib/format'
+import { formatUsd, formatWholeUsd } from '@/lib/format'
 import type { Pool } from '@/types/protocol'
 import styles from './PortfolioView.module.css'
 
@@ -109,7 +109,7 @@ export function PortfolioView({ pools }: Props) {
               {devAddress.slice(0, 6)}…{devAddress.slice(-4)}
             </a>
             {isLoading && <span className={styles.devBannerLoading}> · loading…</span>}
-            {!isLoading && <span className={styles.devBannerDone}> · {positions.length} position{positions.length !== 1 ? 's' : ''} detected · ETH/USD ${ethUsdPrice.toLocaleString()}</span>}
+            {!isLoading && <span className={styles.devBannerDone}> · {positions.length} position{positions.length !== 1 ? 's' : ''} detected · ETH/USD {formatWholeUsd(ethUsdPrice)}</span>}
             <span className={styles.devBannerHint}> · Check console for raw data</span>
           </span>
         </div>

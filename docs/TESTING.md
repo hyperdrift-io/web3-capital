@@ -8,8 +8,8 @@ full test run, or jump to the iteration you're currently working on.
 ## Setup
 
 ```bash
-npm run dev          # http://localhost:3000  (Porto warns on HTTP — functional but noisy)
-npm run dev:https    # https://localhost:3000 (Porto fully works — recommended)
+npm run dev          # http://localhost:3000
+npm run dev:https    # https://localhost:3000
 npm test             # unit tests (vitest)
 npm run test:watch   # vitest in watch mode
 npm run test:e2e     # Playwright end-to-end (requires dev server running)
@@ -17,11 +17,9 @@ npm run test:e2e     # Playwright end-to-end (requires dev server running)
 
 No `.env` required. Public RPC endpoints are used by default.
 
-> **Porto + HTTPS:** Porto's passkey iframe uses WebAuthn, which browsers
-> restrict to secure origins (HTTPS). On HTTP you'll see a console warning
-> and Porto's UI won't initialise, but all other features (yield table,
-> portfolio view, `?dev=` testing) work normally. Use `dev:https` when
-> testing the wallet connect / Porto passkey flow specifically.
+> **HTTPS:** Use `dev:https` when testing wallet flows that require secure
+> browser origins. Yield table, portfolio view, and `?dev=` testing work
+> normally over HTTP.
 
 ---
 
@@ -331,5 +329,4 @@ npm test            → 52/52 pass
 
 > **Porto HTTP warning** — if using `npm run dev` (HTTP), Porto logs:
 > `[Porto] Detected insecure protocol (HTTP)` — this is expected and harmless
-> for testing. Porto's passkey iframe requires HTTPS (WebAuthn browser
-> requirement). Use `npm run dev:https` to silence it and test Porto flows.
+> for testing. Use `npm run dev:https` to silence it and test wallet flows.

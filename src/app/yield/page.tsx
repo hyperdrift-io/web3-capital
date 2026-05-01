@@ -18,10 +18,30 @@ export default async function YieldPage() {
     <div className={styles.page} data-testid="smoke-yield">
       <div className="container">
         <div className={styles.header}>
-          <h1 className={styles.title}>Yield Discovery</h1>
-          <p className={styles.subtitle}>
-            Live protocol yields, ranked by Capital Efficiency Score
-          </p>
+          <div>
+            <h1 className={styles.title}>Yield Discovery</h1>
+            <p className={styles.subtitle}>
+              Live protocol yields, ranked by Capital Efficiency Score
+            </p>
+          </div>
+          <aside className={styles.memo} aria-label="Yield review memo">
+            <div className={styles.memoTop}>
+              <span>Pool review</span>
+              <strong>CE live</strong>
+            </div>
+            <div className={styles.memoLine}>
+              <span>Sort by</span>
+              <strong>Risk-adjusted yield</strong>
+            </div>
+            <div className={styles.memoLine}>
+              <span>Reject</span>
+              <strong>APY outliers</strong>
+            </div>
+            <div className={styles.memoLine}>
+              <span>Require</span>
+              <strong>Proof on demand</strong>
+            </div>
+          </aside>
         </div>
 
         <YieldStreamProvider initialPools={initialPools} />

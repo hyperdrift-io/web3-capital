@@ -1,14 +1,23 @@
+function browserLocale(): string | readonly string[] | undefined {
+  if (typeof navigator === 'undefined') return undefined
+  return navigator.languages?.length ? navigator.languages : navigator.language
+}
+
 export function formatUsd(value: number, compact = false): string {
-  if (compact) {
-    if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`
-    if (value >= 1_000_000)     return `$${(value / 1_000_000).toFixed(1)}M`
-    if (value >= 1_000)         return `$${(value / 1_000).toFixed(0)}K`
-  }
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(browserLocale(), {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    notation: compact ? 'compact' : 'standard',
+    minimumFractionDigits: compact ? 0 : 2,
+    maximumFractionDigits: compact ? 1 : 2,
+  }).format(value)
+}
+
+export function formatWholeUsd(value: number): string {
+  return new Intl.NumberFormat(browserLocale(), {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
   }).format(value)
 }
 
@@ -17,7 +26,7 @@ export function formatApy(apy: number): string {
 }
 
 export function formatScore(score: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(browserLocale(), {
     maximumFractionDigits: 0,
   }).format(score)
 }

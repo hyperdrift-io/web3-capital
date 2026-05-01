@@ -63,9 +63,16 @@ export function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMark} aria-hidden="true" />
-          <span>Capital Engine</span>
+        <Link href="/" className={styles.logo} data-testid="header-logo-link">
+          <img
+            src="/branding/logo-capital-engine-power-03-score-recraft-vector.svg?v=white-green"
+            alt=""
+            className={styles.logoMark}
+          />
+          <span className={styles.logoText}>
+            <span className={styles.logoName}>Capital Engine</span>
+            <span className={styles.logoLine}>For allocators</span>
+          </span>
         </Link>
 
         <nav className={styles.nav}>
