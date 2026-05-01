@@ -6,7 +6,6 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(SHELL_URLS))
-      .catch(() => undefined)
       .then(() => self.skipWaiting()),
   )
 })
@@ -60,8 +59,10 @@ async function cacheFirst(request) {
   if (cached) return cached
 
   const response = await fetch(request)
-  const cache = await caches.open(CACHE_NAME)
-  cache.put(request, response.clone())
+  if (response.ok) {
+    const cache = await caches.open(CACHE_NAME)
+    await cache.put(request, response.clone())
+  }
   return response
 }
 
@@ -70,9 +71,26 @@ async function networkFirst(request) {
 
   try {
     const response = await fetch(request)
-    cache.put(request, response.clone())
+    if (response.ok) {
+      await cache.put(request, response.clone())
+    }
     return response
   } catch {
-    return (await caches.match(request)) || (await caches.match('/'))
+    const offline =
+      (await caches.match(request)) ||
+      (await caches.match('/')) ||
+      offlineNavigationFallback()
+    return offline
   }
+}
+
+function offlineNavigationFallback() {
+  return new Response(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline</title></head><body><p>You appear to be offline. Reconnect and try again.</p></body></html>',
+    {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    },
+  )
 }
