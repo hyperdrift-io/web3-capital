@@ -102,6 +102,19 @@
   text-transform: capitalize;
 }
 
+.outlierBadge {
+  margin-top: 4px;
+  align-self: flex-start;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
 .symbol {
   font-family: var(--font-mono);
   font-size: 11px;
