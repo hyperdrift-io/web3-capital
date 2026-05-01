@@ -146,11 +146,8 @@ export function YieldTable({ pools, updatedIds }: Props) {
                   </div>
                   <span className={styles.symbol}>{pool.symbol}</span>
                   {pool.apyOutlier && (
-                    <span
-                      className={styles.outlierBadge}
-                      title="Extreme or unreliable headline APY — not used for automated routing recommendations."
-                    >
-                      Outlier APY
+                    <span className={styles.outlierBadge}>
+                      Outlier APY · excluded from auto-routing
                     </span>
                   )}
                 </div>

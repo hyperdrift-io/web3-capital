@@ -16,6 +16,12 @@ export function formatApy(apy: number): string {
   return `${apy.toFixed(2)}%`
 }
 
+export function formatScore(score: number): string {
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 0,
+  }).format(score)
+}
+
 export function formatAddress(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-4)}`
 }

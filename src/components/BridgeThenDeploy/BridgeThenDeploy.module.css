@@ -59,6 +59,13 @@
   margin: 0;
 }
 
+.contextSub,
+.stepSub {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 /* ── Opportunity row ─────────────────────────────────────────────────── */
 
 .opportunityRow {

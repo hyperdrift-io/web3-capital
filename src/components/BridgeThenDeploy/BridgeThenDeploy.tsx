@@ -6,7 +6,7 @@ import { defiLlamaChainToWormhole, tokenForPoolSymbol, vaultTokenNote } from '@/
 import { buildBridgeRouteIntent } from '@/lib/routing'
 import { BridgeWidget } from '@/components/BridgeWidget/BridgeWidget'
 import { RouteButton } from '@/components/RouteButton/RouteButton'
-import { formatApy } from '@/lib/format'
+import { formatApy, formatScore } from '@/lib/format'
 import { CEScoreBreakdown } from '@/components/CEScoreBreakdown/CEScoreBreakdown'
 import { NETWORK_ICON } from '@/lib/chainIcons'
 import { NetworkEthereum } from '@web3icons/react'
@@ -39,6 +39,7 @@ type Props = {
  */
 export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
   const [open, setOpen] = useState(false)
+  const [bridgeInitialized, setBridgeInitialized] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -54,6 +55,11 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
   // Close on backdrop click (click outside the inner panel)
   function handleDialogClick(e: MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) setOpen(false)
+  }
+
+  function openBridge() {
+    setBridgeInitialized(true)
+    setOpen(true)
   }
 
   // Resolve the best destination chain
@@ -81,12 +87,12 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
               <span className={styles.poolProject}>{topPool.project}</span>
               <span className={styles.poolSymbol}>{topPool.symbol}</span>
               <span className={styles.chainPill}>
-                {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" /> : null })()}
+                {ChainIcon && <ChainIcon size={14} variant="branded" />}
                 {topPool.chain}
               </span>
               <span className={styles.poolApy}>{formatApy(topPool.apy)}</span>
               <CEScoreBreakdown pool={topPool}>
-                <span className={styles.ceScore}>◈ {topPool.capitalEfficiency}</span>
+                <span className={styles.ceScore}>◈ {formatScore(topPool.capitalEfficiency)}</span>
               </CEScoreBreakdown>
             </div>
             <div className={styles.contextSub}>
@@ -104,7 +110,7 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
               {isOnEthereum ? (
                 <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Your {bridgeToken} is already on Ethereum — ready to deploy</>
               ) : (
-                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge {bridgeToken} from Ethereum → {(() => { const I = NETWORK_ICON[topPool.chain]; return I ? <I size={14} variant="branded" className={styles.chainInline} /> : null })()} {topPool.chain}</>
+                <><NetworkEthereum size={14} variant="branded" className={styles.chainInline} /> Bridge {bridgeToken} from Ethereum → {ChainIcon && <ChainIcon size={14} variant="branded" className={styles.chainInline} />} {topPool.chain}</>
               )}
             </div>
             {!isOnEthereum && (
@@ -120,8 +126,9 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
 
             {!isOnEthereum && (
               <button
+                type="button"
                 className={styles.bridgeTrigger}
-                onClick={() => setOpen(o => !o)}
+                onClick={openBridge}
                 aria-expanded={open}
                 aria-controls="bridge-widget-panel"
                 data-testid="bridge-toggle"
@@ -164,15 +171,17 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
         onClick={handleDialogClick}
         aria-label={`Bridge ${bridgeToken} to ${topPool.chain}`}
       >
-        <div className={styles.modalPanel}>
+        <div id="bridge-widget-panel" className={styles.modalPanel}>
           <div className={styles.modalHeader}>
             <span className={styles.modalTitle}>
               Bridge {bridgeToken} → {topPool.chain}
             </span>
             <button
+              type="button"
               className={styles.modalClose}
               onClick={() => setOpen(false)}
               aria-label="Close bridge"
+              data-testid="bridge-modal-close"
             >
               ✕
             </button>
@@ -180,11 +189,13 @@ export function BridgeThenDeploy({ topPool, selectionSubtitle }: Props) {
           <div className={styles.widgetHint}>
             Select <strong>{bridgeToken}</strong> in the widget below → {topPool.chain}
           </div>
-          <BridgeWidget
-            targetChain={targetWormholeChain}
-            sourceToken={bridgeToken}
-            destToken={bridgeToken}
-          />
+          {bridgeInitialized && (
+            <BridgeWidget
+              targetChain={targetWormholeChain}
+              sourceToken={bridgeToken}
+              destToken={bridgeToken}
+            />
+          )}
         </div>
       </dialog>
     </div>

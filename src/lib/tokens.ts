@@ -105,6 +105,14 @@ export const DEPLOYABLE_TOKENS: Record<number, TokenMeta[]> = {
   ],
 }
 
+/** Additional tradeable token addresses used by routing intents. */
+export const ROUTING_TOKEN_ADDRESSES = {
+  CBBTC: {
+    1:    '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    8453: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+  },
+} satisfies Record<string, Partial<Record<number, `0x${string}`>>>
+
 /**
  * Estimate USD value of a token amount given the current ETH/USD price.
  * Returns null if the price mode can't be resolved.

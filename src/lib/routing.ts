@@ -20,7 +20,7 @@
 
 import type { AllocationBand, Pool } from '@/types/protocol'
 import { defiLlamaChainToWormhole, tokenForPoolSymbol } from '@/lib/bridge'
-import { DEPLOYABLE_TOKENS } from './tokens'
+import { DEPLOYABLE_TOKENS, ROUTING_TOKEN_ADDRESSES } from './tokens'
 
 // ── Chain resolution ──────────────────────────────────────────────────────────
 
@@ -119,10 +119,6 @@ export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
     10:    '0x68f180fcCe6836688e9084f035309E29Bf0A2095',
     137:   '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
   },
-  CBBTC: {
-    1:    '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
-    8453: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
-  },
   GHO: {
     1:     '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
     42161: '0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33',
@@ -147,6 +143,7 @@ export const KNOWN_TOKEN: Record<string, ChainAddresses> = {
   SDAI: {
     1:     '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
   },
+  ...ROUTING_TOKEN_ADDRESSES,
 }
 
 const KNOWN_TOKEN_ADDRESSES = new Set(

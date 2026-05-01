@@ -99,12 +99,17 @@ export function Header() {
               onKeyDown={(event) => {
                 if (event.key === 'Escape') setDeployMenuOpen(false)
               }}
+              data-testid="deploy-menu-trigger"
             >
               Deploy
               <span className={styles.navChevron} aria-hidden="true">⌄</span>
             </button>
 
-            <div className={`${styles.navDropdown} ${deployMenuOpen ? styles.navDropdownOpen : ''}`} role="menu">
+            <div
+              className={`${styles.navDropdown} ${deployMenuOpen ? styles.navDropdownOpen : ''}`}
+              role="menu"
+              data-testid="deploy-menu"
+            >
               {DEPLOY_NAV.map(({ href, label, description }) => (
                 <Link
                   key={href}
@@ -112,6 +117,7 @@ export function Header() {
                   className={styles.dropdownLink}
                   role="menuitem"
                   onClick={() => setDeployMenuOpen(false)}
+                  data-testid={`deploy-menu-${label.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <span className={styles.dropdownLabel}>{label}</span>
                   <span className={styles.dropdownDescription}>{description}</span>

@@ -90,7 +90,7 @@
   height: 42px;
   color: var(--accent);
   background: var(--accent-dim);
-  border: 1px solid rgba(57, 212, 143, 0.18);
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
 }

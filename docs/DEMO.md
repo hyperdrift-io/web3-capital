@@ -100,7 +100,7 @@ Use **SAY** / **DO**. Pause 2–3 seconds after major transitions.
 
 **DO:** Click **Open Wormhole Bridge**. Set source **Ethereum** and destination to the target chain; token usually **USDC**.
 
-**SAY:** “We lazy-load Wormhole so the page stays fast. USDC moves with burn-and-mint style routing — native on each side.”
+**SAY:** “We lazy-load Wormhole so the page stays fast. USDC moves with burn-and-mint-style routing — native on each side.”
 
 **DO:** Enter an amount (e.g. **500** USDC), complete the widget, **sign** when prompted.
 
